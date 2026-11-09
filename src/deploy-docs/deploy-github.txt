@@ -1,0 +1,13 @@
+BUILD
+------
+
+ng build --configuration production --base-href "/gamepolis/"
+
+DEPLOY
+------
+
+mv dist/gamepolis/browser/* dist/gamepolis/   
+
+rmdir dist/gamepolis/browser     
+
+npx angular-cli-ghpages --dir=dist/gamepolis
