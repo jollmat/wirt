@@ -1,0 +1,34 @@
+.blink {
+    animation: blink-animation 1s steps(2, start) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+.blink-smooth {
+    animation: blink-smooth 1.5s ease-in-out infinite;
+}
+
+.blink-fast {
+    animation: blink-smooth 0.5s ease-in-out infinite;
+}
+
+.blink-normal {
+    animation: blink-smooth 1s ease-in-out infinite;
+}
+
+.blink-slow {
+    animation: blink-smooth 2s ease-in-out infinite;
+}
+
+@keyframes blink-smooth {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}

@@ -1,0 +1,16 @@
+@use '../themes/colors' as *;
+
+.btn {
+    &.btn-wirt {
+        color: $text-color;
+        border-color: $border-color;
+        background-color: $bg-color-button;
+        opacity: .6;
+        &:disabled{
+            opacity: .1;
+        }
+        &:hover{
+            opacity: 1 !important;
+        }
+    }
+}

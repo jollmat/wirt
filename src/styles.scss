@@ -1,1 +1,182 @@
 /* You can add global styles to this file, and also import other style files */
+@use 'themes/colors' as *;
+@use 'themes/buttons' as *;
+@use 'themes/tables' as *;
+@use 'themes/animations' as *;
+
+@import "@ng-select/ng-select/themes/default.theme.css";
+
+body {
+    background-color: $bg-color;
+    color: $text-color !important;
+    font-family: sans-serif;
+    font-size: 13px;
+}
+
+a, .text-link {
+    color: $link-color;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+    opacity: .8;
+    &:hover {
+        color: $text-color;
+        opacity: 1;
+    }
+}
+
+.form-control {
+    background-color: $bg-color-input;
+    color: $text-color;
+    border-color: $border-color !important;
+    &:focus {
+        background-color: $bg-color-input;
+        color: $text-color;
+    }
+
+    &::placeholder {
+        color: $text-color;
+        opacity: .2;
+    }
+}
+
+span {
+    &.badge {
+        border: 1px solid $border-color;
+        color: $text-color;
+        background-color: transparent;
+        border-radius: 15px;
+        font-weight: 200;
+    }
+}
+
+.form-check-input {
+  width: 1.3em;
+  height: 1.3em;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+@for $i from 0 through 100 {
+  .w-#{$i} {
+    width: #{$i * 1%};
+  }
+}
+
+/* Ng select */
+.custom-ng-select {
+    min-width: 125px;
+
+    // Main container
+    .ng-select-container {
+        min-height: 36px !important;
+        border: 1px solid $border-color !important;
+        border-radius: 6px !important;
+        background-color: $bg-color !important;
+        font-size: 0.875rem !important;
+        box-shadow: none !important;
+    }
+
+    // Selected value and placeholder
+    .ng-value,
+    .ng-placeholder {
+        font-size: 0.875rem;
+        color: $text-color;
+    }
+
+    // Focus
+    &.ng-select-focused .ng-select-container {
+        border-color: #86b7fe !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
+    }
+
+    // Arrow
+    .ng-arrow-wrapper {
+        width: 25px;
+    }
+
+    // Clear button
+    .ng-clear-wrapper {
+        color: $text-color !important;
+
+        &:hover {
+            color: #dc3545 !important;
+        }
+    }
+
+    // Dropdown
+    .ng-dropdown-panel {
+        border: 1px solid $border-color;
+        border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        margin-top: 3px;
+    }
+
+    // Dropdown options
+    .ng-option {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+        color: $text-color;
+        font-weight: 200;
+
+        &.ng-option-marked {
+            background-color: $bg-color !important;
+            color: $text-color !important;
+        }
+
+        &.ng-option-selected {
+            background-color: $bg-color !important;
+            color: $text-color !important;
+        }
+    }
+}
+
+.dark-custom-tooltip {
+  z-index: 99999 !important;
+  font-size: 13px;
+
+  .tooltip-inner {
+    background-color: #232020 !important;
+    color: #959595 !important;
+    border: 1px solid #454141;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-align: left !important;
+    min-width: 50px;
+    max-width: 450px;
+    width: max-content;
+  }
+
+  &.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #312d2d !important;
+  }
+
+  &.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #312d2d !important;
+  }
+
+  &.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #312d2d !important;
+  }
+
+  &.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #312d2d !important;
+  }
+}

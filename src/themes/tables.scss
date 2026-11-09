@@ -1,0 +1,71 @@
+@use '../themes/colors.scss' as *;
+
+table {
+    margin: 0 !important;
+    thead {
+        tr {
+            th {
+                background-color: $bg-color-th !important;
+                color: #b1afaf !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 2 !important;
+                font-weight: 300;
+
+                &.icon-column {
+                    width: 35px !important;
+                }
+                &.type-column {
+                    width: 130px !important;
+                }
+                &.source-column {
+                    width: 130px !important;
+                }
+                &.link-column {
+                    width: 100px !important;
+                }
+                &.mag-column {
+                    width: 50px !important;
+                }
+                &.magtype-column {
+                    width: 80px !important;
+                }
+                &.dist-column {
+                    width: 80px !important;
+                }
+                &.near-column {
+                    width: 80px !important;
+                }
+                &.time-column {
+                    min-width: 130px !important;
+                    padding-left: 8px;
+                    &.short {
+                        width: 80px !important;
+                    }
+                }
+            }
+        }
+    }
+    tbody {
+        tr {
+            td {
+                background-color: transparent !important;
+                color: $text-color-soft !important;
+                
+                @for $i from 0 through 500 {
+                    &.wrap-#{$i * 5}px {
+                        max-width: #{$i * 5}px !important;
+                        white-space: nowrap !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.table > :not(caption) > * > * {
+    border-bottom-width: 1px !important;
+    border-color: $border-color !important;
+}

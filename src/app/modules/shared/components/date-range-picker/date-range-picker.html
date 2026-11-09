@@ -1,0 +1,34 @@
+<div class="d-flex align-items-center justify-content-start date-range-picker gap-2">
+
+  <div class="date-field d-flex gap-2 align-items-center">
+    <label for="dateFrom">From</label>
+    <input
+      id="dateFrom"
+      class="form-control px-2 py-1"
+      type="date"
+      [value]="dateFrom()"
+      [max]="dateTo()"
+      (change)="dateFrom.set($any($event.target).value); onDateChange()"
+    />
+  </div>
+
+  <div class="date-field d-flex gap-2 align-items-center">
+    <label for="dateTo">To</label>
+    <input
+      id="dateTo"
+      class="form-control px-2 py-1"
+      type="date"
+      [value]="dateTo()"
+      [min]="dateFrom()"
+      [max]="momentToday"
+      (change)="dateTo.set($any($event.target).value); onDateChange()"
+    />
+  </div>
+
+  <div class="date-presets d-flex ms-2 gap-1">
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setToday()">Today</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setYesterday()">Yesterday</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setLast7Days()">Last 7 days</button>
+  </div>
+
+</div>

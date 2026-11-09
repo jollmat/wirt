@@ -1,0 +1,1016 @@
+<div class="d-flex flex-column w-100 min-vh-100">
+    @if(true) {
+    <div class="sticky-header w-100">
+        @if(dateFrom && dateTo){
+            <app-header [from]="dateFrom" [to]="dateTo" (onDateChangeEmitter)="onDateRangeChange($event)"></app-header>
+        }
+    </div>
+    }
+    @if(true) {
+    <div class="layout-container d-flex w-100 flex-grow-1">
+
+        <div class="sidebar d-flex flex-column justify-content-start align-items-center py-3 ps-1">
+            <span class="view-type-button p-2" ngbTooltip="Grid" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="right" [ngClass]="{'active': viewType()==='GRID'}" (click)="setViewType('GRID')">
+                <i class="bi bi-grid"></i>
+            </span>
+            <span class="view-type-button p-2" ngbTooltip="Map" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="right" [ngClass]="{'active': viewType()==='MAP'}" (click)="setViewType('MAP')">
+                <i class="bi bi-map"></i>
+            </span>
+        </div>
+
+        <div class="content d-flex justify-content-start align-items-start flex-wrap gap-3 p-2">
+
+            @if (viewType()==='GRID') {
+
+                <!-- Recent Events -->
+                @if(displayConfig.widget.recentEvents.display && filteredRecentEvents.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>
+                            @if(filteredRecentEvents.length>0) {
+                                <i class="fas fa-exclamation-circle text-warning me-2 blink-smooth"></i>
+                            }
+                            Recent events</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
+                        </div>
+                    </h5>
+                    <div class="w-100 flex-grow-1 overflow-auto table-container">
+                        <table class="table table-hover table-sm w-100">
+                            <thead>
+                                <tr>
+                                    <th class="time-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'time')">
+                                        Time
+                                        @if(recentEventsSortConfig.field==='time') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="dist-column text-end">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'dist')">
+                                        Dist (Km)
+                                        @if(recentEventsSortConfig.field==='dist') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="icon-column"></th>
+                                    <th class="type-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'type')">
+                                        Type
+                                        @if(recentEventsSortConfig.field==='type') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="type-column" *appDevice="'desktop'; deviceInfo: deviceInfo">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'category')">
+                                        Category
+                                        @if(recentEventsSortConfig.field==='category') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'title')">
+                                            Title
+                                            @if(recentEventsSortConfig.field==='title') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                            }
+                                        </span>
+                                    </th>
+                                    <th *appDevice="'desktop'; deviceInfo: deviceInfo">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'description')">
+                                            Description / Place
+                                            @if(recentEventsSortConfig.field==='description') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                            }
+                                        </span>
+                                    </th>
+                                    <th class="source-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'origin')">
+                                        Source
+                                        @if(recentEventsSortConfig.field==='origin') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':recentEventsSortConfig.dir==='DESC','fa-caret-up':recentEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (recentEvent of filteredRecentEvents; track $index) {
+                                    <tr>
+                                        <td class="ps-2">
+                                            <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span [ngClass]="{'text-danger': isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{getDistanceKm(recentEvent.lat, recentEvent.lon) | number:'1.1-1'}}</span>
+                                        </td>
+                                        <td>
+                                            <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(recentEvent.originIconId, recentEvent.type).iconTag)"></span>
+                                        </td>
+                                        <td class="wrap-100px"><span ngbTooltip="{{recentEvent.type}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.type}}</span></td>
+                                        <td class="wrap-100px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{recentEvent.category}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.category}}</span></td>
+                                        <td class="wrap-150px">
+                                            <a [href]="sanitizeUrl(recentEvent.link)" target="_blank">
+                                            <span ngbTooltip="{{recentEvent.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.title}}</span>
+                                            </a>
+                                        </td>
+                                        <td *appDevice="'desktop'; deviceInfo: deviceInfo" class="wrap-150px"><span ngbTooltip="{{recentEvent.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.description}}</span></td>
+                                        <td class="wrap-150px">{{recentEvent.origin}}</td>
+                                    </tr>
+                                }
+                                @if(filteredRecentEvents.length===0) {
+                                    <tr>
+                                        <td class="text-center" colspan="8" style="height: 150px;text-align: center;vertical-align: middle;">No elements near your location</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                }
+
+                <!-- Near Events -->
+                @if(displayConfig.widget.nearEvents.display && filteredNearEvents.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>
+                            @if(filteredNearEvents.length>0) {
+                                <i class="fas fa-exclamation-circle text-warning me-2 blink-smooth"></i>
+                            }
+                            Near you</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-select
+                                class="me-2 custom-ng-select"
+                                appendTo="body"
+                                [items]="nearKmOptions"
+                                [(ngModel)]="userNearKm"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        <span>Max. {{ item }} Km</span>
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item">
+                                        <span>Max. {{ item }} Km</span>
+                                    </ng-template>
+                            </ng-select>
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNearEvents, widgetId: 'nearEvents', widgetConfig: displayConfig.widget.nearEvents}" ></ng-container>
+                        </div>
+                    </h5>
+                    <div class="w-100 flex-grow-1 overflow-auto table-container">
+                        <table class="table table-hover table-sm w-100">
+                            <thead>
+                                <tr>
+                                    <th class="time-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'time')">
+                                        Time
+                                        @if(nearEventsSortConfig.field==='time') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="dist-column text-end">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'dist')">
+                                        Dist (Km)
+                                        @if(nearEventsSortConfig.field==='dist') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="icon-column"></th>
+                                    <th class="type-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'type')">
+                                        Type
+                                        @if(nearEventsSortConfig.field==='type') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th class="type-column" *appDevice="'desktop'; deviceInfo: deviceInfo">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'category')">
+                                        Category
+                                        @if(nearEventsSortConfig.field==='category') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'title')">
+                                            Title
+                                            @if(nearEventsSortConfig.field==='title') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                            }
+                                        </span>
+                                    </th>
+                                    <th *appDevice="'desktop'; deviceInfo: deviceInfo">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'description')">
+                                            Description / Place
+                                            @if(nearEventsSortConfig.field==='description') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                            }
+                                        </span>
+                                    </th>
+                                    <th class="source-column">
+                                        <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'origin')">
+                                        Source
+                                        @if(nearEventsSortConfig.field==='origin') {
+                                            <i class="ms-1 fas" [ngClass]="{'fa-caret-down':nearEventsSortConfig.dir==='DESC','fa-caret-up':nearEventsSortConfig.dir==='ASC'}"></i>
+                                        }
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (nearEvent of filteredNearEvents; track $index) {
+                                    <tr>
+                                        <td class="ps-2">
+                                            <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-danger">{{getDistanceKm(nearEvent.lat, nearEvent.lon) | number:'1.1-1'}}</span>
+                                        </td>
+                                        <td>
+                                            <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(nearEvent.originIconId, nearEvent.type).iconTag)"></span>
+                                        </td>
+                                        <td class="wrap-100px"><span ngbTooltip="{{nearEvent.type}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.type}}</span></td>
+                                        <td class="wrap-100px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{nearEvent.category}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.category}}</span></td>
+                                        <td class="wrap-150px">
+                                            <a [href]="sanitizeUrl(nearEvent.link)" target="_blank">
+                                            <span ngbTooltip="{{nearEvent.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.title}}</span>
+                                            </a>
+                                        </td>
+                                        <td class="wrap-150px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{nearEvent.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.description}}</span></td>
+                                        <td class="wrap-150px">{{nearEvent.origin}}</td>
+                                    </tr>
+                                }
+                                @if(filteredNearEvents.length===0) {
+                                    <tr>
+                                        <td class="text-center" colspan="8" style="height: 150px;text-align: center;vertical-align: middle;">No elements near your location</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                }
+
+                <!-- USGS Earthquakes -->
+                @if(displayConfig.widget.earthQuakes.display && filteredEarthquakes.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>Earthquakes</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredEarthquakes, widgetId: 'usgsEarthquakes', widgetConfig: displayConfig.widget.earthQuakes}" ></ng-container>
+                        </div>
+                    </h5>
+                    <div class="w-100 flex-grow-1 overflow-auto table-container">
+                        @if (!earthQuakesError) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(earthQuakesSortConfig, 'time')">
+                                                Time
+                                                @if(earthQuakesSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':earthQuakesSortConfig.dir==='DESC','fa-caret-up':earthQuakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(earthQuakesSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(earthQuakesSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':earthQuakesSortConfig.dir==='DESC','fa-caret-up':earthQuakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="icon-column"></th>
+                                        <th>Place</th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(earthQuakesSortConfig, 'mag')">
+                                                Mag
+                                                @if(earthQuakesSortConfig.field==='mag') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':earthQuakesSortConfig.dir==='DESC','fa-caret-up':earthQuakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(earthQuakesSortConfig, 'depth')">
+                                            Depth (Km)
+                                            @if(earthQuakesSortConfig.field==='depth') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':earthQuakesSortConfig.dir==='DESC','fa-caret-up':earthQuakesSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(earthQuakesSortConfig, 'perception')">
+                                                Perception
+                                                @if(earthQuakesSortConfig.field==='perception') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':earthQuakesSortConfig.dir==='DESC','fa-caret-up':earthQuakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        @if(maximizedWidgetId==='usgsEarthquakes'){
+                                            <th>Perception description</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (earthQuake of filteredEarthquakes; track $index) {
+                                        <tr [ngClass]="isToday(earthQuake.properties.time) ? 'today-event' : ''">
+                                            <td class="ps-2">
+                                                <span [ngClass]="{'blink-smooth': isWithinTime(earthQuake.properties.time, withinTimeHours)}">{{earthQuake.properties.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                               <span [ngClass]="{'text-danger':isWithinRadius(earthQuake.geometry.coordinates[1], earthQuake.geometry.coordinates[0])}" class="px-2 py-1">{{getDistanceKm(earthQuake.geometry.coordinates[1], earthQuake.geometry.coordinates[0]) | number:'1.1-1'}}</span>
+                                            </td>
+                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('earthQuakes', earthQuake.properties.type).iconTag)"></span></td>
+                                            <td>
+                                                <a [href]="sanitizeUrl(earthQuake.properties.url)" target="_blank">{{earthQuake.properties.place}}</a>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="mag" [ngClass]="{
+                                                'mag-imperceptible': ['imperceptible'].includes(earthQuake.properties.perception?.level ?? ''),
+                                                'mag-low': ['weak', 'very-weak'].includes(earthQuake.properties.perception?.level ?? ''),
+                                                'mag-medium': ['light', 'moderate'].includes(earthQuake.properties.perception?.level ?? ''),
+                                                'mag-high': ['strong', 'very-strong'].includes(earthQuake.properties.perception?.level ?? '')
+                                                }">
+                                                {{ earthQuake.properties.mag | number:'1.1-1' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                {{earthQuake.geometry.coordinates[2] | number:'1.1-1'}}
+                                            </td>
+                                            <td class="wrap-125px">
+                                                <span ngbTooltip="{{earthQuake.properties.perception?.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{earthQuake.properties.perception?.level}}</span>
+                                            </td>
+                                            @if(maximizedWidgetId==='usgsEarthquakes'){
+                                                <td>{{earthQuake.properties.perception?.description}}</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{earthQuakesError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Seismic Portal Events -->
+                @if(displayConfig.widget.seismicPortalEvents.display && filteredSeismicPortalEearthquakes.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>Seismic Portal Events</span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
+                        </div>
+                    </h5>
+
+                    <div class="w-100 table-container">
+                        
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'time')">
+                                                Last modified
+                                                @if(seismicPortalEearthquakesSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(seismicPortalEearthquakesSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'place')">
+                                                Place
+                                                @if(seismicPortalEearthquakesSortConfig.field==='place') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="text-end mag-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'mag')">
+                                            Mag
+                                            @if(seismicPortalEearthquakesSortConfig.field==='mag') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'depth')">
+                                            Depth (Km)
+                                            @if(seismicPortalEearthquakesSortConfig.field==='depth') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(seismicPortalEearthquakesSortConfig, 'perception')">
+                                            Perception
+                                            @if(seismicPortalEearthquakesSortConfig.field==='perception') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':seismicPortalEearthquakesSortConfig.dir==='DESC','fa-caret-up':seismicPortalEearthquakesSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        @if(maximizedWidgetId==='seismicPortal') {
+                                            <th>Perception description</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (seismicPortalEvent of filteredSeismicPortalEearthquakes; track $index) {
+                                        <tr [ngClass]="isToday(seismicPortalEvent.data.properties.lastupdate) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours)}">{{seismicPortalEvent.data.properties.lastupdate | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                               <span [ngClass]="{'text-danger':isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)}" class="px-2 py-1">{{getDistanceKm(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon) | number:'1.1-1'}}</span>
+                                            </td>
+                                            <td>
+                                                {{seismicPortalEvent.data.properties.flynn_region}}
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="mag" [ngClass]="{
+                                                    'mag-imperceptible': ['imperceptible'].includes(seismicPortalEvent.data.properties.perception?.level ?? ''),
+                                                    'mag-low': ['weak', 'very-weak'].includes(seismicPortalEvent.data.properties.perception?.level ?? ''),
+                                                    'mag-medium': ['light', 'moderate'].includes(seismicPortalEvent.data.properties.perception?.level ?? ''),
+                                                    'mag-high': ['strong', 'very-strong'].includes(seismicPortalEvent.data.properties.perception?.level ?? '')
+                                                    }">
+                                                    {{ seismicPortalEvent.data.properties.mag | number:'1.1-1' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                {{seismicPortalEvent.data.properties.depth | number:'1.1-1'}}
+                                            </td>
+                                            <td class="wrap-125px">
+                                                <span ngbTooltip="{{seismicPortalEvent.data.properties.perception?.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{seismicPortalEvent.data.properties.perception?.level}}</span>
+                                            </td>
+                                            @if(maximizedWidgetId==='seismicPortal') {
+                                                <td>{{seismicPortalEvent.data.properties.perception?.description}}</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                    </div>
+                </div>
+                }
+
+                <!-- Alerts Live -->
+                @if(displayConfig.widget.alertsLive.display && filteredAlertsLiveEvents.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>Alerts Live</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-select
+                                class="me-2 custom-ng-select"
+                                [items]="alertsLiveTypes"
+                                appendTo="body"
+                                bindLabel="name"
+                                bindValue="id"
+                                [(ngModel)]="displayConfig.widget.alertsLiveType"
+                                placeholder="Select type"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                            </ng-select>
+                            <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredAlertsLiveEvents, widgetId: 'alertsLive', widgetConfig: displayConfig.widget.alertsLive}" ></ng-container>
+                        </div>
+                    </h5>
+                    <div class="w-100 table-container">
+                        @if (!alertsLiveError) {
+                            <table class="table table-hover table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'time')">
+                                                Time
+                                                @if(alertsLiveSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(alertsLiveSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="icon-column"></th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'type')">
+                                                Type
+                                                @if(alertsLiveSortConfig.field==='type') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'title')">
+                                                Title
+                                                @if(alertsLiveSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (alertLive of filteredAlertsLiveEvents; track $index) {
+                                        <tr [ngClass]="isToday(alertLive.last_seen) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-smooth': isWithinTime(alertLive.last_seen, withinTimeHours)}">{{alertLive.last_seen | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span [ngClass]="{'text-danger':isWithinRadius(alertLive.lat, alertLive.lon)}" class="px-2 py-1">{{getDistanceKm(alertLive.lat, alertLive.lon) | number:'1.1-1'}}</span>
+                                            </td>
+                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('alertsLive', alertLive.type).iconTag)"></span></td>
+                                            <td><span>{{alertLive.type}}</span></td>
+                                            <td class="wrap-200px"><a [href]="sanitizeUrl(alertLive.url)" target="_blank" ngbTooltip="{{alertLive.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{alertLive.title}}</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{alertsLiveError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- City Alert Live -->
+                @if(displayConfig.widget.cityAlertLiveIncidents.display && filteredCityAlertLiveIncidents.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>City Alert Live</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-select
+                                class="me-2 custom-ng-select"
+                                [items]="cityAlertLiveCategories"
+                                bindLabel="name"
+                                bindValue="id"
+                                appendTo="body"
+                                [(ngModel)]="displayConfig.widget.cityAlertLiveCategory"
+                                placeholder="Select category"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                            </ng-select>
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredCityAlertLiveIncidents, widgetId: 'cityAlert', widgetConfig: displayConfig.widget.cityAlertLiveIncidents}" ></ng-container>
+                        </div>
+                    </h5>
+
+                    <div class="w-100 table-container">
+                        @if (!cityAlertLiveError) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(cityAlertSortConfig, 'time')">
+                                                Time
+                                                @if(cityAlertSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':cityAlertSortConfig.dir==='DESC','fa-caret-up':cityAlertSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(cityAlertSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(cityAlertSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':cityAlertSortConfig.dir==='DESC','fa-caret-up':cityAlertSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="icon-column"></th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(cityAlertSortConfig, 'category')">
+                                                Category
+                                                @if(cityAlertSortConfig.field==='category') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':cityAlertSortConfig.dir==='DESC','fa-caret-up':cityAlertSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(cityAlertSortConfig, 'type')">
+                                                Type
+                                                @if(cityAlertSortConfig.field==='type') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':cityAlertSortConfig.dir==='DESC','fa-caret-up':cityAlertSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(cityAlertSortConfig, 'title')">
+                                                Title
+                                                @if(cityAlertSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':cityAlertSortConfig.dir==='DESC','fa-caret-up':cityAlertSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (cityAlertLiveIncident of filteredCityAlertLiveIncidents; track $index) {
+                                        <tr [ngClass]="isToday(cityAlertLiveIncident.time) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(cityAlertLiveIncident.time, withinTimeHours)}">{{cityAlertLiveIncident.time| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span [ngClass]="{'text-danger':isWithinRadius(cityAlertLiveIncident.lat, cityAlertLiveIncident.lon)}" class="px-2 py-1">{{getDistanceKm(cityAlertLiveIncident.lat, cityAlertLiveIncident.lon) | number:'1.1-1'}}</span>
+                                            </td>
+                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('cityAlert', cityAlertLiveIncident.type, cityAlertLiveIncident.category).iconTag)"></span></td>
+                                            <td class="wrap-120px">{{cityAlertLiveIncident.category}}</td>
+                                            <td class="wrap-100px">{{cityAlertLiveIncident.type}}</td>
+                                            <td class="wrap-200px">
+                                                <a [href]="sanitizeUrl(cityAlertLiveIncident.url)" ngbTooltip="{{cityAlertLiveIncident.title}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top" target="_blank">
+                                                {{cityAlertLiveIncident.title}}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{cityAlertLiveError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Natural events -->
+                @if(displayConfig.widget.natureEvents.display && filteredNatureEvents.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>Natural events</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNatureEvents, widgetId: 'naturalEvents', widgetConfig: displayConfig.widget.natureEvents}" ></ng-container>
+                        </div>
+                    </h5>
+                    <div class="w-100 table-container">
+                        @if (!natureEventsError) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column short">
+                                            <span class="cursor-pointer" (click)="toggleSort(natureEventsSortConfig, 'time')">
+                                                Time
+                                                @if(natureEventsSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':natureEventsSortConfig.dir==='DESC','fa-caret-up':natureEventsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(natureEventsSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(natureEventsSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':natureEventsSortConfig.dir==='DESC','fa-caret-up':natureEventsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="icon-column"></th>
+                                        <th>Type</th>
+                                        <th>Title</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (naturalEvent of filteredNatureEvents; track $index) {
+                                        <tr [ngClass]="isToday(getHighestDate(naturalEvent.geometry, dateFrom, dateTo)) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                @if (naturalEvent.geometry && naturalEvent.geometry.length>0) {
+                                                    <span>{{getEventDate(naturalEvent, 'DD.MM.yyyy')}}</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <span [ngClass]="{'text-danger':isWithinRadius(naturalEvent.geometry[0].coordinates[1], naturalEvent.geometry[0].coordinates[0])}" class="px-2 py-1">{{getDistanceKm(naturalEvent.geometry[0].coordinates[1], naturalEvent.geometry[0].coordinates[0]) | number:'1.1-1'}}</span>
+                                            </td>
+                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('natureEvents', naturalEvent.description).iconTag)"></span></td>
+                                            <td><span>{{(naturalEvent.categories && naturalEvent.categories.length>0)?naturalEvent.categories[0].title:''}}</span></td>
+                                            <td><a [href]="sanitizeUrl(naturalEvent.link)" target="_blank">{{naturalEvent.title}}</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{natureEventsError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Who Disease News -->
+                @if(displayConfig.widget.whoDiseaseNews.display && filteredWhoDiseaseNews.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>Who Desease News</span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredWhoDiseaseNews, widgetId: 'whoDisease', widgetConfig: displayConfig.widget.whoDiseaseNews}" ></ng-container>
+                        </div>
+                    </h5>
+
+                    <div class="w-100 table-container">
+                        @if (!whoDiseaseNewsError) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(whoDiseaseNewsSortConfig, 'time')">
+                                                Last modified
+                                                @if(whoDiseaseNewsSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':whoDiseaseNewsSortConfig.dir==='DESC','fa-caret-up':whoDiseaseNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(whoDiseaseNewsSortConfig, 'time-created')">
+                                                Created
+                                                @if(whoDiseaseNewsSortConfig.field==='time-created') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':whoDiseaseNewsSortConfig.dir==='DESC','fa-caret-up':whoDiseaseNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(whoDiseaseNewsSortConfig, 'title')">
+                                                Title
+                                                @if(whoDiseaseNewsSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':whoDiseaseNewsSortConfig.dir==='DESC','fa-caret-up':whoDiseaseNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (whoDiseaseNewsItem of filteredWhoDiseaseNews; track $index) {
+                                        <tr [ngClass]="isToday(whoDiseaseNewsItem.LastModified) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(whoDiseaseNewsItem.LastModified, withinTimeHours)}">{{whoDiseaseNewsItem.LastModified| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="nowrap">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(whoDiseaseNewsItem.DateCreated, withinTimeHours)}">{{whoDiseaseNewsItem.DateCreated| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td>
+                                                <span ngbTooltip="{{whoDiseaseNewsItem.Title}}" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{whoDiseaseNewsItem.Title}}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-link" ngbTooltip="{{whoDiseaseNewsItem.Summary}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top">+ info</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{whoDiseaseNewsError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- GNews -->
+                @if(displayConfig.widget.gNews.display && filteredGNews.length>0){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews', 'w-100': deviceInfo.portrait}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                        <span>GNews</span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
+                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'gNews', widgetConfig: displayConfig.widget.gNews}" ></ng-container>
+                        </div>
+                    </h5>
+
+                    <div class="w-100 table-container">
+                        @if (!gNewsError) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(gNewsSortConfig, 'time')">
+                                                Published
+                                                @if(gNewsSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':gNewsSortConfig.dir==='DESC','fa-caret-up':gNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(gNewsSortConfig, 'title')">
+                                                Title
+                                                @if(gNewsSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':gNewsSortConfig.dir==='DESC','fa-caret-up':gNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(gNewsSortConfig, 'description')">
+                                                Description
+                                                @if(gNewsSortConfig.field==='description') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':gNewsSortConfig.dir==='DESC','fa-caret-up':gNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(gNewsSortConfig, 'source')">
+                                                Source
+                                                @if(gNewsSortConfig.field==='source') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':gNewsSortConfig.dir==='DESC','fa-caret-up':gNewsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (gNewsItem of filteredGNews; track $index) {
+                                        <tr [ngClass]="isToday(gNewsItem.publishedAt) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(gNewsItem.publishedAt, withinTimeHours)}">{{gNewsItem.publishedAt| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="w-25">
+                                                <a href="gNewsItem.source.url" ngbTooltip="{{gNewsItem.title}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top" target="_blank">{{gNewsItem.title}}</a>
+                                            </td>
+                                            <td>
+                                                <span ngbTooltip="{{gNewsItem.description}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{gNewsItem.description}}</span>
+                                            </td>
+                                            <td class="w-20">
+                                                <span ngbTooltip="{{gNewsItem.source.name}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{gNewsItem.source.name}}</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <span class="text-danger p-3">{{gNewsError}}</span>
+                        }
+                    </div>
+                </div>
+                }
+
+            } @else if (viewType()==='MAP') {
+
+                <div class="map-wrapper">
+                    <div class="map-options d-flex justify-content-around py-2 px-3 gap-2" [ngClass]="{'flex-column pb-4': mapSelectorMaximized(), 'no-opacity': !deviceInfo.isDesktop}">
+
+                        @if(mapSelectorMaximized()){
+                            <div class="d-flex justify-content-end align-items-center">
+                                <span class="cursor-pointer" (click)="mapSelectorMaximized.set(false)"><i class="fas fa-chevron-down"></i></span>
+                            </div>
+                        }
+
+                        <div class="d-flex align-items-center form-check m-0 gap-2">
+                            <input
+                                style="top: -3px;position: relative;"
+                                class="form-check-input"
+                                type="checkbox"
+                                id="showEarthquakes"
+                                [(ngModel)]="displayConfig.map.earhQuakes">
+                            <label class="form-check-label cursor-pointer" for="showEarthquakes">
+                                Earthquakes ({{earthQuakes.length}})
+                            </label>
+                        </div>
+
+                        <div class="separator" [ngClass]="{'vertical': mapSelectorMaximized(), 'horizontal': !mapSelectorMaximized()}"></div>
+
+                        <div class="d-flex align-items-center form-check m-0 gap-2">
+                            <input
+                                style="top: -3px;position: relative;"
+                                class="form-check-input"
+                                type="checkbox"
+                                id="showSeismicPortal"
+                                [(ngModel)]="displayConfig.map.seismicPortalEvents">
+                            <label class="form-check-label cursor-pointer" for="showSeismicPortal">
+                                Seismic Portal ({{filteredSeismicPortalEearthquakes.length}})
+                            </label>
+                        </div>
+
+                        <div class="separator" [ngClass]="{'vertical': mapSelectorMaximized(), 'horizontal': !mapSelectorMaximized()}"></div>
+                        
+                        <div class="d-flex align-items-center form-check m-0 gap-2">
+                            <input
+                                style="top: -3px;position: relative;"
+                                class="form-check-input"
+                                type="checkbox"
+                                id="showNatureEvents"
+                                [(ngModel)]="displayConfig.map.natureEvents">
+                            <label class="form-check-label cursor-pointer" for="showNatureEvents">
+                                Nature events ({{natureEvents.length}})
+                            </label>
+                        </div>
+
+                        <div class="separator" [ngClass]="{'vertical': mapSelectorMaximized(), 'horizontal': !mapSelectorMaximized()}"></div>
+
+                        <div class="d-flex align-items-center form-check m-0 gap-2">
+                            <input
+                                style="top: -3px;position: relative;"
+                                class="form-check-input"
+                                type="checkbox"
+                                id="showAlertsLive"
+                                [(ngModel)]="displayConfig.map.alertsLive">
+                            <label class="form-check-label cursor-pointer" for="showAlertsLive">
+                                Alerts Live  ({{filteredAlertsLiveEvents.length}})
+                            </label>
+                            <ng-select
+                                class="me-2 custom-ng-select"
+                                [items]="alertsLiveTypes"
+                                bindLabel="name"
+                                bindValue="id"
+                                [(ngModel)]="displayConfig.widget.alertsLiveType"
+                                placeholder="Select type"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                            </ng-select>
+                        </div>
+
+                        <div class="separator" [ngClass]="{'vertical': mapSelectorMaximized(), 'horizontal': !mapSelectorMaximized()}"></div>
+
+                        <div class="d-flex align-items-center form-check m-0 gap-2">
+                            <input
+                                style="top: -3px;position: relative;"
+                                class="form-check-input"
+                                type="checkbox"
+                                id="showCityAlertLive"
+                                [(ngModel)]="displayConfig.map.cityAlertLiveIncidents">
+                            <label class="form-check-label cursor-pointer" for="showCityAlertLive">
+                                City Alert Live ({{filteredCityAlertLiveIncidents.length}})
+                            </label>
+                            <ng-select
+                                class="me-2 custom-ng-select"
+                                [items]="cityAlertLiveCategories"
+                                bindLabel="name"
+                                bindValue="id"
+                                [(ngModel)]="displayConfig.widget.cityAlertLiveCategory"
+                                placeholder="Select category"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                            </ng-select>
+                        </div>
+
+                        @if(!mapSelectorMaximized()){
+                            <div class="d-flex justify-content-end align-items-center">
+                                <span class="cursor-pointer ms-3"><i class="fas fa-chevron-left" (click)="mapSelectorMaximized.set(true)"></i></span>
+                            </div>
+                        }
+                        
+                    </div>
+                    <app-leaflet-map [locations]="filteredLocations" [userRadius]="{lat: userCoords()?.latitude, lon: userCoords()?.longitude, radiusKm: userNearKm}"></app-leaflet-map>
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+    }
+</div>
+
+<ng-template #dateRangesContainer>
+    <small>
+        @if (getFormattedDate(dateFrom)!==getFormattedDate(dateTo)) {
+            {{dateFrom | date: 'dd.MM.yyyy'}} - {{dateTo | date: 'dd.MM.yyyy'}}
+        } @else {
+            {{dateFrom | date: 'dd.MM.yyyy'}}
+        }
+    </small>
+</ng-template>
+
+ <ng-template let-listItems="listItems" let-widgetId="widgetId" let-widgetConfig="widgetConfig" #widgetOptionsTemplate>
+    <span class="badge">{{listItems.length}}</span>
+
+    @if(maximizedWidgetId!==widgetId){
+        <div class="btn-group wirt-btn-group">
+            @for (item of widgetWidthClasses; track $index) {
+            <button [ngClass]="{'active': widgetConfig.widthClass===item}" (click)="udateWidgetWidth(widgetId, widgetConfig, item)" type="button" class="btn cursor-pointer">
+                {{item.replace('w-','')}}%
+            </button>
+            }
+        </div>
+    }
+    <ng-container [ngTemplateOutlet]="toggleMaximize" [ngTemplateOutletContext]="{widgetId: widgetId}"></ng-container>
+</ng-template>
+
+<ng-template let-widgetId="widgetId" #toggleMaximize>
+    @if (maximizedWidgetId && maximizedWidgetId===widgetId) {
+        <span ngbTooltip="Minimize" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas fa-xmark cursor-pointer mx-2" (click)="toggleMaximizedWidget(widgetId)"></span>
+    }
+    @if (!maximizedWidgetId || maximizedWidgetId!==widgetId) {
+        <span ngbTooltip="Maximize" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas fa-expand cursor-pointer mx-2" (click)="toggleMaximizedWidget(widgetId)"></span>
+    }
+</ng-template>

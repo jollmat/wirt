@@ -1,0 +1,8 @@
+<div class="header d-flex justify-content-between align-items-center w-100 p-3">
+    <div class="app-title">W<small>orld</small> I<small>n</small> R<small>eal</small> T<small>ime</small></div>
+    <div class="d-flex align-items-center gap-2">
+        <app-date-range-picker class="me-2" [from]="from" [to]="to" (dateRangeChange)="onDateRangeChange($event)" />
+        <span class="fw-200">{{user()}}</span>
+        <i class="bi bi-power cursor-pointer" (click)="logout()"></i>
+    </div>
+</div>
