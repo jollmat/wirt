@@ -281,7 +281,13 @@ export class Dashboard implements OnInit, OnDestroy {
   userNearKm = 50;
   nearKmOptions = [5,10,50,100,250,500,1000,2500,5000];
 
-  withinTimeHours = 0.1667;
+  withinTimeOptions: {text: string, value: number}[] = [
+    {text: '10 min', value: 0.1667},
+    {text: '15 min', value: 0.25},
+    {text: '30 min', value: 0.5},
+    {text: '1 hour', value: 1}
+  ]
+  withinTimeHours = this.withinTimeOptions[0].value;
 
   widgetWidthClasses = [...WidgetWidthClasses];
 

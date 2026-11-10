@@ -34,6 +34,23 @@
                             <span class="badge ms-2">{{filteredRecentEvents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
+                            <ng-select
+                                class="me-2 custom-ng-select p-0"
+                                appendTo="body"
+                                [items]="withinTimeOptions"
+                                [(ngModel)]="withinTimeHours"
+                                bindLabel="text"
+                                bindValue="value"
+                                [hideSelected]="true"
+                                [clearable]="false"
+                                [searchable]="false">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        <span class="nearKmOption">< {{ item.text }}</span>
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item">
+                                        <span class="nearKmOption">< {{ item.text }}</span>
+                                    </ng-template>
+                            </ng-select>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
                         </div>
                     </h5>
