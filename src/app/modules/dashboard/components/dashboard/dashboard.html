@@ -23,8 +23,8 @@
             @if (viewType()==='GRID') {
 
                 <!-- Recent Events -->
-                @if(displayConfig.widget.recentEvents.display && filteredRecentEvents.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.recentEvents.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>
                             @if(filteredRecentEvents.length>0) {
@@ -133,8 +133,8 @@
                 }
 
                 <!-- Near Events -->
-                @if(displayConfig.widget.nearEvents.display && filteredNearEvents.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.nearEvents.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.nearEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>
                             @if(filteredNearEvents.length>0) {
@@ -259,8 +259,8 @@
                 }
 
                 <!-- USGS Earthquakes -->
-                @if(displayConfig.widget.earthQuakes.display && filteredEarthquakes.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.earthQuakes.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.earthQuakes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>Earthquakes</span>
                         <div class="d-flex align-items-center gap-2">
@@ -364,8 +364,8 @@
                 }
 
                 <!-- Seismic Portal Events -->
-                @if(displayConfig.widget.seismicPortalEvents.display && filteredSeismicPortalEearthquakes.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.seismicPortalEvents.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.seismicPortalEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>Seismic Portal Events</span>
                         <div class="d-flex table-hover align-items-center gap-2">
@@ -473,8 +473,8 @@
                 }
 
                 <!-- Alerts Live -->
-                @if(displayConfig.widget.alertsLive.display && filteredAlertsLiveEvents.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.alertsLive.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>Alerts Live</span>
                         <div class="d-flex align-items-center gap-2">
@@ -558,8 +558,8 @@
                 }
 
                 <!-- City Alert Live -->
-                @if(displayConfig.widget.cityAlertLiveIncidents.display && filteredCityAlertLiveIncidents.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.cityAlertLiveIncidents.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.cityAlertLiveIncidents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>City Alert Live</span>
                         <div class="d-flex align-items-center gap-2">
@@ -657,8 +657,8 @@
                 }
 
                 <!-- Natural events -->
-                @if(displayConfig.widget.natureEvents.display && filteredNatureEvents.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.natureEvents.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>Natural events</span>
                         <div class="d-flex align-items-center gap-2">
@@ -718,8 +718,8 @@
                 }
 
                 <!-- Who Disease News -->
-                @if(displayConfig.widget.whoDiseaseNews.display && filteredWhoDiseaseNews.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.whoDiseaseNews.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.whoDiseaseNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>Who Desease News</span>
                         <div class="d-flex table-hover align-items-center gap-2">
@@ -787,8 +787,8 @@
                 }
 
                 <!-- GNews -->
-                @if(displayConfig.widget.gNews.display && filteredGNews.length>0){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:''}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews', 'w-100': deviceInfo.portrait}">
+                @if(displayConfig.widget.gNews.display){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.gNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews'}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center">
                         <span>GNews</span>
                         <div class="d-flex table-hover align-items-center gap-2">
