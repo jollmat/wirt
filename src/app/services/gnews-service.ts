@@ -20,6 +20,7 @@ export interface GNewsArticle {
   url: string;
   image: string;
   publishedAt: string;
+  published: Date;
   source: {
     name: string;
     url: string;
@@ -60,6 +61,10 @@ export class GNewsService {
 
     if (cache) {
       console.log('Noticias obtenidas desde caché');
+      cache.articles = cache.articles.map((_article) => {
+        _article.published = new Date(_article.publishedAt);
+        return _article;
+      });
       return of(cache);
     }
 

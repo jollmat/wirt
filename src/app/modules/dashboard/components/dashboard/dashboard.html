@@ -125,7 +125,7 @@
                                 }
                                 @if(filteredRecentEvents.length===0) {
                                     <tr>
-                                        <td class="text-center" colspan="8" style="height: 150px;text-align: center;vertical-align: middle;">No elements near your location</td>
+                                        <td class="text-center" colspan="8" style="height: 150px;text-align: center;vertical-align: middle;">No recent elements found</td>
                                     </tr>
                                 }
                             </tbody>
@@ -268,7 +268,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Earthquakes
-                            <span class="badge ms-2">{{filteredEarthquakes.length}}</span>
+                            <span class="badge ms-2">{{filteredEarthquakes.length}} / {{earthQuakes.length}}</span>
                         </span>
                         
                         <div class="d-flex align-items-center gap-2">
@@ -377,7 +377,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Seismic Portal Events
-                            <span class="badge ms-2">{{filteredSeismicPortalEearthquakes.length}}</span>
+                            <span class="badge ms-2">{{filteredSeismicPortalEearthquakes.length}} / {{seismicPortalEearthquakes.length}}</span>
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
@@ -489,7 +489,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Alerts Live
-                            <span class="badge ms-2">{{filteredAlertsLiveEvents.length}}</span>
+                            <span class="badge ms-2">{{filteredAlertsLiveEvents.length}} / {{alertsLiveEvents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
@@ -577,7 +577,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             City Alert Live
-                            <span class="badge ms-2">{{filteredCityAlertLiveIncidents.length}}</span>
+                            <span class="badge ms-2">{{filteredCityAlertLiveIncidents.length}} / {{cityAlertLiveIncidents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
@@ -679,7 +679,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Natural events
-                            <span class="badge ms-2">{{filteredNatureEvents.length}}</span>
+                            <span class="badge ms-2">{{filteredNatureEvents.length}} / {{natureEvents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
@@ -743,7 +743,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Who Desease News
-                            <span class="badge ms-2">{{filteredWhoDiseaseNews.length}}</span>
+                            <span class="badge ms-2">{{filteredWhoDiseaseNews.length}} / {{whoDiseaseNews.length}}</span>
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
@@ -815,7 +815,7 @@
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             GNews
-                            <span class="badge ms-2">{{filteredGNews.length}}</span>
+                            <span class="badge ms-2">{{filteredGNews.length}} / {{gNews.length}}</span>
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->

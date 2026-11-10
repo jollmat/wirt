@@ -154,7 +154,7 @@ export class Dashboard implements OnInit, OnDestroy {
         display: true,
         widthClass: 'w-50'
       },
-      cityAlertLiveCategory: 'infra',
+      cityAlertLiveCategory: 'all',
       seismicPortalEvents: {
         display: true,
         widthClass: 'w-50'
@@ -962,7 +962,9 @@ export class Dashboard implements OnInit, OnDestroy {
   get filteredWhoDiseaseNews(): WhoDiseaseNewsInterface[] {
     const sortConfig = this.whoDiseaseNewsSortConfig;
     let res : WhoDiseaseNewsInterface[] = this.whoDiseaseNews;
-    return res.sort((a,b) => {
+    return res.filter((_newsItem) => {
+      return _newsItem.LastModified.getTime()>=this.dateFrom.getTime() && _newsItem.LastModified.getTime() <= this.dateTo.getTime();
+    }).sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
         if (sortConfig.dir==='DESC') {
@@ -1035,7 +1037,10 @@ export class Dashboard implements OnInit, OnDestroy {
 
   get filteredGNews(): GNewsArticle[] {
     const sortConfig = this.gNewsSortConfig;
-    return this.gNews.sort((a,b) => {
+    return this.gNews.filter((_newsItem) => {
+      _newsItem.published = new Date(_newsItem.publishedAt);
+      return _newsItem.published.getTime()>=this.dateFrom.getTime() && _newsItem.published.getTime() <= this.dateTo.getTime();
+    }).sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
         if (sortConfig.dir==='DESC') {
