@@ -26,6 +26,7 @@ import { Platform } from '@angular/cdk/platform';
 import { EarthquakePerception } from '../../../../services/seismic-metrics-service';
 import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
+import { LeafletMapService } from '../../../../services/leaflet-map-service';
 
 export const WidgetWidthClasses = [
   'w-50',
@@ -33,7 +34,7 @@ export const WidgetWidthClasses = [
 ] as const;
 
 export type WidgetWidthClassType = typeof WidgetWidthClasses[number];
-export interface WidgetDisplayConfig { display: boolean; widthClass: string; };
+export interface WidgetDisplayConfig { display: boolean; widthClass: string; collapsed: boolean;};
 
 @Component({
   selector: 'app-dashboard',
@@ -55,6 +56,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   currentTime = signal(Date.now());
 
+  private leafletMapsService = inject(LeafletMapService);
   private earthquakeUsgsService = inject(EarthquakeUsgsService);
   private nasaEonetService = inject(NasaEonetService);
   private alertsLiveService = inject(AlertsLiveService);
@@ -62,7 +64,6 @@ export class Dashboard implements OnInit, OnDestroy {
   private whoDiseaseNewsService = inject(WhoDiseaseNewsService);
   private seismicService = inject(SeismicPortalService);
   private gNewsService = inject(GNewsService);
-  private platform = inject(Platform);
   
   userCoordsSubscription?: Subscription;
   earthQuakeUsgsSubscription?: Subscription;
@@ -131,41 +132,50 @@ export class Dashboard implements OnInit, OnDestroy {
     widget: {
       nearEvents: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       recentEvents: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       earthQuakes: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       natureEvents: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       alertsLive: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       alertsLiveType: 'all',
       cityAlertLiveIncidents: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       cityAlertLiveCategory: 'all',
       seismicPortalEvents: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       whoDiseaseNews: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       },
       gNews: {
         display: true,
-        widthClass: 'w-50'
+        widthClass: 'w-50',
+        collapsed: false
       }
     },
     map: {
@@ -1243,6 +1253,13 @@ export class Dashboard implements OnInit, OnDestroy {
 
   toggleMaximizedWidget(widgetId: string) {
     this.maximizedWidgetId = (this.maximizedWidgetId) ? undefined : widgetId;
+  }
+
+  goToMapCoords(lat: number, lng: number) {
+    this.viewType.set('MAP');
+    setTimeout(() => {
+      this.leafletMapsService.setPosition({lat,lng, zoom: 12});
+    }, 200);
   }
 
   ngOnInit(): void {

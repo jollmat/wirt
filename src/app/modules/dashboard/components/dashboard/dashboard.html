@@ -24,7 +24,7 @@
 
                 <!-- Recent Events -->
                 @if(displayConfig.widget.recentEvents.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'collapsed': displayConfig.widget.recentEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             @if(filteredRecentEvents.length>0) {
@@ -37,6 +37,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
                         </div>
                     </h5>
+                    @if(!displayConfig.widget.recentEvents.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
                         <table class="table table-hover table-sm w-100">
                             <thead>
@@ -107,7 +108,7 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            <span [ngClass]="{'text-danger': isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{getDistanceKm(recentEvent.lat, recentEvent.lon) | number:'1.1-1'}}</span>
+                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon}"></ng-container>
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(recentEvent.originIconId, recentEvent.type).iconTag)"></span>
@@ -131,12 +132,13 @@
                             </tbody>
                         </table>
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- Near Events -->
                 @if(displayConfig.widget.nearEvents.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.nearEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.nearEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents', 'collapsed': displayConfig.widget.nearEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             @if(filteredNearEvents.length>0) {
@@ -147,7 +149,7 @@
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
-                                class="me-2 custom-ng-select"
+                                class="me-2 custom-ng-select p-0"
                                 appendTo="body"
                                 [items]="nearKmOptions"
                                 [(ngModel)]="userNearKm"
@@ -155,16 +157,17 @@
                                 [clearable]="false"
                                 [searchable]="false">
                                     <ng-template ng-label-tmp let-item="item">
-                                        <span>Max. {{ item }} Km</span>
+                                        <span class="nearKmOption">Max. {{ item }} Km</span>
                                     </ng-template>
                                     <ng-template ng-option-tmp let-item="item">
-                                        <span>Max. {{ item }} Km</span>
+                                        <span class="nearKmOption">Max. {{ item }} Km</span>
                                     </ng-template>
                             </ng-select>
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNearEvents, widgetId: 'nearEvents', widgetConfig: displayConfig.widget.nearEvents}" ></ng-container>
                         </div>
                     </h5>
+                    @if(!displayConfig.widget.nearEvents.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
                         <table class="table table-hover table-sm w-100">
                             <thead>
@@ -235,7 +238,7 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-danger">{{getDistanceKm(nearEvent.lat, nearEvent.lon) | number:'1.1-1'}}</span>
+                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearEvent.lat, lng: nearEvent.lon}"></ng-container>
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(nearEvent.originIconId, nearEvent.type).iconTag)"></span>
@@ -259,12 +262,13 @@
                             </tbody>
                         </table>
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- USGS Earthquakes -->
                 @if(displayConfig.widget.earthQuakes.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.earthQuakes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.earthQuakes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes', 'collapsed': displayConfig.widget.earthQuakes.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Earthquakes
@@ -276,6 +280,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredEarthquakes, widgetId: 'usgsEarthquakes', widgetConfig: displayConfig.widget.earthQuakes}" ></ng-container>
                         </div>
                     </h5>
+                    @if(!displayConfig.widget.earthQuakes.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
                         @if (!earthQuakesError) {
                             <table class="table table-hover table-sm w-100">
@@ -335,7 +340,7 @@
                                                 <span [ngClass]="{'blink-smooth': isWithinTime(earthQuake.properties.time, withinTimeHours)}">{{earthQuake.properties.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td class="text-end">
-                                               <span [ngClass]="{'text-danger':isWithinRadius(earthQuake.geometry.coordinates[1], earthQuake.geometry.coordinates[0])}" class="px-2 py-1">{{getDistanceKm(earthQuake.geometry.coordinates[1], earthQuake.geometry.coordinates[0]) | number:'1.1-1'}}</span>
+                                               <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:earthQuake.geometry.coordinates[1], lng: earthQuake.geometry.coordinates[0]}"></ng-container>
                                             </td>
                                             <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('earthQuakes', earthQuake.properties.type).iconTag)"></span></td>
                                             <td>
@@ -368,12 +373,13 @@
                             <span class="text-danger p-3">{{earthQuakesError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- Seismic Portal Events -->
                 @if(displayConfig.widget.seismicPortalEvents.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.seismicPortalEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.seismicPortalEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal', 'collapsed': displayConfig.widget.seismicPortalEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Seismic Portal Events
@@ -384,7 +390,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
                         </div>
                     </h5>
-
+                    @if(!displayConfig.widget.seismicPortalEvents.collapsed){
                     <div class="w-100 table-container">
                         
                             <table class="table table-hover table-sm w-100">
@@ -450,7 +456,7 @@
                                                 <span [ngClass]="{'blink-slow': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours)}">{{seismicPortalEvent.data.properties.lastupdate | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td class="text-end">
-                                               <span [ngClass]="{'text-danger':isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)}" class="px-2 py-1">{{getDistanceKm(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon) | number:'1.1-1'}}</span>
+                                               <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: seismicPortalEvent.data.properties.lat, lng: seismicPortalEvent.data.properties.lon}"></ng-container>
                                             </td>
                                             <td>
                                                 {{seismicPortalEvent.data.properties.flynn_region}}
@@ -480,12 +486,13 @@
                             </table>
 
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- Alerts Live -->
                 @if(displayConfig.widget.alertsLive.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive', 'collapsed': displayConfig.widget.alertsLive.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Alerts Live
@@ -508,6 +515,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredAlertsLiveEvents, widgetId: 'alertsLive', widgetConfig: displayConfig.widget.alertsLive}" ></ng-container>
                         </div>
                     </h5>
+                    @if(!displayConfig.widget.alertsLive.collapsed){
                     <div class="w-100 table-container">
                         @if (!alertsLiveError) {
                             <table class="table table-hover table-sm">
@@ -555,7 +563,7 @@
                                                 <span [ngClass]="{'blink-smooth': isWithinTime(alertLive.last_seen, withinTimeHours)}">{{alertLive.last_seen | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td class="text-end">
-                                                <span [ngClass]="{'text-danger':isWithinRadius(alertLive.lat, alertLive.lon)}" class="px-2 py-1">{{getDistanceKm(alertLive.lat, alertLive.lon) | number:'1.1-1'}}</span>
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: alertLive.lat, lng: alertLive.lon}"></ng-container>
                                             </td>
                                             <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('alertsLive', alertLive.type).iconTag)"></span></td>
                                             <td><span>{{alertLive.type}}</span></td>
@@ -568,12 +576,13 @@
                             <span class="text-danger p-3">{{alertsLiveError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- City Alert Live -->
                 @if(displayConfig.widget.cityAlertLiveIncidents.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.cityAlertLiveIncidents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.cityAlertLiveIncidents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert', 'collapsed': displayConfig.widget.cityAlertLiveIncidents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             City Alert Live
@@ -596,7 +605,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredCityAlertLiveIncidents, widgetId: 'cityAlert', widgetConfig: displayConfig.widget.cityAlertLiveIncidents}" ></ng-container>
                         </div>
                     </h5>
-
+                    @if(!displayConfig.widget.cityAlertLiveIncidents.collapsed){
                     <div class="w-100 table-container">
                         @if (!cityAlertLiveError) {
                             <table class="table table-hover table-sm w-100">
@@ -652,7 +661,7 @@
                                                 <span [ngClass]="{'blink-slow': isWithinTime(cityAlertLiveIncident.time, withinTimeHours)}">{{cityAlertLiveIncident.time| date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td class="text-end">
-                                                <span [ngClass]="{'text-danger':isWithinRadius(cityAlertLiveIncident.lat, cityAlertLiveIncident.lon)}" class="px-2 py-1">{{getDistanceKm(cityAlertLiveIncident.lat, cityAlertLiveIncident.lon) | number:'1.1-1'}}</span>
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: cityAlertLiveIncident.lat, lng: cityAlertLiveIncident.lon}"></ng-container>
                                             </td>
                                             <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('cityAlert', cityAlertLiveIncident.type, cityAlertLiveIncident.category).iconTag)"></span></td>
                                             <td class="wrap-120px">{{cityAlertLiveIncident.category}}</td>
@@ -670,12 +679,13 @@
                             <span class="text-danger p-3">{{cityAlertLiveError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- Natural events -->
                 @if(displayConfig.widget.natureEvents.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents', 'collapsed': displayConfig.widget.natureEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Natural events
@@ -686,6 +696,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNatureEvents, widgetId: 'naturalEvents', widgetConfig: displayConfig.widget.natureEvents}" ></ng-container>
                         </div>
                     </h5>
+                    @if(!displayConfig.widget.natureEvents.collapsed){
                     <div class="w-100 table-container">
                         @if (!natureEventsError) {
                             <table class="table table-hover table-sm w-100">
@@ -721,7 +732,7 @@
                                                 }
                                             </td>
                                             <td class="text-end">
-                                                <span [ngClass]="{'text-danger':isWithinRadius(naturalEvent.geometry[0].coordinates[1], naturalEvent.geometry[0].coordinates[0])}" class="px-2 py-1">{{getDistanceKm(naturalEvent.geometry[0].coordinates[1], naturalEvent.geometry[0].coordinates[0]) | number:'1.1-1'}}</span>
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: naturalEvent.geometry[0].coordinates[1], lng: naturalEvent.geometry[0].coordinates[0]}"></ng-container>
                                             </td>
                                             <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('natureEvents', naturalEvent.description).iconTag)"></span></td>
                                             <td><span>{{(naturalEvent.categories && naturalEvent.categories.length>0)?naturalEvent.categories[0].title:''}}</span></td>
@@ -734,12 +745,13 @@
                             <span class="text-danger p-3">{{natureEventsError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- Who Disease News -->
                 @if(displayConfig.widget.whoDiseaseNews.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.whoDiseaseNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.whoDiseaseNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease', 'collapsed': displayConfig.widget.whoDiseaseNews.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             Who Desease News
@@ -750,7 +762,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredWhoDiseaseNews, widgetId: 'whoDisease', widgetConfig: displayConfig.widget.whoDiseaseNews}" ></ng-container>
                         </div>
                     </h5>
-
+                    @if(!displayConfig.widget.whoDiseaseNews.collapsed){
                     <div class="w-100 table-container">
                         @if (!whoDiseaseNewsError) {
                             <table class="table table-hover table-sm w-100">
@@ -806,12 +818,13 @@
                             <span class="text-danger p-3">{{whoDiseaseNewsError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
                 <!-- GNews -->
                 @if(displayConfig.widget.gNews.display){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.gNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews'}">
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.gNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews', 'collapsed': displayConfig.widget.gNews.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             GNews
@@ -822,7 +835,7 @@
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'gNews', widgetConfig: displayConfig.widget.gNews}" ></ng-container>
                         </div>
                     </h5>
-
+                    @if(!displayConfig.widget.gNews.collapsed){
                     <div class="w-100 table-container">
                         @if (!gNewsError) {
                             <table class="table table-hover table-sm w-100">
@@ -885,6 +898,7 @@
                             <span class="text-danger p-3">{{gNewsError}}</span>
                         }
                     </div>
+                    }
                 </div>
                 }
 
@@ -1007,6 +1021,12 @@
     }
 </div>
 
+<ng-template let-lat="lat" let-lng="lng" #distanceTemplate>
+    <span class="cursor-pointer" (click)="goToMapCoords(lat, lng)" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
+    {{getDistanceKm(lat, lng) | number:'1.1-1'}}
+    </span>
+</ng-template>
+
 <ng-template #dateRangesContainer>
     <small>
         @if (getFormattedDate(dateFrom)!==getFormattedDate(dateTo)) {
@@ -1018,9 +1038,11 @@
 </ng-template>
 
  <ng-template let-listItems="listItems" let-showCounts="showCounts" let-widgetId="widgetId" let-widgetConfig="widgetConfig" #widgetOptionsTemplate>
+    <!-- Counts badge -->
     @if(showCounts){
         <span class="badge">{{listItems.length}}</span>
     }
+    <!-- Widget width buttons -->
     @if(maximizedWidgetId!==widgetId){
         <div class="btn-group wirt-btn-group">
             @for (item of widgetWidthClasses; track $index) {
@@ -1030,14 +1052,21 @@
             }
         </div>
     }
-    <ng-container [ngTemplateOutlet]="toggleMaximize" [ngTemplateOutletContext]="{widgetId: widgetId}"></ng-container>
+    <ng-container [ngTemplateOutlet]="toggleMaximize" [ngTemplateOutletContext]="{widgetId}"></ng-container>
+    @if(!maximizedWidgetId){
+        <ng-container [ngTemplateOutlet]="toggleCollapse" [ngTemplateOutletContext]="{widgetConfig}"></ng-container>
+    }
 </ng-template>
 
 <ng-template let-widgetId="widgetId" #toggleMaximize>
     @if (maximizedWidgetId && maximizedWidgetId===widgetId) {
-        <span ngbTooltip="Minimize" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas fa-xmark cursor-pointer mx-2" (click)="toggleMaximizedWidget(widgetId)"></span>
+        <span ngbTooltip="Minimize" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas fa-xmark cursor-pointer ms-2 pe-3" (click)="toggleMaximizedWidget(widgetId)"></span>
     }
     @if (!maximizedWidgetId || maximizedWidgetId!==widgetId) {
         <span ngbTooltip="Maximize" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas fa-expand cursor-pointer mx-2" (click)="toggleMaximizedWidget(widgetId)"></span>
     }
+</ng-template>
+
+<ng-template let-widgetConfig="widgetConfig" #toggleCollapse>
+    <span ngbTooltip="{{widgetConfig.collapsed?'Expand':'Collapse'}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas cursor-pointer p-1 mx-2" [ngClass]="{'fa-caret-down': !widgetConfig.collapsed, 'fa-caret-left': widgetConfig.collapsed}" (click)="widgetConfig.collapsed=!widgetConfig.collapsed"></span>
 </ng-template>

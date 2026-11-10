@@ -1,7 +1,9 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { LeafletModule } from '@bluehalo/ngx-leaflet';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
+import { LeafletMapService } from '../../../../services/leaflet-map-service';
+import { Subscription } from 'rxjs';
 
 export interface MapLocation {
   id: number;
@@ -22,7 +24,11 @@ export type MapType = 'openstreet' | 'satellite' | 'terrain' | 'esristreets' | '
   templateUrl: './leaflet-map.html',
   styleUrl: './leaflet-map.scss',
 })
-export class LeafletMap implements OnChanges {
+export class LeafletMap implements OnChanges, OnInit, OnDestroy {
+  
+  private leafletMapsService = inject(LeafletMapService);
+  goToPositionSubscription?: Subscription;
+  
   @Input() locations: MapLocation[] = [];
   @Input() userRadius?: {lat?: number, lon?: number, radiusKm?: number};
 
@@ -80,11 +86,6 @@ export class LeafletMap implements OnChanges {
       maxZoom: 17
     }
   };
-
-  ngOnChanges(): void {
-    this.updateMarkers();
-    this.updateRadiusCircle();
-  }
 
   onMapReady(map: L.Map): void {
     this.map = map;
@@ -198,6 +199,7 @@ export class LeafletMap implements OnChanges {
     ).addTo(this.map);
   }
 
+  /*
   private updateMapBounds(): void {
     if (!this.map || this.markerLayers.length === 0) {
       return;
@@ -211,5 +213,30 @@ export class LeafletMap implements OnChanges {
       padding: [30, 30],
       maxZoom: 13
     });
+  }
+  */
+
+  private setMapView(lat: number, lng: number, zoom: number): void {
+    if (!this.map) return;
+    this.map.setView([lat, lng], zoom);
+  }
+
+  ngOnInit(): void {
+    this.goToPositionSubscription = this.leafletMapsService.position.subscribe({
+      next: (_position) => {
+        if (_position) {
+          this.setMapView(_position.lat, _position.lng, _position.zoom);
+        }
+      }
+    });
+  }
+
+  ngOnChanges(): void {
+    this.updateMarkers();
+    this.updateRadiusCircle();
+  }
+
+  ngOnDestroy(): void {
+    this.goToPositionSubscription?.unsubscribe();
   }
 }
