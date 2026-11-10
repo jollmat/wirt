@@ -25,12 +25,14 @@
                 <!-- Recent Events -->
                 @if(displayConfig.widget.recentEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             @if(filteredRecentEvents.length>0) {
-                                <i class="fas fa-exclamation-circle text-warning me-2 blink-smooth"></i>
+                                <i class="fas fa-exclamation-circle text-warning me-1 blink-smooth"></i>
                             }
-                            Recent events</span>
+                            Recent events
+                            <span class="badge ms-2">{{filteredRecentEvents.length}}</span>
+                        </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
                         </div>
@@ -135,12 +137,14 @@
                 <!-- Near Events -->
                 @if(displayConfig.widget.nearEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.nearEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
                             @if(filteredNearEvents.length>0) {
-                                <i class="fas fa-exclamation-circle text-warning me-2 blink-smooth"></i>
+                                <i class="fas fa-exclamation-circle text-warning me-1 blink-smooth"></i>
                             }
-                            Near you</span>
+                            Near you
+                            <span class="badge ms-2">{{filteredNearEvents.length}}</span>
+                        </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
                                 class="me-2 custom-ng-select"
@@ -261,8 +265,12 @@
                 <!-- USGS Earthquakes -->
                 @if(displayConfig.widget.earthQuakes.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.earthQuakes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>Earthquakes</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Earthquakes
+                            <span class="badge ms-2">{{filteredEarthquakes.length}}</span>
+                        </span>
+                        
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredEarthquakes, widgetId: 'usgsEarthquakes', widgetConfig: displayConfig.widget.earthQuakes}" ></ng-container>
@@ -366,8 +374,11 @@
                 <!-- Seismic Portal Events -->
                 @if(displayConfig.widget.seismicPortalEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.seismicPortalEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>Seismic Portal Events</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Seismic Portal Events
+                            <span class="badge ms-2">{{filteredSeismicPortalEearthquakes.length}}</span>
+                        </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
@@ -475,8 +486,11 @@
                 <!-- Alerts Live -->
                 @if(displayConfig.widget.alertsLive.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>Alerts Live</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Alerts Live
+                            <span class="badge ms-2">{{filteredAlertsLiveEvents.length}}</span>
+                        </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
                                 class="me-2 custom-ng-select"
@@ -560,8 +574,11 @@
                 <!-- City Alert Live -->
                 @if(displayConfig.widget.cityAlertLiveIncidents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.cityAlertLiveIncidents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>City Alert Live</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            City Alert Live
+                            <span class="badge ms-2">{{filteredCityAlertLiveIncidents.length}}</span>
+                        </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-select
                                 class="me-2 custom-ng-select"
@@ -659,8 +676,11 @@
                 <!-- Natural events -->
                 @if(displayConfig.widget.natureEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>Natural events</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Natural events
+                            <span class="badge ms-2">{{filteredNatureEvents.length}}</span>
+                        </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNatureEvents, widgetId: 'naturalEvents', widgetConfig: displayConfig.widget.natureEvents}" ></ng-container>
@@ -720,8 +740,11 @@
                 <!-- Who Disease News -->
                 @if(displayConfig.widget.whoDiseaseNews.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.whoDiseaseNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>Who Desease News</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Who Desease News
+                            <span class="badge ms-2">{{filteredWhoDiseaseNews.length}}</span>
+                        </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredWhoDiseaseNews, widgetId: 'whoDisease', widgetConfig: displayConfig.widget.whoDiseaseNews}" ></ng-container>
@@ -789,8 +812,11 @@
                 <!-- GNews -->
                 @if(displayConfig.widget.gNews.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.gNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews'}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center">
-                        <span>GNews</span>
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            GNews
+                            <span class="badge ms-2">{{filteredGNews.length}}</span>
+                        </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'gNews', widgetConfig: displayConfig.widget.gNews}" ></ng-container>
@@ -991,9 +1017,10 @@
     </small>
 </ng-template>
 
- <ng-template let-listItems="listItems" let-widgetId="widgetId" let-widgetConfig="widgetConfig" #widgetOptionsTemplate>
-    <span class="badge">{{listItems.length}}</span>
-
+ <ng-template let-listItems="listItems" let-showCounts="showCounts" let-widgetId="widgetId" let-widgetConfig="widgetConfig" #widgetOptionsTemplate>
+    @if(showCounts){
+        <span class="badge">{{listItems.length}}</span>
+    }
     @if(maximizedWidgetId!==widgetId){
         <div class="btn-group wirt-btn-group">
             @for (item of widgetWidthClasses; track $index) {
