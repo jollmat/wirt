@@ -3,6 +3,7 @@ import { AuthService } from '../../../../services/auth-service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { DateRangeConverted, DateRangePicker } from '../date-range-picker/date-range-picker';
+import { Dashboard, DeviceInfo } from '../../../dashboard/components/dashboard/dashboard';
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,7 @@ export class Header implements OnInit {
 
   @Input() from!: Date;
   @Input() to!: Date;
+  @Input() deviceInfo?: DeviceInfo;
 
   private router = inject(Router);
 

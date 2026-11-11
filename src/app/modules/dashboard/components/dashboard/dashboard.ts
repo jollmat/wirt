@@ -35,6 +35,13 @@ export const WidgetWidthClasses = [
 
 export type WidgetWidthClassType = typeof WidgetWidthClasses[number];
 export interface WidgetDisplayConfig { display: boolean; widthClass: string; collapsed: boolean;};
+export interface DeviceInfo {
+  isTablet: boolean,
+  isMobile: boolean,
+  isDesktop: boolean,
+  landscape: boolean,
+  portrait: boolean
+};
 
 @Component({
   selector: 'app-dashboard',
@@ -291,13 +298,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
   widgetWidthClasses = [...WidgetWidthClasses];
 
-  deviceInfo: {
-    isTablet: boolean,
-    isMobile: boolean,
-    isDesktop: boolean,
-    landscape: boolean,
-    portrait: boolean
-  } = {
+  deviceInfo: DeviceInfo = {
     isTablet: false,
     isMobile: false,
     isDesktop: true,
@@ -358,7 +359,6 @@ export class Dashboard implements OnInit, OnDestroy {
         portrait: height > width
       };
     }
-    console.log(this.deviceInfo);
   }
 
   udateWidgetWidth(widgetId: string, widgetDisplayConf: WidgetDisplayConfig, widthClass: WidgetWidthClassType) {

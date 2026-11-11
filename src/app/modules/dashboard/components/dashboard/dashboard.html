@@ -1,8 +1,8 @@
 <div class="d-flex flex-column w-100 min-vh-100">
     @if(true) {
     <div class="sticky-header w-100">
-        @if(dateFrom && dateTo){
-            <app-header [from]="dateFrom" [to]="dateTo" (onDateChangeEmitter)="onDateRangeChange($event)"></app-header>
+        @if(dateFrom && dateTo && deviceInfo){
+            <app-header [from]="dateFrom" [to]="dateTo" [deviceInfo]="deviceInfo" (onDateChangeEmitter)="onDateRangeChange($event)"></app-header>
         }
     </div>
     }
