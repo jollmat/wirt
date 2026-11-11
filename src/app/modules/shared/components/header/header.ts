@@ -3,12 +3,13 @@ import { AuthService } from '../../../../services/auth-service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { DateRangeConverted, DateRangePicker } from '../date-range-picker/date-range-picker';
-import { Dashboard, DeviceInfo } from '../../../dashboard/components/dashboard/dashboard';
+import { DeviceInfo } from '../../../dashboard/components/dashboard/dashboard';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [DateRangePicker],
+  imports: [DateRangePicker, NgClass],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

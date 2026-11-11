@@ -12,6 +12,7 @@ import {
   shareReplay,
   tap
 } from 'rxjs/operators';
+import { CommonEventInterface } from '../model/common/interfaces/common-event.interface';
 
 export interface GNewsArticle {
   title: string;
@@ -175,5 +176,20 @@ export class GNewsService {
   limpiarCache(): void {
     localStorage.removeItem(this.CACHE_KEY);
     this.request$ = undefined;
+  }
+
+  public static toCommonEvent(event: GNewsArticle): CommonEventInterface {
+    return {
+      id: crypto.getRandomValues(new Uint32Array(1))[0],
+      title: event.title,
+      description: event.description,
+      lat: 0,
+      lon: 0,
+      type: '',
+      time: event.published,
+      origin: 'GNews',
+      originIconId: '',
+      link: event.url
+    } as CommonEventInterface;
   }
 }

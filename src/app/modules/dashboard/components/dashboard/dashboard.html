@@ -22,6 +22,7 @@
 
             @if (viewType()==='GRID') {
 
+                <!-- Near and Recent Events -->
                 @if(filteredNearRecentEvents.length>0){
                     <div class="d-flex flex-column w-99 gap-1 near-recent-events py-1 pe-2 mt-2 blink-slow">
                     @for (nearRecentEvent of filteredNearRecentEvents; track $index) {
@@ -40,14 +41,15 @@
                 @if(displayConfig.widget.recentEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'collapsed': displayConfig.widget.recentEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
-                        <span>
+                        <div class="d-flex align-items-center">
                             @if(filteredRecentEvents.length>0) {
                                 <i class="fas fa-exclamation-circle text-warning me-1 blink-smooth"></i>
                             }
                             Recent events
                             <span class="badge ms-2">{{filteredRecentEvents.length}}</span>
-                        </span>
+                        </div>
                         <div class="d-flex align-items-center gap-2">
+                            @if(!deviceInfo.isMobile){
                             <ng-select
                                 class="me-2 custom-ng-select p-0"
                                 appendTo="body"
@@ -65,11 +67,13 @@
                                         <span class="nearKmOption">< {{ item.text }}</span>
                                     </ng-template>
                             </ng-select>
+                            }
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
                         </div>
                     </h5>
                     @if(!displayConfig.widget.recentEvents.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
+                        @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                         <table class="table table-hover table-sm w-100">
                             <thead>
                                 <tr>
@@ -162,6 +166,14 @@
                                 }
                             </tbody>
                         </table>
+                        }
+                        @else if(deviceInfo.isMobile && maximizedWidgetId==='recentEvents') {
+                            <div class="d-flex flex-column gap-2 p-2">
+                                @for (event of filteredRecentEvents; track $index) {
+                                    <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event}"></ng-container>
+                                }
+                            </div>
+                        }
                     </div>
                     }
                 </div>
@@ -179,6 +191,7 @@
                             <span class="badge ms-2">{{filteredNearEvents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
+                            @if(!deviceInfo.isMobile){
                             <ng-select
                                 class="me-2 custom-ng-select p-0"
                                 appendTo="body"
@@ -194,12 +207,14 @@
                                         <span class="nearKmOption">Max. {{ item }} Km</span>
                                     </ng-template>
                             </ng-select>
+                            }
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNearEvents, widgetId: 'nearEvents', widgetConfig: displayConfig.widget.nearEvents}" ></ng-container>
                         </div>
                     </h5>
                     @if(!displayConfig.widget.nearEvents.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
+                        @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                         <table class="table table-hover table-sm w-100">
                             <thead>
                                 <tr>
@@ -292,6 +307,13 @@
                                 }
                             </tbody>
                         </table>
+                        }@else if(deviceInfo.isMobile && maximizedWidgetId==='nearEvents') {
+                            <div class="d-flex flex-column gap-2 p-2">
+                                @for (event of filteredNearEvents; track $index) {
+                                    <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event}"></ng-container>
+                                }
+                            </div>
+                        }
                     </div>
                     }
                 </div>
@@ -314,6 +336,7 @@
                     @if(!displayConfig.widget.earthQuakes.collapsed){
                     <div class="w-100 flex-grow-1 overflow-auto table-container">
                         @if (!earthQuakesError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -400,6 +423,13 @@
                                     }
                                 </tbody>
                             </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='usgsEarthquakes') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredEarthquakes; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: EarthquakeUsgsService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{earthQuakesError}}</span>
                         }
@@ -423,7 +453,7 @@
                     </h5>
                     @if(!displayConfig.widget.seismicPortalEvents.collapsed){
                     <div class="w-100 table-container">
-                        
+                        @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -515,7 +545,13 @@
                                     }
                                 </tbody>
                             </table>
-
+                        }@else if(deviceInfo.isMobile && maximizedWidgetId==='seismicPortal') {
+                            <div class="d-flex flex-column gap-2 p-2">
+                                @for (event of filteredSeismicPortalEearthquakes; track $index) {
+                                    <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: SeismicPortalService.toCommonEvent(event)}"></ng-container>
+                                }
+                            </div>
+                        }
                     </div>
                     }
                 </div>
@@ -530,6 +566,7 @@
                             <span class="badge ms-2">{{filteredAlertsLiveEvents.length}} / {{alertsLiveEvents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
+                            @if(!deviceInfo.isMobile){
                             <ng-select
                                 class="me-2 custom-ng-select"
                                 [items]="alertsLiveTypes"
@@ -542,6 +579,7 @@
                                 [clearable]="false"
                                 [searchable]="false">
                             </ng-select>
+                            }
                             <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredAlertsLiveEvents, widgetId: 'alertsLive', widgetConfig: displayConfig.widget.alertsLive}" ></ng-container>
                         </div>
@@ -549,60 +587,68 @@
                     @if(!displayConfig.widget.alertsLive.collapsed){
                     <div class="w-100 table-container">
                         @if (!alertsLiveError) {
-                            <table class="table table-hover table-sm">
-                                <thead>
-                                    <tr>
-                                        <th class="time-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'time')">
-                                                Time
-                                                @if(alertsLiveSortConfig.field==='time') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th class="dist-column text-end">
-                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'dist')">
-                                                Dist (Km)
-                                                @if(alertsLiveSortConfig.field==='dist') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th class="icon-column"></th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'type')">
-                                                Type
-                                                @if(alertsLiveSortConfig.field==='type') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'title')">
-                                                Title
-                                                @if(alertsLiveSortConfig.field==='title') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (alertLive of filteredAlertsLiveEvents; track $index) {
-                                        <tr [ngClass]="isToday(alertLive.last_seen) ? 'today-event' : ''">
-                                            <td class="nowrap ps-2">
-                                                <span [ngClass]="{'blink-smooth': isWithinTime(alertLive.last_seen, withinTimeHours)}">{{alertLive.last_seen | date: 'dd.MM.yyyy - HH:mm'}}</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: alertLive.lat, lng: alertLive.lon}"></ng-container>
-                                            </td>
-                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('alertsLive', alertLive.type).iconTag)"></span></td>
-                                            <td><span>{{alertLive.type}}</span></td>
-                                            <td class="wrap-200px"><a [href]="sanitizeUrl(alertLive.url)" target="_blank" ngbTooltip="{{alertLive.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{alertLive.title}}</a></td>
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="time-column">
+                                                <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'time')">
+                                                    Time
+                                                    @if(alertsLiveSortConfig.field==='time') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
+                                            <th class="dist-column text-end">
+                                                <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'dist')">
+                                                    Dist (Km)
+                                                    @if(alertsLiveSortConfig.field==='dist') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
+                                            <th class="icon-column"></th>
+                                            <th>
+                                                <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'type')">
+                                                    Type
+                                                    @if(alertsLiveSortConfig.field==='type') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
+                                            <th>
+                                                <span class="cursor-pointer" (click)="toggleSort(alertsLiveSortConfig, 'title')">
+                                                    Title
+                                                    @if(alertsLiveSortConfig.field==='title') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':alertsLiveSortConfig.dir==='DESC','fa-caret-up':alertsLiveSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (alertLive of filteredAlertsLiveEvents; track $index) {
+                                            <tr [ngClass]="isToday(alertLive.last_seen) ? 'today-event' : ''">
+                                                <td class="nowrap ps-2">
+                                                    <span [ngClass]="{'blink-smooth': isWithinTime(alertLive.last_seen, withinTimeHours)}">{{alertLive.last_seen | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: alertLive.lat, lng: alertLive.lon}"></ng-container>
+                                                </td>
+                                                <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('alertsLive', alertLive.type).iconTag)"></span></td>
+                                                <td><span>{{alertLive.type}}</span></td>
+                                                <td class="wrap-200px"><a [href]="sanitizeUrl(alertLive.url)" target="_blank" ngbTooltip="{{alertLive.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{alertLive.title}}</a></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='alertsLive') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredAlertsLiveEvents; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: AlertsLiveService.toCommonEvent(event)}"></ng-container>
                                     }
-                                </tbody>
-                            </table>
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{alertsLiveError}}</span>
                         }
@@ -620,6 +666,7 @@
                             <span class="badge ms-2">{{filteredCityAlertLiveIncidents.length}} / {{cityAlertLiveIncidents.length}}</span>
                         </span>
                         <div class="d-flex align-items-center gap-2">
+                            @if(!deviceInfo.isMobile){
                             <ng-select
                                 class="me-2 custom-ng-select"
                                 [items]="cityAlertLiveCategories"
@@ -632,6 +679,7 @@
                                 [clearable]="false"
                                 [searchable]="false">
                             </ng-select>
+                            }
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredCityAlertLiveIncidents, widgetId: 'cityAlert', widgetConfig: displayConfig.widget.cityAlertLiveIncidents}" ></ng-container>
                         </div>
@@ -639,6 +687,7 @@
                     @if(!displayConfig.widget.cityAlertLiveIncidents.collapsed){
                     <div class="w-100 table-container">
                         @if (!cityAlertLiveError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -706,6 +755,13 @@
                                     }
                                 </tbody>
                             </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='cityAlert') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredCityAlertLiveIncidents; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: CityAlertLiveService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{cityAlertLiveError}}</span>
                         }
@@ -730,6 +786,7 @@
                     @if(!displayConfig.widget.natureEvents.collapsed){
                     <div class="w-100 table-container">
                         @if (!natureEventsError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -772,6 +829,13 @@
                                     }
                                 </tbody>
                             </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='naturalEvents') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredNatureEvents; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: NasaEonetService.toCommonEvent(event, dateFrom, dateTo)}"></ng-container>
+                                    }
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{natureEventsError}}</span>
                         }
@@ -796,6 +860,7 @@
                     @if(!displayConfig.widget.whoDiseaseNews.collapsed){
                     <div class="w-100 table-container">
                         @if (!whoDiseaseNewsError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -845,6 +910,13 @@
                                     }
                                 </tbody>
                             </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='whoDisease') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredWhoDiseaseNews; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: WhoDiseaseNewsService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{whoDiseaseNewsError}}</span>
                         }
@@ -869,6 +941,7 @@
                     @if(!displayConfig.widget.gNews.collapsed){
                     <div class="w-100 table-container">
                         @if (!gNewsError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
                             <table class="table table-hover table-sm w-100">
                                 <thead>
                                     <tr>
@@ -925,6 +998,13 @@
                                     }
                                 </tbody>
                             </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='gNews') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredGNews; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: GNewsService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
                         } @else {
                             <span class="text-danger p-3">{{gNewsError}}</span>
                         }
@@ -1052,20 +1132,25 @@
     }
 </div>
 
-<ng-template let-lat="lat" let-lng="lng" #distanceTemplate>
+<ng-template let-lat="lat" let-lng="lng" let-showUnits="showUnits" #distanceTemplate>
     <span class="cursor-pointer" (click)="goToMapCoords(lat, lng)" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
     {{getDistanceKm(lat, lng) | number:'1.1-1'}}
+    @if(showUnits){
+        <span>Km</span>
+    }
     </span>
 </ng-template>
 
 <ng-template #dateRangesContainer>
-    <small>
-        @if (getFormattedDate(dateFrom)!==getFormattedDate(dateTo)) {
-            {{dateFrom | date: 'dd.MM.yyyy'}} - {{dateTo | date: 'dd.MM.yyyy'}}
-        } @else {
-            {{dateFrom | date: 'dd.MM.yyyy'}}
-        }
-    </small>
+    @if (!deviceInfo.isMobile) {
+        <small>
+            @if (getFormattedDate(dateFrom)!==getFormattedDate(dateTo)) {
+                {{dateFrom | date: 'dd.MM.yyyy'}} - {{dateTo | date: 'dd.MM.yyyy'}}
+            } @else {
+                {{dateFrom | date: 'dd.MM.yyyy'}}
+            }
+        </small>
+    }
 </ng-template>
 
  <ng-template let-listItems="listItems" let-showCounts="showCounts" let-widgetId="widgetId" let-widgetConfig="widgetConfig" #widgetOptionsTemplate>
@@ -1074,7 +1159,7 @@
         <span class="badge">{{listItems.length}}</span>
     }
     <!-- Widget width buttons -->
-    @if(maximizedWidgetId!==widgetId){
+    @if(!deviceInfo.isMobile && maximizedWidgetId!==widgetId){
         <div class="btn-group wirt-btn-group">
             @for (item of widgetWidthClasses; track $index) {
             <button [ngClass]="{'active': widgetConfig.widthClass===item}" (click)="udateWidgetWidth(widgetId, widgetConfig, item)" type="button" class="btn cursor-pointer">
@@ -1100,4 +1185,21 @@
 
 <ng-template let-widgetConfig="widgetConfig" #toggleCollapse>
     <span ngbTooltip="{{widgetConfig.collapsed?'Expand':'Collapse'}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" class="fas cursor-pointer p-1 mx-2" [ngClass]="{'fa-caret-down': !widgetConfig.collapsed, 'fa-caret-left': widgetConfig.collapsed}" (click)="widgetConfig.collapsed=!widgetConfig.collapsed"></span>
+</ng-template>
+
+<ng-template let-event="event" #mobileCommonEvent>
+    <div class="d-flex flex-column w-100 mobile-common-event p-2">
+        <div class="d-flex justify-content-between w-100">
+            <span>{{event.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+            @if (event.lat!==0 && event.lon!==0) {
+                <span><ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: event.lat, lng: event.lon, showUnits: true}"></ng-container></span>
+            }
+        </div>
+        <div class="common-event-title w-100 p-2">
+            <a href="{{event.link}}" target="_blank">{{event.title}}</a>
+        </div>
+        <div class="common-event-title w-100 p-2 pt-0">
+            {{event.description}}
+        </div>
+    </div>
 </ng-template>

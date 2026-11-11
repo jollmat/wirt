@@ -36,7 +36,13 @@ $bg-color-widget-title: #1e1c1c;
 
         &.widget_maximized {
             width: 100% !important;
-            height: 100% !important;
+            height: calc(100vh) !important;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 1000;
+            background-color: $bg-color;
+            border-radius: 0px;
         }
         &.widget_hidden {
             display: none !important;
@@ -239,5 +245,19 @@ div {
 
     .distance {
         width: 100px;
+    }
+}
+
+.mobile-common-event {
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid $border-color;
+    background-color: transparent;
+
+    .common-event-time {
+        
+    }
+    .common-event-title {
+        
     }
 }

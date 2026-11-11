@@ -57,8 +57,8 @@ export class NasaEonetService {
   public static toCommonEvent(event: NasaEonetEventInterface, dateFrom: Date, dateTo: Date): CommonEventInterface {
     return {
       id: event.id,
-      title: event.categories[0].title,
-      description: event.categories[0].title,
+      title: event.title,
+      description: event.description?.length>0 ? event.description : event.categories[0].title,
       lat: event.geometry[0].coordinates[1],
       lon:event.geometry[0].coordinates[0],
       type: event.categories[0].title,

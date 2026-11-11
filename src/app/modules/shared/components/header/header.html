@@ -1,13 +1,13 @@
 <div class="header d-flex justify-content-between align-items-center w-100 p-3">
-    <div class="app-title">
+    <div class="app-title" [ngClass]="{'w-100 text-center': deviceInfo && deviceInfo.isMobile}">
         WIRT
-        @if(deviceInfo && (deviceInfo.isDesktop || deviceInfo.isTablet)) {
-            <small>World In Real Time</small>
-        }
+        <small>World In Real Time</small>
     </div>
+    @if(deviceInfo && (deviceInfo.isDesktop || deviceInfo.isTablet)) {
     <div class="d-flex align-items-center gap-2">
         <app-date-range-picker class="me-2" [from]="from" [to]="to" (dateRangeChange)="onDateRangeChange($event)" />
         <span class="fw-200">{{user()}}</span>
         <i class="bi bi-power cursor-pointer" (click)="logout()"></i>
     </div>
+    }
 </div>

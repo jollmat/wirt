@@ -6,6 +6,10 @@
 
 @import "@ng-select/ng-select/themes/default.theme.css";
 
+html {
+    overflow: hidden;
+}
+
 body {
     background-color: $bg-color;
     color: $text-color !important;

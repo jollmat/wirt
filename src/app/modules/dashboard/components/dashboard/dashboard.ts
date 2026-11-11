@@ -63,6 +63,14 @@ export class Dashboard implements OnInit, OnDestroy {
 
   currentTime = signal(Date.now());
 
+  EarthquakeUsgsService = EarthquakeUsgsService;
+  SeismicPortalService = SeismicPortalService;
+  AlertsLiveService = AlertsLiveService;
+  CityAlertLiveService = CityAlertLiveService;
+  NasaEonetService = NasaEonetService;
+  WhoDiseaseNewsService = WhoDiseaseNewsService;
+  GNewsService = GNewsService;
+
   private leafletMapsService = inject(LeafletMapService);
   private earthquakeUsgsService = inject(EarthquakeUsgsService);
   private nasaEonetService = inject(NasaEonetService);
