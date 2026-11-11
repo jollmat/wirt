@@ -55,7 +55,6 @@ export class CityAlertLiveService {
 
     return incidents.filter(incident => {
       const time = new Date(incident.time).getTime();
-
       return time >= from.getTime() && time <= to.getTime();
     });
   }

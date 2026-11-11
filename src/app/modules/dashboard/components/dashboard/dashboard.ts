@@ -673,10 +673,12 @@ export class Dashboard implements OnInit, OnDestroy {
     return res.sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
+        const aTime = a.time ? new Date(a.time).getTime() : 0;
+        const bTime = a.time ? new Date(b.time).getTime() : 0;
         if (sortConfig.dir==='DESC') {
-          append = a.time > b.time ? -1 : 1;
+          append = aTime > bTime ? -1 : 1;
         } else {
-          append = a.time > b.time ? 1 : -1;
+          append = aTime > bTime ? 1 : -1;
         }
       }
       if (sortConfig.field==='type') {
@@ -762,10 +764,12 @@ export class Dashboard implements OnInit, OnDestroy {
     return res.sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
+        const aTime = a.time ? new Date(a.time) : 0;
+        const bTime = b.time ? new Date(b.time) : 0;
         if (sortConfig.dir==='DESC') {
-          append = a.time > b.time ? -1 : 1;
+          append = aTime > bTime ? -1 : 1;
         } else {
-          append = a.time > b.time ? 1 : -1;
+          append = aTime > bTime ? 1 : -1;
         }
       }
       if (sortConfig.field==='type') {
@@ -819,10 +823,12 @@ export class Dashboard implements OnInit, OnDestroy {
     this.earthQuakes.sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
+        const aTime = a.properties.time ? new Date(a.properties.time).getTime() : 0;
+        const bTime = b.properties.time ? new Date(b.properties.time).getTime() : 0;
         if (sortConfig.dir==='DESC') {
-          append = a.properties.time > b.properties.time ? -1 : 1;
+          append = aTime > bTime ? -1 : 1;
         } else {
-          append = a.properties.time > b.properties.time ? 1 : -1;
+          append = aTime > bTime ? 1 : -1;
         }
       }
       if (sortConfig.field==='depth') {
@@ -895,10 +901,12 @@ export class Dashboard implements OnInit, OnDestroy {
     return res.sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
+        const aTime = a.first_seen ? new Date(a.first_seen).getTime() : 0;
+        const bTime = b.first_seen ? new Date(b.first_seen).getTime() : 0;
         if (sortConfig.dir==='DESC') {
-          append = a.first_seen > b.first_seen ? -1 : 1;
+          append = aTime > bTime ? -1 : 1;
         } else {
-          append = a.first_seen > b.first_seen ? 1 : -1;
+          append = aTime > bTime ? 1 : -1;
         }
       }
       if (sortConfig.field==='dist') {
@@ -937,10 +945,12 @@ export class Dashboard implements OnInit, OnDestroy {
     return res.sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
+        const aTime = a.time ? new Date(a.time).getTime() : 0;
+        const bTime = b.time ? new Date(b.time).getTime() : 0;
         if (sortConfig.dir==='DESC') {
-          append = a.time > b.time ? -1 : 1;
+          append = aTime > bTime ? -1 : 1;
         } else {
-          append = a.time > b.time ? 1 : -1;
+          append = aTime > bTime ? 1 : -1;
         }
       }
       if (sortConfig.field==='dist') {
@@ -984,9 +994,9 @@ export class Dashboard implements OnInit, OnDestroy {
       let append = 1;
       if (sortConfig.field==='time') {
         if (sortConfig.dir==='DESC') {
-          append = a.LastModified > b.LastModified ? -1 : 1;
+          append = a.LastModified.getTime() > b.LastModified.getTime() ? -1 : 1;
         } else {
-          append = a.LastModified > b.LastModified ? 1 : -1;
+          append = a.LastModified.getTime() > b.LastModified.getTime() ? 1 : -1;
         }
       }
       return append;
@@ -1007,9 +1017,9 @@ export class Dashboard implements OnInit, OnDestroy {
       let append = 1;
       if (sortConfig.field==='time') {
         if (sortConfig.dir==='DESC') {
-          append = a.data.properties.lastupdate > b.data.properties.lastupdate ? -1 : 1;
+          append = a.data.properties.lastupdate.getTime() > b.data.properties.lastupdate.getTime() ? -1 : 1;
         } else {
-          append = a.data.properties.lastupdate > b.data.properties.lastupdate ? 1 : -1;
+          append = a.data.properties.lastupdate.getTime() > b.data.properties.lastupdate.getTime() ? 1 : -1;
         }
       }
       if (sortConfig.field==='dist') {
@@ -1060,9 +1070,9 @@ export class Dashboard implements OnInit, OnDestroy {
       let append = 1;
       if (sortConfig.field==='time') {
         if (sortConfig.dir==='DESC') {
-          append = a.publishedAt > b.publishedAt ? -1 : 1;
+          append = new Date(a.publishedAt).getTime() > new Date(b.publishedAt).getTime() ? -1 : 1;
         } else {
-          append = a.publishedAt > b.publishedAt ? 1 : -1;
+          append = new Date(a.publishedAt).getTime() > new Date(b.publishedAt).getTime() ? 1 : -1;
         }
       }
       if (sortConfig.field==='title') {
