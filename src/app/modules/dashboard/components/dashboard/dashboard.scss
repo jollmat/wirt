@@ -228,3 +228,16 @@ div {
 .nearKmOption {
     font-size: 13px;
 }
+
+.near-recent-events {
+    max-height: 125px;
+    overflow: auto;
+
+    a {
+        color: #dc0028;
+    }
+
+    .distance {
+        width: 100px;
+    }
+}

@@ -22,6 +22,20 @@
 
             @if (viewType()==='GRID') {
 
+                @if(filteredNearRecentEvents.length>0){
+                    <div class="d-flex flex-column w-99 gap-1 near-recent-events py-1 pe-2 mt-2 blink-slow">
+                    @for (nearRecentEvent of filteredNearRecentEvents; track $index) {
+                        <div class="d-flex alert alert-danger w-100 m-0 p-2">
+                            <span class="pe-2">{{nearRecentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span> - 
+                            <div class="px-2 distance text-end">
+                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearRecentEvent.lat, lng: nearRecentEvent.lon}"></ng-container> Km
+                            </div> - 
+                            <a class="ps-2" href="{{nearRecentEvent.link}}" target="_blank">{{nearRecentEvent.title}}</a>
+                        </div>
+                    }
+                    </div>
+                }
+
                 <!-- Recent Events -->
                 @if(displayConfig.widget.recentEvents.display){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'collapsed': displayConfig.widget.recentEvents.collapsed}">

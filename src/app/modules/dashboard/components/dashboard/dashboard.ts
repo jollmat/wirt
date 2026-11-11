@@ -636,6 +636,32 @@ export class Dashboard implements OnInit, OnDestroy {
     sortConfig.field = field;
   }
 
+  get filteredNearRecentEvents() {
+    const nearRecentEvents: CommonEventInterface[] = [];
+    this.filteredNearEvents.forEach((_event) => {
+      if (this.isWithinTime(new Date(_event.time), this.withinTimeHours)) {
+        nearRecentEvents.push(_event);
+      }
+    });
+    this.filteredRecentEvents.forEach((_event) => {
+      if (this.isWithinRadius(_event.lat, _event.lon)) {
+        nearRecentEvents.push(_event);
+      }
+    });
+
+    const uniqueEvents = [
+      ...new Map(
+        nearRecentEvents.map(event => [event.id, event])
+      ).values()
+    ];
+
+    return uniqueEvents.sort((a,b) => {
+      const aTime = a.time ? new Date(a.time).getTime() : 0;
+      const bTime = b.time ? new Date(b.time).getTime() : 0;
+      return aTime > bTime ? -1 : 1;;
+    });
+  }
+
   get filteredNearEvents(): CommonEventInterface[] {
     const sortConfig = this.nearEventsSortConfig;
     const res: CommonEventInterface[] = [];
