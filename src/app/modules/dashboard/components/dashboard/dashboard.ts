@@ -282,7 +282,7 @@ export class Dashboard implements OnInit, OnDestroy {
     {type: 'seism-portal', icon: 'fa-house-chimney-crack'},
     {type: 'crimine', icon:'fa-gavel'}
   ];
-  mapSelectorMaximized = signal(false);
+  mapSelectorMaximized = signal(true);
 
   userCoords = signal<{ latitude: number; longitude: number } | null>(null);
   userNearKm = 50;
