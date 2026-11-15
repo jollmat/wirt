@@ -48,6 +48,12 @@ table {
     }
     tbody {
         tr {
+            &.new {
+                td {
+                    background-color: #585252 !important;
+                    color: #c6c1c1 !important;
+                }
+            }
             &.urgent {
                 td {
                     background-color: #ae1313 !important;

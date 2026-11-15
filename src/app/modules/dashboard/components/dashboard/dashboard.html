@@ -138,7 +138,11 @@
                             </thead>
                             <tbody>
                                 @for (recentEvent of filteredRecentEvents; track $index) {
-                                    <tr [ngClass]="{'urgent': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon), 'today-event': isToday(recentEvent.time)}">
+                                    <tr [ngClass]="{
+                                        'urgent': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon), 
+                                        'today-event': isToday(recentEvent.time), 
+                                        'new': isNew(recentEvent.receptionDate || recentEvent.time)
+                                    }">
                                         <td class="ps-2">
                                             <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
@@ -279,7 +283,11 @@
                             </thead>
                             <tbody>
                                 @for (nearEvent of filteredNearEvents; track $index) {
-                                    <tr [ngClass]="{'urgent': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon), 'today-event': isToday(nearEvent.time)}">
+                                    <tr [ngClass]="{
+                                        'urgent': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon), 
+                                        'today-event': isToday(nearEvent.time),
+                                        'new': isNew(nearEvent.receptionDate || nearEvent.time)
+                                        }">
                                         <td class="ps-2">
                                             <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
@@ -512,7 +520,11 @@
                                 </thead>
                                 <tbody>
                                     @for (seismicPortalEvent of filteredSeismicPortalEearthquakes; track $index) {
-                                        <tr [ngClass]="{'urgent': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon), 'today-event': isToday(seismicPortalEvent.data.properties.lastupdate)}">
+                                        <tr [ngClass]="{
+                                                'urgent': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon), 
+                                                'today-event': isToday(seismicPortalEvent.data.properties.lastupdate),
+                                                'new': isNew(seismicPortalEvent.data.properties.receptionDate)
+                                            }">
                                             <td class="nowrap ps-2">
                                                 <span [ngClass]="{'blink-slow': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours)}">{{seismicPortalEvent.data.properties.lastupdate | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>

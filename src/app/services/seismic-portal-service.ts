@@ -18,6 +18,7 @@ export interface SeismicPortalEvent {
       depth: number;
       flynn_region: string;
       lastupdate: Date;
+      receptionDate: Date;
       lat: number;
       lon: number;
       mag: number;
@@ -63,6 +64,7 @@ export class SeismicPortalService implements OnDestroy {
       this.zone.run(() => {
         try {
           const eventItem = JSON.parse(event.data) as SeismicPortalEvent;
+          eventItem.data.properties.receptionDate = new Date();
           eventItem.data.properties.mag = Math.abs(eventItem.data.properties.mag);
           eventItem.data.properties.magTypeDesc = this.getMagTypeDescription(eventItem.data.properties.magtype);
           eventItem.data.properties.perception = this.seismicMetricsService.getPerception(eventItem.data.properties.mag, eventItem.data.properties.magtype, Math.abs(eventItem.data.properties.depth));
@@ -124,6 +126,8 @@ export class SeismicPortalService implements OnDestroy {
           _event.data.properties.lastupdate = new Date(_event.data.properties.lastupdate);
         }
         return _event;
+      }).sort((a,b) => {
+        return a.data.properties.lastupdate>b.data.properties.lastupdate ? 1 : -1;
       });
     }
     return of(events);
@@ -146,6 +150,7 @@ export class SeismicPortalService implements OnDestroy {
       lon: event.data.properties.lon,
       type: 'earthquake',
       time: event.data.properties.lastupdate,
+      receptionDate: event.data.properties.receptionDate,
       origin: 'Seismic Portal',
       originIconId: 'earthQuakes',
       link: `https://www.seismicportal.eu/`

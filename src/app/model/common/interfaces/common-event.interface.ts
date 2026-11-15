@@ -8,6 +8,7 @@ export interface CommonEventInterface {
     type: string;
     category?: string;
     time: Date;
+    receptionDate?: Date;
     origin: string;
     originIconId: string;
     link: string;

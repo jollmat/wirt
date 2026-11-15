@@ -538,6 +538,13 @@ export class Dashboard implements OnInit, OnDestroy {
     return difference >= 0 && difference < hours * 60 * 60 * 1000;
   }
 
+  isNew(date: string | Date) {
+    const eventTime = new Date(date).getTime();
+    const now = Date.now();
+    const difference = now - eventTime;
+    return difference >= 0 && difference < 1000 * 1;
+  }
+
   onDateRangeChange(event: DateRangeConverted): void {
     event.from.setHours(0);
     event.from.setMinutes(0);
