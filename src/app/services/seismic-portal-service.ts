@@ -47,9 +47,9 @@ export class SeismicPortalService implements OnDestroy {
   private eventsSubject = new Subject<SeismicPortalEvent>();
   events$ = this.eventsSubject.asObservable();
 
-  connect(): void {
+  connect(): Observable<boolean> {
 
-    if (this.socket) return;
+    if (this.socket) return of (true);
 
     this.socket = new SockJS(
       'https://www.seismicportal.eu/standing_order'
@@ -86,6 +86,8 @@ export class SeismicPortalService implements OnDestroy {
     this.socket.onerror = (error) => {
       console.error('Seismic service socket error:', error);
     };
+
+    return of (true);
   }
 
   disconnect(): void {

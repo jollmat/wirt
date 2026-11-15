@@ -22,7 +22,7 @@ import { WhoDiseaseNewsInterface } from '../../../../model/who-disease-news/inte
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { SeismicPortalEvent, SeismicPortalService } from '../../../../services/seismic-portal-service';
 import moment from 'moment';
-import { EarthquakePerception } from '../../../../services/seismic-metrics-service';
+import { EarthquakePerception, SeismicMetricsService } from '../../../../services/seismic-metrics-service';
 import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
 import { LeafletMapService } from '../../../../services/leaflet-map-service';
@@ -33,7 +33,7 @@ export const WidgetWidthClasses = [
 ] as const;
 
 export type WidgetWidthClassType = typeof WidgetWidthClasses[number];
-export interface WidgetDisplayConfig { display: boolean; widthClass: string; collapsed: boolean;};
+export interface WidgetDisplayConfig { display: boolean; widthClass: string; collapsed: boolean; soundAlert?: {enabled: boolean, speaking?: boolean}};
 export interface DeviceInfo {
   isTablet: boolean,
   isMobile: boolean,
@@ -77,6 +77,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private cityAlertLiveService = inject(CityAlertLiveService);
   private whoDiseaseNewsService = inject(WhoDiseaseNewsService);
   private seismicService = inject(SeismicPortalService);
+  private seismicMetricsService = inject(SeismicMetricsService);
   private gNewsService = inject(GNewsService);
   
   userCoordsSubscription?: Subscription;
@@ -85,6 +86,7 @@ export class Dashboard implements OnInit, OnDestroy {
   alertsLiveSubscription?: Subscription;
   cityAlertLiveSubscription?: Subscription;
   whoDiseaseNewsSubscription?: Subscription;
+  seismicPortalSocketConnectSubscription?: Subscription;
   seismicPortalSocketSubscription?: Subscription;
   seismicPortalStoredEventsSubscription?: Subscription;
   gNewsServiceSubscription?: Subscription;
@@ -179,7 +181,8 @@ export class Dashboard implements OnInit, OnDestroy {
       seismicPortalEvents: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        soundAlert: {enabled: false, speaking: false}
       },
       whoDiseaseNews: {
         display: true,
@@ -314,6 +317,12 @@ export class Dashboard implements OnInit, OnDestroy {
     landscape: true,
     portrait: false
   };
+
+  /* Voice alerts */
+  voiceLanguage = 'en-GB';
+  voices: SpeechSynthesisVoice[] = [];
+  voicesAvailable: SpeechSynthesisVoice[] = [];
+  currentVoice?: SpeechSynthesisVoice;
 
   constructor(
     private sanitizer: DomSanitizer
@@ -536,13 +545,6 @@ export class Dashboard implements OnInit, OnDestroy {
     const difference = now - eventTime;
 
     return difference >= 0 && difference < hours * 60 * 60 * 1000;
-  }
-
-  isNew(date: string | Date) {
-    const eventTime = new Date(date).getTime();
-    const now = Date.now();
-    const difference = now - eventTime;
-    return difference >= 0 && difference < 1000 * 1;
   }
 
   onDateRangeChange(event: DateRangeConverted): void {
@@ -1322,6 +1324,13 @@ export class Dashboard implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+    window.speechSynthesis.addEventListener(
+      'voiceschanged',
+      () => {
+        this.handleVoicesChanged();
+      }
+    );
+
     this.userCoordsSubscription = this.getUserCoords().subscribe({
       next: (_res) => {
         //console.log('User coords loaded!', _res);
@@ -1339,12 +1348,71 @@ export class Dashboard implements OnInit, OnDestroy {
     });
 
     // Seismic data (socketjs)
-    this.seismicService.connect();
+    this.seismicPortalSocketConnectSubscription = this.seismicService.connect().subscribe(() => {
+      if (this.displayConfig.widget.seismicPortalEvents.soundAlert?.enabled) {
+        this.speakText('Seismic service socket connected!', this.displayConfig.widget.seismicPortalEvents.soundAlert);
+      }
+    });
+    
     this.seismicPortalSocketSubscription = this.seismicService.events$.subscribe(_seismicEvent => {
       this.seismicPortalEearthquakes.unshift(_seismicEvent);
-      console.log('Added new seismic event', _seismicEvent);
+      if (this.displayConfig.widget.seismicPortalEvents.soundAlert?.enabled) {
+        const perceptionLevel = this.seismicMetricsService.getPerception(_seismicEvent.data.properties.mag, _seismicEvent.data.properties.magtype, _seismicEvent.data.properties.depth).level;
+        if (['weak', 'light','moderate','strong', 'very-strong'].includes(perceptionLevel)) {
+          const textToAlert = `Attention: New ${perceptionLevel.replace(/-/g, ' ')} seism in ${_seismicEvent.data.properties.flynn_region}`;
+          this.speakText(textToAlert, this.displayConfig.widget.seismicPortalEvents.soundAlert);
+          console.log(textToAlert);
+        }
+      } else {
+        console.log('Added new seismic event', _seismicEvent);
+      }
     });
 
+  }
+
+  speakText(textToSpeak: string, soundConfig?: {enabled: boolean, speaking?: boolean}) {
+
+    const speech = new SpeechSynthesisUtterance(textToSpeak);
+    speech.lang = this.voiceLanguage;
+    speech.rate = 0.75;
+    speech.pitch = 0.5;
+
+    if (this.currentVoice) {
+      speech.voice = this.currentVoice;
+    }
+
+    if (soundConfig) {
+      soundConfig.speaking = true;
+    }
+    window.speechSynthesis.speak(speech);
+
+    // Speech has finished
+    speech.onend = () => {
+      //console.log('Speech finished');
+      if (soundConfig) {
+        soundConfig.speaking = false;
+      }
+    };
+
+    // Handle errors
+    speech.onerror = (event) => {
+      console.error('Speech error:', event.error);
+      if (soundConfig) {
+        soundConfig.speaking = false;
+      }
+      window.speechSynthesis.resume();
+    };
+  }
+
+  handleVoicesChanged() {
+    this.voices = window.speechSynthesis.getVoices();
+    this.voicesAvailable = this.voices.filter((_voice) => _voice.lang===this.voiceLanguage);
+    this.currentVoice = (this.voices.length>0 && this.voicesAvailable.length>0) ? this.voicesAvailable.find((_voice, idx) => idx===0) : undefined;
+    console.log('Voice config:', {voices: this.voices, voicesAvailable: this.voicesAvailable, currentVoice: this.currentVoice});
+  }
+
+  stopSpeaking() {
+    window.speechSynthesis.cancel();
   }
 
   ngOnDestroy(): void {
@@ -1355,8 +1423,13 @@ export class Dashboard implements OnInit, OnDestroy {
     this.cityAlertLiveSubscription?.unsubscribe();
     this.refreshSubscription?.unsubscribe();
     this.whoDiseaseNewsSubscription?.unsubscribe();
+    this.seismicPortalSocketConnectSubscription?.unsubscribe();
     this.seismicPortalSocketSubscription?.unsubscribe();
     this.seismicPortalStoredEventsSubscription?.unsubscribe();
     this.gNewsServiceSubscription?.unsubscribe();
+
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.removeEventListener('voiceschanged',this.handleVoicesChanged);
   }
 }

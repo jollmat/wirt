@@ -140,8 +140,7 @@
                                 @for (recentEvent of filteredRecentEvents; track $index) {
                                     <tr [ngClass]="{
                                         'urgent': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon), 
-                                        'today-event': isToday(recentEvent.time), 
-                                        'new': isNew(recentEvent.receptionDate || recentEvent.time)
+                                        'today-event': isToday(recentEvent.time)
                                     }">
                                         <td class="ps-2">
                                             <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
@@ -285,8 +284,7 @@
                                 @for (nearEvent of filteredNearEvents; track $index) {
                                     <tr [ngClass]="{
                                         'urgent': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon), 
-                                        'today-event': isToday(nearEvent.time),
-                                        'new': isNew(nearEvent.receptionDate || nearEvent.time)
+                                        'today-event': isToday(nearEvent.time)
                                         }">
                                         <td class="ps-2">
                                             <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
@@ -456,6 +454,16 @@
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
+                            @if(displayConfig.widget.seismicPortalEvents.soundAlert){
+                                <i class="fas cursor-pointer" 
+                                    (click)="displayConfig.widget.seismicPortalEvents.soundAlert.enabled=!displayConfig.widget.seismicPortalEvents.soundAlert.enabled"
+                                    [ngClass]="{
+                                        'fa-microphone': displayConfig.widget.seismicPortalEvents.soundAlert.enabled,
+                                        'fa-microphone-slash': !displayConfig.widget.seismicPortalEvents.soundAlert.enabled,
+                                        'blink-smooth': displayConfig.widget.seismicPortalEvents.soundAlert.speaking===true
+                                    }">
+                                </i>
+                            }
                             <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
                         </div>
                     </h5>
@@ -522,8 +530,7 @@
                                     @for (seismicPortalEvent of filteredSeismicPortalEearthquakes; track $index) {
                                         <tr [ngClass]="{
                                                 'urgent': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon), 
-                                                'today-event': isToday(seismicPortalEvent.data.properties.lastupdate),
-                                                'new': isNew(seismicPortalEvent.data.properties.receptionDate)
+                                                'today-event': isToday(seismicPortalEvent.data.properties.lastupdate)
                                             }">
                                             <td class="nowrap ps-2">
                                                 <span [ngClass]="{'blink-slow': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours)}">{{seismicPortalEvent.data.properties.lastupdate | date: 'dd.MM.yyyy - HH:mm'}}</span>
@@ -532,7 +539,7 @@
                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: seismicPortalEvent.data.properties.lat, lng: seismicPortalEvent.data.properties.lon, cssClass: isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)?'blink-smooth':''}"></ng-container>
                                             </td>
                                             <td>
-                                                {{seismicPortalEvent.data.properties.flynn_region}}
+                                                <span class="text-link me-2">{{seismicPortalEvent.data.properties.flynn_region}}</span> <span class="opacity_45" [ngClass]="{'text-warning': seismicPortalEvent.action==='create'}">({{seismicPortalEvent.action.replace('create','new')}})</span>
                                             </td>
                                             <td class="text-end">
                                                 <span class="mag" [ngClass]="{
