@@ -67,7 +67,7 @@ export class SeismicPortalService implements OnDestroy {
           eventItem.data.properties.receptionDate = new Date();
           eventItem.data.properties.mag = Math.abs(eventItem.data.properties.mag);
           eventItem.data.properties.magTypeDesc = this.getMagTypeDescription(eventItem.data.properties.magtype);
-          eventItem.data.properties.perception = this.seismicMetricsService.getPerception(eventItem.data.properties.mag, eventItem.data.properties.magtype, Math.abs(eventItem.data.properties.depth));
+          eventItem.data.properties.perception = SeismicMetricsService.getPerception(eventItem.data.properties.mag, eventItem.data.properties.magtype, Math.abs(eventItem.data.properties.depth));
           this.eventsSubject.next(eventItem);
           this.storeEvent(eventItem);
           console.log('Seismic event:', eventItem);
@@ -123,7 +123,7 @@ export class SeismicPortalService implements OnDestroy {
         _event.data.properties.depth = Math.abs(_event.data.properties.depth);
         _event.data.properties.mag = Math.abs(_event.data.properties.mag);
         _event.data.properties.magTypeDesc = this.getMagTypeDescription(_event.data.properties.magtype);
-        _event.data.properties.perception = this.seismicMetricsService.getPerception(_event.data.properties.mag, _event.data.properties.magtype, _event.data.properties.depth);
+        _event.data.properties.perception = SeismicMetricsService.getPerception(_event.data.properties.mag, _event.data.properties.magtype, _event.data.properties.depth);
         if (typeof _event.data.properties.lastupdate === 'string') {
           _event.data.properties.lastupdate = new Date(_event.data.properties.lastupdate);
         }
@@ -144,10 +144,11 @@ export class SeismicPortalService implements OnDestroy {
   }
 
   public static toCommonEvent(event: SeismicPortalEvent): CommonEventInterface {
+    const perceptionLevel = SeismicMetricsService.getPerception(event.data.properties.mag, event.data.properties.magtype, event.data.properties.depth).level;
     return {
       id: event.data.id,
       title: event.data.properties.flynn_region,
-      description: `Earthquake with magnitude ${event.data.properties.mag} ${event.data.properties.magtype} in ${event.data.properties.flynn_region}`,
+      description: `${perceptionLevel.replace(/-/g, ' ')} seism with magnitude ${event.data.properties.mag} in ${event.data.properties.flynn_region}`,
       lat: event.data.properties.lat,
       lon: event.data.properties.lon,
       type: 'earthquake',

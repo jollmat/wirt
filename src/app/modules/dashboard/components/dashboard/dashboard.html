@@ -539,7 +539,7 @@
                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: seismicPortalEvent.data.properties.lat, lng: seismicPortalEvent.data.properties.lon, cssClass: isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)?'blink-smooth':''}"></ng-container>
                                             </td>
                                             <td>
-                                                <span class="text-link me-2">{{seismicPortalEvent.data.properties.flynn_region}}</span> <span class="opacity_45" [ngClass]="{'text-warning': seismicPortalEvent.action==='create'}">({{seismicPortalEvent.action.replace('create','new')}})</span>
+                                                <span class="text-link me-2" (click)="goToMapCoords(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)">{{seismicPortalEvent.data.properties.flynn_region}}</span> <span class="opacity_45" [ngClass]="{'text-warning': seismicPortalEvent.action==='create'}">({{seismicPortalEvent.action.replace('create','new')}})</span>
                                             </td>
                                             <td class="text-end">
                                                 <span class="mag" [ngClass]="{

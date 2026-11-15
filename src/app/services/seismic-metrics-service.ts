@@ -30,7 +30,7 @@ export class SeismicMetricsService {
     {mType: 'unknown', desc: 'Unknown magnitude type'}
   ];
 
-  getPerception(
+  static getPerception(
     magnitude: number,
     magnitudeType: MagnitudeType,
     depthKm: number
@@ -104,7 +104,7 @@ export class SeismicMetricsService {
     };
   }
 
-  private normalizeMagnitude(
+  private static normalizeMagnitude(
     magnitude: number,
     type: MagnitudeType
   ): number {

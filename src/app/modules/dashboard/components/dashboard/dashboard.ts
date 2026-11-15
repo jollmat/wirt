@@ -1357,9 +1357,9 @@ export class Dashboard implements OnInit, OnDestroy {
     this.seismicPortalSocketSubscription = this.seismicService.events$.subscribe(_seismicEvent => {
       this.seismicPortalEearthquakes.unshift(_seismicEvent);
       if (this.displayConfig.widget.seismicPortalEvents.soundAlert?.enabled) {
-        const perceptionLevel = this.seismicMetricsService.getPerception(_seismicEvent.data.properties.mag, _seismicEvent.data.properties.magtype, _seismicEvent.data.properties.depth).level;
+        const perceptionLevel = SeismicMetricsService.getPerception(_seismicEvent.data.properties.mag, _seismicEvent.data.properties.magtype, _seismicEvent.data.properties.depth).level;
         if (['weak', 'light','moderate','strong', 'very-strong'].includes(perceptionLevel)) {
-          const textToAlert = `Attention: New ${perceptionLevel.replace(/-/g, ' ')} seism in ${_seismicEvent.data.properties.flynn_region}`;
+          const textToAlert = `Attention: ${SeismicPortalService.toCommonEvent(_seismicEvent).description}`;
           this.speakText(textToAlert, this.displayConfig.widget.seismicPortalEvents.soundAlert);
           console.log(textToAlert);
         }

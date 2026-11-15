@@ -10,7 +10,6 @@ import { SeismicMetricsService } from './seismic-metrics-service';
 })
 export class EarthquakeUsgsService {
   private http = inject(HttpClient);
-  private seismicMetricsService = inject(SeismicMetricsService);
 
   getEarthQuakes(dateFrom: Date, dateTo: Date): Observable<EarthquakeFeatureUsgsInterface[]> {
 
@@ -31,7 +30,7 @@ export class EarthquakeUsgsService {
         return _res.features.map((_feature) => {
           _feature.properties.mag = Math.abs(_feature.properties.mag);
           _feature.properties.magTypeDesc = this.getMagTypeDescription(_feature.properties.magType);
-          _feature.properties.perception = this.seismicMetricsService.getPerception(_feature.properties.mag, _feature.properties.magType, Math.abs(_feature.geometry.coordinates[2]));
+          _feature.properties.perception = SeismicMetricsService.getPerception(_feature.properties.mag, _feature.properties.magType, Math.abs(_feature.geometry.coordinates[2]));
           return _feature;
         });
       }),
