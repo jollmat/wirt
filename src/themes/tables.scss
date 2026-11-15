@@ -48,6 +48,16 @@ table {
     }
     tbody {
         tr {
+            &.urgent {
+                td {
+                    background-color: #ae1313 !important;
+                    color: #fff !important;
+
+                    .cursor-pointer {
+                        color: #fff !important;
+                    }
+                }
+            }
             td {
                 background-color: transparent !important;
                 color: $text-color-soft !important;

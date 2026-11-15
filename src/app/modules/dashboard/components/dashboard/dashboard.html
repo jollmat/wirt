@@ -23,7 +23,7 @@
             @if (viewType()==='GRID') {
 
                 <!-- Near and Recent Events -->
-                @if(filteredNearRecentEvents.length>0){
+                @if(false && filteredNearRecentEvents.length>0){
                     <div class="d-flex flex-column w-99 gap-1 near-recent-events py-1 pe-2 mt-2 blink-slow">
                     @for (nearRecentEvent of filteredNearRecentEvents; track $index) {
                         <div class="d-flex alert alert-danger w-100 m-0 p-2">
@@ -138,12 +138,12 @@
                             </thead>
                             <tbody>
                                 @for (recentEvent of filteredRecentEvents; track $index) {
-                                    <tr>
+                                    <tr [ngClass]="{'urgent': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon), 'today-event': isToday(recentEvent.time)}">
                                         <td class="ps-2">
-                                            <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon}"></ng-container>
+                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon, cssClass: isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)?'blink-smooth':''}"></ng-container>
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(recentEvent.originIconId, recentEvent.type).iconTag)"></span>
@@ -279,12 +279,12 @@
                             </thead>
                             <tbody>
                                 @for (nearEvent of filteredNearEvents; track $index) {
-                                    <tr>
+                                    <tr [ngClass]="{'urgent': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon), 'today-event': isToday(nearEvent.time)}">
                                         <td class="ps-2">
-                                            <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearEvent.lat, lng: nearEvent.lon}"></ng-container>
+                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearEvent.lat, lng: nearEvent.lon, cssClass: isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)?'blink-smooth':''}"></ng-container>
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(nearEvent.originIconId, nearEvent.type).iconTag)"></span>
@@ -512,7 +512,7 @@
                                 </thead>
                                 <tbody>
                                     @for (seismicPortalEvent of filteredSeismicPortalEearthquakes; track $index) {
-                                        <tr [ngClass]="isToday(seismicPortalEvent.data.properties.lastupdate) ? 'today-event' : ''">
+                                        <tr [ngClass]="{'urgent': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon), 'today-event': isToday(seismicPortalEvent.data.properties.lastupdate)}">
                                             <td class="nowrap ps-2">
                                                 <span [ngClass]="{'blink-slow': isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours)}">{{seismicPortalEvent.data.properties.lastupdate | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
@@ -628,7 +628,7 @@
                                     </thead>
                                     <tbody>
                                         @for (alertLive of filteredAlertsLiveEvents; track $index) {
-                                            <tr [ngClass]="isToday(alertLive.last_seen) ? 'today-event' : ''">
+                                            <tr [ngClass]="{'urgent': isWithinTime(alertLive.last_seen, withinTimeHours) && isWithinRadius(alertLive.lat, alertLive.lon), 'today-event': isToday(alertLive.last_seen)}">
                                                 <td class="nowrap ps-2">
                                                     <span [ngClass]="{'blink-smooth': isWithinTime(alertLive.last_seen, withinTimeHours)}">{{alertLive.last_seen | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                                 </td>
@@ -736,7 +736,7 @@
                                 </thead>
                                 <tbody>
                                     @for (cityAlertLiveIncident of filteredCityAlertLiveIncidents; track $index) {
-                                        <tr [ngClass]="isToday(cityAlertLiveIncident.time) ? 'today-event' : ''">
+                                        <tr [ngClass]="{'urgent': isWithinTime(cityAlertLiveIncident.time, withinTimeHours) && isWithinRadius(cityAlertLiveIncident.lat, cityAlertLiveIncident.lon), 'today-event': isToday(cityAlertLiveIncident.time)}">
                                             <td class="nowrap ps-2">
                                                 <span [ngClass]="{'blink-slow': isWithinTime(cityAlertLiveIncident.time, withinTimeHours)}">{{cityAlertLiveIncident.time| date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
@@ -813,7 +813,7 @@
                                 </thead>
                                 <tbody>
                                     @for (naturalEvent of filteredNatureEvents; track $index) {
-                                        <tr [ngClass]="isToday(getHighestDate(naturalEvent.geometry, dateFrom, dateTo)) ? 'today-event' : ''">
+                                        <tr [ngClass]="{'today-event': isToday(getHighestDate(naturalEvent.geometry, dateFrom, dateTo))}">
                                             <td class="nowrap ps-2">
                                                 @if (naturalEvent.geometry && naturalEvent.geometry.length>0) {
                                                     <span>{{getEventDate(naturalEvent, 'DD.MM.yyyy')}}</span>
@@ -893,7 +893,7 @@
                                 </thead>
                                 <tbody>
                                     @for (whoDiseaseNewsItem of filteredWhoDiseaseNews; track $index) {
-                                        <tr [ngClass]="isToday(whoDiseaseNewsItem.LastModified) ? 'today-event' : ''">
+                                        <tr [ngClass]="{'today-event': isToday(whoDiseaseNewsItem.LastModified)}">
                                             <td class="nowrap ps-2">
                                                 <span [ngClass]="{'blink-slow': isWithinTime(whoDiseaseNewsItem.LastModified, withinTimeHours)}">{{whoDiseaseNewsItem.LastModified| date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
@@ -1132,8 +1132,8 @@
     }
 </div>
 
-<ng-template let-lat="lat" let-lng="lng" let-showUnits="showUnits" #distanceTemplate>
-    <span class="cursor-pointer" (click)="goToMapCoords(lat, lng)" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
+<ng-template let-lat="lat" let-lng="lng" let-showUnits="showUnits" let-cssClass="cssClass" #distanceTemplate>
+    <span class="cursor-pointer {{cssClass}}" (click)="goToMapCoords(lat, lng)" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
     {{getDistanceKm(lat, lng) | number:'1.1-1'}}
     @if(showUnits){
         <span>Km</span>
