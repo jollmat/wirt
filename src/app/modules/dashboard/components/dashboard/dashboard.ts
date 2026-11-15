@@ -22,7 +22,6 @@ import { WhoDiseaseNewsInterface } from '../../../../model/who-disease-news/inte
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { SeismicPortalEvent, SeismicPortalService } from '../../../../services/seismic-portal-service';
 import moment from 'moment';
-import { Platform } from '@angular/cdk/platform';
 import { EarthquakePerception } from '../../../../services/seismic-metrics-service';
 import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
@@ -300,7 +299,9 @@ export class Dashboard implements OnInit, OnDestroy {
     {text: '10 min', value: 0.1667},
     {text: '15 min', value: 0.25},
     {text: '30 min', value: 0.5},
-    {text: '1 hour', value: 1}
+    {text: '1 hour', value: 1},
+    {text: '12 hour', value: 12},
+    {text: '24 hour', value: 24}
   ]
   withinTimeHours = this.withinTimeOptions[0].value;
 
