@@ -70,7 +70,9 @@
                                     </ng-template>
                             </ng-select>
                             }
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
+                            @if(filteredRecentEvents) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredRecentEvents, widgetId: 'recentEvents', widgetConfig: displayConfig.widget.recentEvents}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.recentEvents.collapsed){
@@ -216,7 +218,9 @@
                             </ng-select>
                             }
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNearEvents, widgetId: 'nearEvents', widgetConfig: displayConfig.widget.nearEvents}" ></ng-container>
+                            @if(filteredNearEvents) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNearEvents, widgetId: 'nearEvents', widgetConfig: displayConfig.widget.nearEvents}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.nearEvents.collapsed){
@@ -342,7 +346,9 @@
                         
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredEarthquakes, widgetId: 'usgsEarthquakes', widgetConfig: displayConfig.widget.earthQuakes}" ></ng-container>
+                            @if(filteredEarthquakes) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredEarthquakes, widgetId: 'usgsEarthquakes', widgetConfig: displayConfig.widget.earthQuakes}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.earthQuakes.collapsed){
@@ -472,7 +478,9 @@
                                     }">
                                 </i>
                             }
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
+                            @if (filteredSeismicPortalEearthquakes) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredSeismicPortalEearthquakes, widgetId: 'seismicPortal', widgetConfig: displayConfig.widget.seismicPortalEvents}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.seismicPortalEvents.collapsed){
@@ -610,7 +618,9 @@
                             </ng-select>
                             }
                             <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredAlertsLiveEvents, widgetId: 'alertsLive', widgetConfig: displayConfig.widget.alertsLive}" ></ng-container>
+                            @if(filteredAlertsLiveEvents) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredAlertsLiveEvents, widgetId: 'alertsLive', widgetConfig: displayConfig.widget.alertsLive}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.alertsLive.collapsed){
@@ -712,7 +722,9 @@
                             </ng-select>
                             }
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredCityAlertLiveIncidents, widgetId: 'cityAlert', widgetConfig: displayConfig.widget.cityAlertLiveIncidents}" ></ng-container>
+                            @if(filteredCityAlertLiveIncidents) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredCityAlertLiveIncidents, widgetId: 'cityAlert', widgetConfig: displayConfig.widget.cityAlertLiveIncidents}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.cityAlertLiveIncidents.collapsed){
@@ -813,7 +825,9 @@
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNatureEvents, widgetId: 'naturalEvents', widgetConfig: displayConfig.widget.natureEvents}" ></ng-container>
+                            @if(filteredNatureEvents) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredNatureEvents, widgetId: 'naturalEvents', widgetConfig: displayConfig.widget.natureEvents}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.natureEvents.collapsed){
@@ -889,7 +903,9 @@
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container>
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredWhoDiseaseNews, widgetId: 'whoDisease', widgetConfig: displayConfig.widget.whoDiseaseNews}" ></ng-container>
+                            @if(filteredWhoDiseaseNews) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredWhoDiseaseNews, widgetId: 'whoDisease', widgetConfig: displayConfig.widget.whoDiseaseNews}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.whoDiseaseNews.collapsed){
@@ -972,7 +988,9 @@
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
                             <!-- <ng-container [ngTemplateOutlet]="dateRangesContainer"></ng-container> -->
-                            <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'gNews', widgetConfig: displayConfig.widget.gNews}" ></ng-container>
+                            @if(filteredGNews) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'gNews', widgetConfig: displayConfig.widget.gNews}" ></ng-container>
+                            }
                         </div>
                     </h5>
                     @if(!displayConfig.widget.gNews.collapsed){

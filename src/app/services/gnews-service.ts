@@ -87,7 +87,7 @@ export class GNewsService {
 
         tap(data => {
           this.guardarCache(data);
-          console.log('Noticias descargadas desde GNews');
+          console.log('Noticias descargadas desde GNews', data);
         }),
 
         catchError(error => {

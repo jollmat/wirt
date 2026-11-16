@@ -630,12 +630,6 @@ export class Dashboard implements OnInit, OnDestroy {
       }
     });
 
-    this.seismicPortalStoredEventsSubscription = this.seismicService.getStoredEvents().subscribe({
-      next: (_seismicPortalEvents) => {
-        this.seismicPortalEearthquakes = _seismicPortalEvents;
-      }
-    });
-
     this.gNewsServiceSubscription = this.gNewsService.obtenerNoticias().subscribe({
       next: (_gNews) => {
         this.gNews = _gNews.articles;
@@ -1353,6 +1347,12 @@ export class Dashboard implements OnInit, OnDestroy {
         this.speakText('Seismic service socket connected!', this.displayConfig.widget.seismicPortalEvents.soundAlert);
       }
     });
+
+    this.seismicPortalStoredEventsSubscription = this.seismicService.getStoredEvents().subscribe({
+      next: (_seismicPortalEvents) => {
+        this.seismicPortalEearthquakes = _seismicPortalEvents;
+      }
+    });
     
     this.seismicPortalSocketSubscription = this.seismicService.events$.subscribe(_seismicEvent => {
       this.seismicPortalEearthquakes.unshift(_seismicEvent);
@@ -1362,6 +1362,10 @@ export class Dashboard implements OnInit, OnDestroy {
           const textToAlert = `Attention: ${SeismicPortalService.toCommonEvent(_seismicEvent).description}`;
           this.speakText(textToAlert, this.displayConfig.widget.seismicPortalEvents.soundAlert);
           console.log(textToAlert);
+
+          if (this.viewType()==='MAP') {
+            //this.goToMapCoords(_seismicEvent.data.properties.lat, _seismicEvent.data.properties.lon);
+          }
         }
       } else {
         console.log('Added new seismic event', _seismicEvent);

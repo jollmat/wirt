@@ -1,6 +1,6 @@
 import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import SockJS from 'sockjs-client';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { CommonEventInterface } from '../model/common/interfaces/common-event.interface';
 import { EarthquakePerception, MagnitudeType, SeismicMetricsService } from './seismic-metrics-service';
 
@@ -37,7 +37,6 @@ export interface SeismicPortalEvent {
   providedIn: 'root'
 })
 export class SeismicPortalService implements OnDestroy {
-  private seismicMetricsService = inject(SeismicMetricsService);
 
   STORED_SEISMIC_PORTAL_EVENTS_KEY = 'WIRT_STORED_SEISMIC_PORTAL_EVENTS_KEY';
 
@@ -46,6 +45,9 @@ export class SeismicPortalService implements OnDestroy {
 
   private eventsSubject = new Subject<SeismicPortalEvent>();
   events$ = this.eventsSubject.asObservable();
+
+  storeEventSubscription?: Subscription;
+  getStoredEventsSubscription?: Subscription;
 
   connect(): Observable<boolean> {
 
@@ -70,7 +72,9 @@ export class SeismicPortalService implements OnDestroy {
           eventItem.data.properties.perception = SeismicMetricsService.getPerception(eventItem.data.properties.mag, eventItem.data.properties.magtype, Math.abs(eventItem.data.properties.depth));
           this.eventsSubject.next(eventItem);
           this.storeEvent(eventItem);
+
           console.log('Seismic event:', eventItem);
+          
         } catch (error) {
           console.error('Invalid seismic JSON:', error);
         }
@@ -98,10 +102,13 @@ export class SeismicPortalService implements OnDestroy {
   ngOnDestroy(): void {
     this.disconnect();
     this.eventsSubject.complete();
+
+    this.storeEventSubscription?.unsubscribe();
+    this.getStoredEventsSubscription?.unsubscribe();
   }
 
   storeEvent(e: SeismicPortalEvent) {
-    this.getStoredEvents().subscribe({
+    this.storeEventSubscription = this.getStoredEvents().subscribe({
       next: (_events) => {
         _events.push(e);
         _events = [...new Set(_events)];
@@ -111,6 +118,7 @@ export class SeismicPortalService implements OnDestroy {
   }
 
   getStoredEvents(): Observable<SeismicPortalEvent[]> {
+
     const eventsStr = localStorage.getItem(this.STORED_SEISMIC_PORTAL_EVENTS_KEY);
     let events:  SeismicPortalEvent[] = [];
     if (eventsStr) {
