@@ -566,78 +566,97 @@ export class Dashboard implements OnInit, OnDestroy {
     this.alertsLiveError = undefined;
     this.cityAlertLiveError = undefined;
     
-    this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
-      next: (_earthquakesLast24h) => {
-        this.earthQuakes = _earthquakesLast24h.sort((a,b) => a.properties.time>b.properties.time? -1 : 1);
-      },
-      error: (_error) => {
-        this.earthQuakesError = _error.error.error;
-      }
-    });
-
-    this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
-      next: (_naturtalEvents) => {
-        this.natureEvents = _naturtalEvents.sort((a,b) => {
-          const aHiguestDate = this.getHighestDate(a.geometry, this.dateFrom, this.dateTo);
-          const bHiguestDate = this.getHighestDate(b.geometry, this.dateFrom, this.dateTo);
-          return (aHiguestDate && bHiguestDate && aHiguestDate.getTime()>bHiguestDate.getTime()) ? -1 : 1;
-        });
-      },
-      error: (_error) => {
-        this.natureEventsError = _error.error.error;
-      }
-    });
-
-    this.alertsLiveSubscription = this.alertsLiveService.getAlertsLiveEvents(this.dateFrom, this.dateTo).subscribe({
-      next: (_alertsLiveEvents) => {
-        // Categories filter
-        function getUniqueTypes(
-          events: AlertsLiveEventInterface[]
-        ): string[] {
-          return [...new Set(events.map(event => event.type))].sort((a,b) => a>b?1:-1);
+    if (this.displayConfig.widget.earthQuakes.display) {
+      this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
+        next: (_earthquakesLast24h) => {
+          this.earthQuakes = _earthquakesLast24h.sort((a,b) => a.properties.time>b.properties.time? -1 : 1);
+        },
+        error: (_error) => {
+          this.earthQuakesError = _error.error.error;
+          this.displayConfig.widget.earthQuakes.display = false;
         }
-        this.alertsLiveTypes = getUniqueTypes(_alertsLiveEvents);
-        this.alertsLiveTypes.unshift('all');
-        this.alertsLiveEvents = _alertsLiveEvents.sort((a,b) => a.last_seen>b.last_seen? -1 : 1);
-      },
-      error: (_error) => {
-        this.alertsLiveError = _error.error.error;
-      }
-    });
+      });
+    }
 
-    this.cityAlertLiveSubscription = this.cityAlertLiveService.getCityAlertIncidents(this.dateFrom, this.dateTo).subscribe({
-      next: (_cityAlertLiveIncidents) => {
-        function getUniqueCategories(
-          incidents: CityAlertIncidentInterface[]
-        ): string[] {
-          return [...new Set(incidents.map(incident => incident.category))].sort((a,b) => a>b?1:-1);
+    if (this.displayConfig.widget.natureEvents.display) {
+      this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
+        next: (_naturtalEvents) => {
+          this.natureEvents = _naturtalEvents.sort((a,b) => {
+            const aHiguestDate = this.getHighestDate(a.geometry, this.dateFrom, this.dateTo);
+            const bHiguestDate = this.getHighestDate(b.geometry, this.dateFrom, this.dateTo);
+            return (aHiguestDate && bHiguestDate && aHiguestDate.getTime()>bHiguestDate.getTime()) ? -1 : 1;
+          });
+        },
+        error: (_error) => {
+          this.natureEventsError = _error.error.error;
+          this.displayConfig.widget.natureEvents.display = false;
         }
-        this.cityAlertLiveCategories = getUniqueCategories(_cityAlertLiveIncidents);
-        this.cityAlertLiveCategories.unshift('all');
-        this.cityAlertLiveIncidents = _cityAlertLiveIncidents.sort((a,b) => a.time>b.time? -1 : 1);
-      },
-      error: (_error) => {
-        this.cityAlertLiveError = _error.error.error;
-      }
-    });
+      });
+    }
 
-    this.whoDiseaseNewsSubscription = this.whoDiseaseNewsService.getWhoDiseaseNews(this.dateFrom, this.dateTo).subscribe({
-      next: (_whoDiseaseNews) => {
-        this.whoDiseaseNews = _whoDiseaseNews;
-      }, 
-      error: (_error) => {
-        this.whoDiseaseNewsError = _error.error.error;
-      }
-    });
+    if (this.displayConfig.widget.alertsLive.display) {
+      this.alertsLiveSubscription = this.alertsLiveService.getAlertsLiveEvents(this.dateFrom, this.dateTo).subscribe({
+        next: (_alertsLiveEvents) => {
+          // Categories filter
+          function getUniqueTypes(
+            events: AlertsLiveEventInterface[]
+          ): string[] {
+            return [...new Set(events.map(event => event.type))].sort((a,b) => a>b?1:-1);
+          }
+          this.alertsLiveTypes = getUniqueTypes(_alertsLiveEvents);
+          this.alertsLiveTypes.unshift('all');
+          this.alertsLiveEvents = _alertsLiveEvents.sort((a,b) => a.last_seen>b.last_seen? -1 : 1);
+        },
+        error: (_error) => {
+          this.alertsLiveError = _error.error.error;
+          this.alertsLiveEvents = this.alertsLiveService.getStoredAlertLiveEvents();
+          this.displayConfig.widget.alertsLive.display = false;
+        }
+      });
+    }
 
-    this.gNewsServiceSubscription = this.gNewsService.obtenerNoticias().subscribe({
-      next: (_gNews) => {
-        this.gNews = _gNews.articles;
-      }, 
-      error: (_error) => {
-        this.gNewsError = _error.error.error;
-      }
-    });
+    if (this.displayConfig.widget.cityAlertLiveIncidents.display){
+      this.cityAlertLiveSubscription = this.cityAlertLiveService.getCityAlertIncidents(this.dateFrom, this.dateTo).subscribe({
+        next: (_cityAlertLiveIncidents) => {
+          function getUniqueCategories(
+            incidents: CityAlertIncidentInterface[]
+          ): string[] {
+            return [...new Set(incidents.map(incident => incident.category))].sort((a,b) => a>b?1:-1);
+          }
+          this.cityAlertLiveCategories = getUniqueCategories(_cityAlertLiveIncidents);
+          this.cityAlertLiveCategories.unshift('all');
+          this.cityAlertLiveIncidents = _cityAlertLiveIncidents.sort((a,b) => a.time>b.time? -1 : 1);
+        },
+        error: (_error) => {
+          this.cityAlertLiveError = _error.error.error;
+          this.displayConfig.widget.cityAlertLiveIncidents.display = false;
+        }
+      });
+    }
+
+    if (this.displayConfig.widget.whoDiseaseNews.display){
+      this.whoDiseaseNewsSubscription = this.whoDiseaseNewsService.getWhoDiseaseNews(this.dateFrom, this.dateTo).subscribe({
+        next: (_whoDiseaseNews) => {
+          this.whoDiseaseNews = _whoDiseaseNews;
+        }, 
+        error: (_error) => {
+          this.whoDiseaseNewsError = _error.error.error;
+          this.displayConfig.widget.whoDiseaseNews.display = false;
+        }
+      });
+    }
+
+    if (this.displayConfig.widget.gNews.display){
+      this.gNewsServiceSubscription = this.gNewsService.obtenerNoticias().subscribe({
+        next: (_gNews) => {
+          this.gNews = _gNews.articles;
+        }, 
+        error: (_error) => {
+          this.gNewsError = _error.error.error;
+          this.displayConfig.widget.gNews.display = false;
+        }
+      });
+    }
     
   }
 

@@ -27,12 +27,6 @@ export class AlertsLiveService {
             console.error('Error fetching alerts:', error);
             console.error('HTTP status:', error.status);
             console.error('Error message:', error.message);
-            if (error.status && error.status===429) {
-              const storedAlerts: AlertsLiveEventInterface[] = this.getStoredAlertLiveEvents();
-              if (storedAlerts) {
-                return of(storedAlerts);
-              }
-            }
             return throwError(() => error);
           })
         );
