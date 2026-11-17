@@ -97,6 +97,7 @@ export class Dashboard implements OnInit, OnDestroy {
   alertsLiveTypes: string[] = [];
   cityAlertLiveIncidents: CityAlertIncidentInterface[] = [];
   cityAlertLiveCategories: string[] = [];
+  cityAlertLiveTypes: string[] = [];
   whoDiseaseNews: WhoDiseaseNewsInterface[] = [];
   seismicPortalEearthquakes: SeismicPortalEvent[] = [];
   gNews: GNewsArticle[] = [];
@@ -135,7 +136,8 @@ export class Dashboard implements OnInit, OnDestroy {
       gNews: WidgetDisplayConfig,
 
       alertsLiveType: string,
-      cityAlertLiveCategory: string
+      cityAlertLiveCategory: string,
+      cityAlertLiveType: string
     },
     map: {
       earhQuakes: boolean,
@@ -178,6 +180,7 @@ export class Dashboard implements OnInit, OnDestroy {
         collapsed: false
       },
       cityAlertLiveCategory: 'all',
+      cityAlertLiveType: 'all',
       seismicPortalEvents: {
         display: true,
         widthClass: 'w-50',
@@ -625,6 +628,13 @@ export class Dashboard implements OnInit, OnDestroy {
           }
           this.cityAlertLiveCategories = getUniqueCategories(_cityAlertLiveIncidents);
           this.cityAlertLiveCategories.unshift('all');
+          function getUniqueTypes(
+            incidents: CityAlertIncidentInterface[]
+          ): string[] {
+            return [...new Set(incidents.map(incident => incident.type))].sort((a,b) => a>b?1:-1);
+          }
+          this.cityAlertLiveTypes = getUniqueTypes(_cityAlertLiveIncidents);
+          this.cityAlertLiveTypes.unshift('all');
           this.cityAlertLiveIncidents = _cityAlertLiveIncidents.sort((a,b) => a.time>b.time? -1 : 1);
         },
         error: (_error) => {
