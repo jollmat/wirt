@@ -24,6 +24,10 @@
     animation: blink-smooth 2s ease-in-out infinite;
 }
 
+.blink-slower {
+    animation: blink-smooth 2.5s ease-in-out infinite;
+}
+
 @keyframes blink-smooth {
     0%, 100% {
         opacity: 1;

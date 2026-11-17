@@ -26,6 +26,7 @@ import { EarthquakePerception, SeismicMetricsService } from '../../../../service
 import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
 import { LeafletMapService } from '../../../../services/leaflet-map-service';
+import { VolcanoActivityReportInterface, VolcanoesService } from '../../../../services/volcanoes-service';
 
 export const WidgetWidthClasses = [
   'w-50',
@@ -69,6 +70,7 @@ export class Dashboard implements OnInit, OnDestroy {
   NasaEonetService = NasaEonetService;
   WhoDiseaseNewsService = WhoDiseaseNewsService;
   GNewsService = GNewsService;
+  VolcanoesService = VolcanoesService;
 
   private leafletMapsService = inject(LeafletMapService);
   private earthquakeUsgsService = inject(EarthquakeUsgsService);
@@ -77,8 +79,8 @@ export class Dashboard implements OnInit, OnDestroy {
   private cityAlertLiveService = inject(CityAlertLiveService);
   private whoDiseaseNewsService = inject(WhoDiseaseNewsService);
   private seismicService = inject(SeismicPortalService);
-  private seismicMetricsService = inject(SeismicMetricsService);
   private gNewsService = inject(GNewsService);
+  private volcanoesService = inject(VolcanoesService);
   
   userCoordsSubscription?: Subscription;
   earthQuakeUsgsSubscription?: Subscription;
@@ -90,6 +92,7 @@ export class Dashboard implements OnInit, OnDestroy {
   seismicPortalSocketSubscription?: Subscription;
   seismicPortalStoredEventsSubscription?: Subscription;
   gNewsServiceSubscription?: Subscription;
+  volcanoesServiceSubscription?: Subscription;
   
   earthQuakes: EarthquakeFeatureUsgsInterface[] = [];
   natureEvents: NasaEonetEventInterface[] = [];
@@ -101,6 +104,7 @@ export class Dashboard implements OnInit, OnDestroy {
   whoDiseaseNews: WhoDiseaseNewsInterface[] = [];
   seismicPortalEearthquakes: SeismicPortalEvent[] = [];
   gNews: GNewsArticle[] = [];
+  volcanoesReports: VolcanoActivityReportInterface[] = [];
 
   nearAlerts: CommonEventInterface[] = [];
   recentAlerts: CommonEventInterface[] = [];
@@ -111,6 +115,7 @@ export class Dashboard implements OnInit, OnDestroy {
   cityAlertLiveError?: string;
   whoDiseaseNewsError?: string;
   gNewsError?: string;
+  volcanoesError?: string;
 
   nearEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   recentEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
@@ -121,6 +126,7 @@ export class Dashboard implements OnInit, OnDestroy {
   whoDiseaseNewsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   seismicPortalEearthquakesSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   gNewsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
+  volcanoesSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
 
   /* Map & Widgets display config */
   displayConfig: {
@@ -134,6 +140,7 @@ export class Dashboard implements OnInit, OnDestroy {
       seismicPortalEvents: WidgetDisplayConfig,
       whoDiseaseNews: WidgetDisplayConfig,
       gNews: WidgetDisplayConfig,
+      volcanoes: WidgetDisplayConfig,
 
       alertsLiveType: string,
       cityAlertLiveCategory: string,
@@ -144,7 +151,8 @@ export class Dashboard implements OnInit, OnDestroy {
       natureEvents: boolean,
       alertsLive: boolean,
       cityAlertLiveIncidents: boolean,
-      seismicPortalEvents: boolean
+      seismicPortalEvents: boolean,
+      volcanoes: boolean
     }
   } = {
     widget: {
@@ -196,6 +204,11 @@ export class Dashboard implements OnInit, OnDestroy {
         display: true,
         widthClass: 'w-50',
         collapsed: false
+      },
+      volcanoes: {
+        display: true,
+        widthClass: 'w-50',
+        collapsed: false
       }
     },
     map: {
@@ -203,7 +216,8 @@ export class Dashboard implements OnInit, OnDestroy {
       natureEvents: false,
       alertsLive: false,
       cityAlertLiveIncidents: false,
-      seismicPortalEvents: true
+      seismicPortalEvents: true,
+      volcanoes: false
     }
   };
   locations: MapLocation[] = [];
@@ -412,6 +426,9 @@ export class Dashboard implements OnInit, OnDestroy {
       case 'gNews':
         this.displayConfig.widget.gNews = widgetDisplayConf;
         break;
+      case 'volcanoes':
+        this.displayConfig.widget.volcanoes = widgetDisplayConf;
+        break;
     }
   }
 
@@ -477,6 +494,10 @@ export class Dashboard implements OnInit, OnDestroy {
       case 'earthQuakes':
         icon = 'fa-house-chimney-crack';
         color = iconColor || '#dca900';
+        break;
+      case 'volcanoes':
+        icon = 'fa-volcano';
+        color = iconColor || '#dc4d00';
         break;
       case 'natureEvents':
         icon = 'fa-cloud-bolt';
@@ -564,10 +585,17 @@ export class Dashboard implements OnInit, OnDestroy {
 
   requestData() {
     this.nearAlerts = [];
+    this.volcanoesReports = [];
+    this.earthQuakes = [];
+    this.natureEvents = [];
+    this.alertsLiveEvents = [];
+    this.cityAlertLiveIncidents = [];
+
     this.earthQuakesError = undefined;
     this.natureEventsError = undefined;
     this.alertsLiveError = undefined;
     this.cityAlertLiveError = undefined;
+    this.volcanoesError = undefined;
     
     if (this.displayConfig.widget.earthQuakes.display) {
       this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
@@ -664,6 +692,23 @@ export class Dashboard implements OnInit, OnDestroy {
         error: (_error) => {
           this.gNewsError = _error.error.error;
           this.displayConfig.widget.gNews.display = false;
+        }
+      });
+    }
+
+    if (this.displayConfig.widget.volcanoes.display){
+      this.volcanoesServiceSubscription = this.volcanoesService.getVolcanoes().subscribe({
+        next: (_volcanosInfo) => {
+          console.log({_volcanosInfo});
+          _volcanosInfo.forEach((_volcanoInfo) => {
+            _volcanoInfo.reports.forEach((_volcanoReport) => {
+              this.volcanoesReports.push(_volcanoReport);
+            });
+          });
+        },
+        error: (_error) => {
+          this.volcanoesError = _error.error.error;
+          this.displayConfig.widget.volcanoes.display = false;
         }
       });
     }
@@ -875,10 +920,12 @@ export class Dashboard implements OnInit, OnDestroy {
         }
       }
       if (sortConfig.field==='dist') {
+        const aDist = this.getDistanceKm(a.lat, a.lon);
+        const bDist = this.getDistanceKm(b.lat, b.lon);
         if (sortConfig.dir==='DESC') {
-          append = this.getDistanceKm(a.lat, a.lon) > this.getDistanceKm(b.lat, b.lon) ? -1 : 1;
+          append = aDist > bDist ? -1 : 1;
         } else {
-          append = this.getDistanceKm(a.lat, a.lon) > this.getDistanceKm(b.lat, b.lon) ? 1 : -1;
+          append = aDist > bDist ? 1 : -1;
         }
       }
       return append;
@@ -906,10 +953,12 @@ export class Dashboard implements OnInit, OnDestroy {
         }
       }
       if (sortConfig.field==='dist') {
+        const aDist = this.getDistanceKm(a.geometry.coordinates[1], a.geometry.coordinates[0]);
+        const bDist = this.getDistanceKm(b.geometry.coordinates[1], b.geometry.coordinates[0]);
         if (sortConfig.dir==='DESC') {
-          append = this.getDistanceKm(a.geometry.coordinates[1], a.geometry.coordinates[0]) > this.getDistanceKm(b.geometry.coordinates[1], b.geometry.coordinates[0]) ? -1 : 1;
+          append = aDist > bDist ? -1 : 1;
         } else {
-          append = this.getDistanceKm(a.geometry.coordinates[1], a.geometry.coordinates[0]) > this.getDistanceKm(b.geometry.coordinates[1], b.geometry.coordinates[0]) ? 1 : -1;
+          append = aDist > bDist ? 1 : -1;
         }
       }
       if (sortConfig.field==='mag') {
@@ -947,10 +996,12 @@ export class Dashboard implements OnInit, OnDestroy {
         }
       }
       if (sortConfig.field==='dist') {
+        const aDist = this.getDistanceKm(a.geometry[0].coordinates[1], a.geometry[0].coordinates[0]);
+        const bDist = this.getDistanceKm(b.geometry[0].coordinates[1], b.geometry[0].coordinates[0]);
         if (sortConfig.dir==='DESC') {
-          append = this.getDistanceKm(a.geometry[0].coordinates[1], a.geometry[0].coordinates[0]) > this.getDistanceKm(b.geometry[0].coordinates[1], b.geometry[0].coordinates[0]) ? -1 : 1;
+          append = aDist > bDist ? -1 : 1;
         } else {
-          append = this.getDistanceKm(a.geometry[0].coordinates[1], a.geometry[0].coordinates[0]) > this.getDistanceKm(b.geometry[0].coordinates[1], b.geometry[0].coordinates[0]) ? 1 : -1;
+          append = aDist > bDist ? 1 : -1;
         }
       }
       return append;
@@ -977,10 +1028,12 @@ export class Dashboard implements OnInit, OnDestroy {
         }
       }
       if (sortConfig.field==='dist') {
+        const aDist = this.getDistanceKm(a.lat, a.lon);
+        const bDist = this.getDistanceKm(b.lat, b.lon);
         if (sortConfig.dir==='DESC') {
-          append = this.getDistanceKm(a.lat, a.lon) > this.getDistanceKm(b.lat, b.lon) ? -1 : 1;
+          append = aDist > bDist ? -1 : 1;
         } else {
-          append = this.getDistanceKm(a.lat, a.lon) > this.getDistanceKm(b.lat, b.lon) ? 1 : -1;
+          append = aDist > bDist ? 1 : -1;
         }
       }
       if (sortConfig.field==='type') {
@@ -990,11 +1043,67 @@ export class Dashboard implements OnInit, OnDestroy {
           append = a.type > b.type ? 1 : -1;
         }
       }
-       if (sortConfig.field==='title') {
+      if (sortConfig.field==='title') {
         if (sortConfig.dir==='DESC') {
           append = a.title > b.title ? -1 : 1;
         } else {
           append = a.title > b.title ? 1 : -1;
+        }
+      }
+      return append;
+    });
+  }
+
+  get filteredVolcanoes(): VolcanoActivityReportInterface[] {
+    const sortConfig = this.volcanoesSortConfig;
+    return this.volcanoesReports.filter((_volcanoReport) => {
+      return true;
+    }).sort((a,b) => {
+      let append = 1;
+      if (sortConfig.field==='time') {
+        const aDate = new Date(a.date);
+        const bDate = new Date(b.date);
+        if (sortConfig.dir==='DESC') {
+          append = aDate.getTime() > bDate.getTime() ? -1 : 1;
+        } else {
+          append = aDate.getTime() > bDate.getTime() ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='title') {
+        if (sortConfig.dir==='DESC') {
+          append = a.title > b.title ? -1 : 1;
+        } else {
+          append = a.title > b.title ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='description') {
+        if (sortConfig.dir==='DESC') {
+          append = a.kind > b.kind ? -1 : 1;
+        } else {
+          append = a.kind > b.kind ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='dist') {
+        const aDist = this.getDistanceKm(a.lat, a.lon);
+        const bDist = this.getDistanceKm(b.lat, b.lon);
+        if (sortConfig.dir==='DESC') {
+          append = aDist > bDist ? -1 : 1;
+        } else {
+          append = aDist > bDist ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='reported_by') {
+        if (sortConfig.dir==='DESC') {
+          append = a.reported_by > b.reported_by ? -1 : 1;
+        } else {
+          append = a.reported_by > b.reported_by ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='source') {
+        if (sortConfig.dir==='DESC') {
+          append = a.source > b.source ? -1 : 1;
+        } else {
+          append = a.source > b.source ? 1 : -1;
         }
       }
       return append;
@@ -1268,6 +1377,26 @@ export class Dashboard implements OnInit, OnDestroy {
         });
       });
     }
+    if (this.displayConfig.map.volcanoes) {
+      this.filteredVolcanoes.forEach((_volcanoReport) => {
+        const date = _volcanoReport.date;
+        const itemDisplayConfig = this.getItemDisplayConfig('volcanoes', 'volcano');
+        const color = itemDisplayConfig.color;
+        const iconTag = `${itemDisplayConfig.iconTag}<br /><br />`;
+        const icon = `${itemDisplayConfig.icon} ${(this.isWithinTime( _volcanoReport.date, this.withinTimeHours))?'blink-smooth':'blink-slower'}`;
+        this.locations.push({
+          id: crypto.getRandomValues(
+            new Uint32Array(1)
+          )[0],
+          name: `${iconTag}${(date!=null) ? this.getFormattedDate(date, 'DD/MM/yyyy HH:mm') : ''}<br />${_volcanoReport.title}`,
+          latitude: _volcanoReport.lat,
+          longitude: _volcanoReport.lon,
+          description: `${_volcanoReport.kind}<br /><br /><a href="${_volcanoReport.link}" target="_blank">+ info</a><br /><br />Source: ${_volcanoReport.source}`,
+          icon,
+          color
+        });
+      });
+    }
     return this.locations;
   }
 
@@ -1460,7 +1589,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.seismicPortalSocketSubscription?.unsubscribe();
     this.seismicPortalStoredEventsSubscription?.unsubscribe();
     this.gNewsServiceSubscription?.unsubscribe();
-
+    this.volcanoesServiceSubscription?.unsubscribe();
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.removeEventListener('voiceschanged',this.handleVoicesChanged);
