@@ -6,7 +6,7 @@ import { DatePipe, DecimalPipe, NgClass, NgTemplateOutlet } from '@angular/commo
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { interval, Observable, of, startWith, Subscription } from 'rxjs';
-import { NasaEonetEventInterface } from '../../../../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
+import { NasaEonetEventInterface, NasaNatureEventInterface } from '../../../../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
 import { NasaEonetService } from '../../../../services/nasa-eonet-service';
 import { LeafletMap, MapLocation } from '../../../shared/components/leaflet-map/leaflet-map';
 import { DateRangeConverted } from '../../../shared/components/date-range-picker/date-range-picker';
@@ -95,7 +95,7 @@ export class Dashboard implements OnInit, OnDestroy {
   volcanoesServiceSubscription?: Subscription;
   
   earthQuakes: EarthquakeFeatureUsgsInterface[] = [];
-  natureEvents: NasaEonetEventInterface[] = [];
+  natureEvents: NasaNatureEventInterface[] = [];
   alertsLiveEvents: AlertsLiveEventInterface[] = [];
   alertsLiveTypes: string[] = [];
   cityAlertLiveIncidents: CityAlertIncidentInterface[] = [];
@@ -167,7 +167,7 @@ export class Dashboard implements OnInit, OnDestroy {
         collapsed: false
       },
       earthQuakes: {
-        display: true,
+        display: false,
         widthClass: 'w-50',
         collapsed: false
       },
@@ -196,12 +196,12 @@ export class Dashboard implements OnInit, OnDestroy {
         soundAlert: {enabled: false, speaking: false}
       },
       whoDiseaseNews: {
-        display: true,
+        display: false,
         widthClass: 'w-50',
         collapsed: false
       },
       gNews: {
-        display: true,
+        display: false,
         widthClass: 'w-50',
         collapsed: false
       },
@@ -523,31 +523,6 @@ export class Dashboard implements OnInit, OnDestroy {
     };
   }
 
-  getHighestDate(
-      geometry: any[],
-      dateFrom: Date,
-      dateTo: Date
-  ): Date | null {
-    const dates = geometry
-      .map(item => new Date(item.date))
-      .filter(date =>
-        date >= dateFrom && date <= dateTo
-      );
-
-    if (!dates.length) {
-      return null;
-    }
-    return new Date(Math.max(...dates.map(date => date.getTime())));
-  }
-
-  getEventDate(ev: NasaEonetEventInterface, formatStr?: string): string {
-    if (this.getFormattedDate(this.dateFrom)===this.getFormattedDate(this.dateTo)) {
-      return this.getFormattedDate(this.dateFrom, formatStr);
-    }
-    const highestDate = this.getHighestDate(ev.geometry, this.dateFrom, this.dateTo);
-    return (highestDate!=null) ? this.getFormattedDate(highestDate, formatStr) : '';
-  }
-
   isToday(date: Date | string | null): boolean {
     if (!date) {
       return true;
@@ -583,6 +558,13 @@ export class Dashboard implements OnInit, OnDestroy {
     this.requestData();   
   }
 
+  toggleSort(sortConfig: {field: string, dir: 'ASC' | 'DESC'}, field: string) {
+    if (sortConfig.field===field) {
+      sortConfig.dir = sortConfig.dir==='ASC' ? 'DESC' : 'ASC';
+    }
+    sortConfig.field = field;
+  }
+
   requestData() {
     this.nearAlerts = [];
     this.volcanoesReports = [];
@@ -611,12 +593,22 @@ export class Dashboard implements OnInit, OnDestroy {
 
     if (this.displayConfig.widget.natureEvents.display) {
       this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
-        next: (_naturtalEvents) => {
-          this.natureEvents = _naturtalEvents.sort((a,b) => {
-            const aHiguestDate = this.getHighestDate(a.geometry, this.dateFrom, this.dateTo);
-            const bHiguestDate = this.getHighestDate(b.geometry, this.dateFrom, this.dateTo);
-            return (aHiguestDate && bHiguestDate && aHiguestDate.getTime()>bHiguestDate.getTime()) ? -1 : 1;
+        next: (_naturalEvents) => {
+          _naturalEvents.forEach((_naturalEvent) => {
+            _naturalEvent.geometry.forEach((_naturalEventItem) => {
+              _naturalEventItem.title = _naturalEvent.title;
+              _naturalEventItem.description = _naturalEvent.description || (`${_naturalEventItem.magnitudeValue} ${_naturalEventItem.magnitudeUnit}`);
+              _naturalEventItem.url = _naturalEvent.link;
+              _naturalEventItem.type = _naturalEvent.categories.map(category => category.title).join(", ");
+              this.natureEvents.push(_naturalEventItem);
+            });
           });
+          this.natureEvents.sort((a,b) => {
+            const aDate = new Date(a.date);
+            const bDate = new Date(b.date)
+            return (aDate && bDate && aDate.getTime()>bDate.getTime()) ? -1 : 1;
+          });
+          console.log({natureEvents: this.natureEvents});
         },
         error: (_error) => {
           this.natureEventsError = _error.error.error;
@@ -699,7 +691,6 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.displayConfig.widget.volcanoes.display){
       this.volcanoesServiceSubscription = this.volcanoesService.getVolcanoes().subscribe({
         next: (_volcanosInfo) => {
-          console.log({_volcanosInfo});
           _volcanosInfo.forEach((_volcanoInfo) => {
             _volcanoInfo.reports.forEach((_volcanoReport) => {
               this.volcanoesReports.push(_volcanoReport);
@@ -713,13 +704,6 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
     
-  }
-
-  toggleSort(sortConfig: {field: string, dir: 'ASC' | 'DESC'}, field: string) {
-    if (sortConfig.field===field) {
-      sortConfig.dir = sortConfig.dir==='ASC' ? 'DESC' : 'ASC';
-    }
-    sortConfig.field = field;
   }
 
   get filteredNearRecentEvents() {
@@ -758,7 +742,7 @@ export class Dashboard implements OnInit, OnDestroy {
       }
     });
     this.filteredNatureEvents.forEach((_event) => {
-      const commonEvent = NasaEonetService.toCommonEvent(_event, this.dateFrom, this.dateTo);
+      const commonEvent = NasaEonetService.toCommonEvent(_event);
       if (this.isWithinRadius(commonEvent.lat, commonEvent.lon)) {
         res.push(commonEvent);
       }
@@ -849,7 +833,7 @@ export class Dashboard implements OnInit, OnDestroy {
       }
     });
     this.filteredNatureEvents.forEach((_event) => {
-      const commonEvent = NasaEonetService.toCommonEvent(_event, this.dateFrom, this.dateTo);
+      const commonEvent = NasaEonetService.toCommonEvent(_event);
       if (this.isWithinTime(commonEvent.time, this.withinTimeHours)) {
         res.push(commonEvent);
       }
@@ -980,28 +964,45 @@ export class Dashboard implements OnInit, OnDestroy {
     return this.earthQuakes;
   }
 
-  get filteredNatureEvents(): NasaEonetEventInterface[] {
+  get filteredNatureEvents(): NasaNatureEventInterface[] {
     const sortConfig = this.natureEventsSortConfig;
-    return this.natureEvents.sort((a,b) => {
+    return this.natureEvents.filter((_natureEvent) => {
+      const eventDate = new Date(_natureEvent.date);
+      return eventDate.getTime()>=this.dateFrom.getTime() && eventDate.getTime()<=this.dateTo.getTime();
+    }).sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='time') {
-        const aTime = this.getHighestDate(a.geometry, this.dateFrom, this.dateTo);
-        const bTime = this.getHighestDate(b.geometry, this.dateFrom, this.dateTo);
-        if (aTime && bTime) {
+        const aDate = new Date(a.date);
+        const bDate = new Date(b.date)
+        if (aDate && bDate) {
           if (sortConfig.dir==='DESC') {
-            append = aTime?.getTime() > bTime?.getTime() ? -1 : 1;
+            append = aDate?.getTime() > bDate?.getTime() ? -1 : 1;
           } else {
-            append = aTime?.getTime() > bTime?.getTime() ? 1 : -1;
+            append = aDate?.getTime() > bDate?.getTime() ? 1 : -1;
           }
         }
       }
       if (sortConfig.field==='dist') {
-        const aDist = this.getDistanceKm(a.geometry[0].coordinates[1], a.geometry[0].coordinates[0]);
-        const bDist = this.getDistanceKm(b.geometry[0].coordinates[1], b.geometry[0].coordinates[0]);
+        const aDist = this.getDistanceKm(a.coordinates[1], a.coordinates[0]);
+        const bDist = this.getDistanceKm(b.coordinates[1], b.coordinates[0]);
         if (sortConfig.dir==='DESC') {
           append = aDist > bDist ? -1 : 1;
         } else {
           append = aDist > bDist ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='type') {
+        if (sortConfig.dir==='DESC') {
+          append = a.type > b.type ? -1 : 1;
+        } else {
+          append = a.type > b.type ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='title') {
+        if (sortConfig.dir==='DESC') {
+          append = a.title > b.title ? -1 : 1;
+        } else {
+          append = a.title > b.title ? 1 : -1;
         }
       }
       return append;
@@ -1319,7 +1320,7 @@ export class Dashboard implements OnInit, OnDestroy {
     }
     if (this.displayConfig.map.natureEvents) {
       this.natureEvents.forEach((_natureEvent, idx) => {
-        const highestDate = this.getHighestDate(_natureEvent.geometry, this.dateFrom, this.dateTo);
+        const highestDate = _natureEvent.date;
         const itemDisplayConfig = this.getItemDisplayConfig('natureEvents', _natureEvent.description);
         const color = itemDisplayConfig.color;
         const iconTag = `${itemDisplayConfig.iconTag}<br /><br />`;
@@ -1329,9 +1330,9 @@ export class Dashboard implements OnInit, OnDestroy {
             new Uint32Array(1)
           )[0],
           name: `${iconTag}${(highestDate)?this.getFormattedDate(highestDate, 'DD/MM/yyyy - HH:mm'):''}<br />${_natureEvent.title}`,
-          latitude: _natureEvent.geometry[0].coordinates[1],
-          longitude: _natureEvent.geometry[0].coordinates[0],
-          description: `${_natureEvent.categories[0].title}<br /><br /><a href="${_natureEvent.link}" target="_blank">+ info</a><br /><br />Source: <a href="https://eonet.gsfc.nasa.gov/" target="_blank">NASA EONET</a>`,
+          latitude: _natureEvent.coordinates[1],
+          longitude: _natureEvent.coordinates[0],
+          description: `${_natureEvent.description || '-'}<br /><br /><a href="${_natureEvent.url}" target="_blank">+ info</a><br /><br />Source: <a href="https://eonet.gsfc.nasa.gov/" target="_blank">NASA EONET</a>`,
           icon,
           color
         });

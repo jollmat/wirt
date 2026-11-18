@@ -6,11 +6,16 @@ export interface NasaEonetEventInterface {
     closed: unknown;
     categories: {id: string; title: string;}[];
     sources: {id: string; url: string;}[];
-    geometry: {
-        magnitudeValue: number;
-        magnitudeUnit: string;
-        date: Date;
-        type: string;
-        coordinates: number[]
-    }[];
+    geometry: NasaNatureEventInterface[];
+}
+
+export interface NasaNatureEventInterface {
+    title: string;              // From NasaEonetEventInterface
+    description: string;        // From NasaEonetEventInterface
+    url: string;                // From NasaEonetEventInterface
+    magnitudeValue: number;
+    magnitudeUnit: string;
+    date: Date;
+    type: string;
+    coordinates: number[]
 }

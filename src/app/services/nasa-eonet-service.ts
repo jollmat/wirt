@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { NasaEonetEventInterface } from '../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
+import { NasaEonetEventInterface, NasaNatureEventInterface } from '../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
 import { CommonEventInterface } from '../model/common/interfaces/common-event.interface';
 
 @Injectable({
@@ -16,7 +16,6 @@ export class NasaEonetService {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
-
       return `${year}-${month}-${day}`;
     }
 
@@ -37,35 +36,18 @@ export class NasaEonetService {
     );
   }
 
-  public static getHighestDate(
-      geometry: any[],
-      dateFrom: Date,
-      dateTo: Date
-  ): Date | null {
-    const dates = geometry
-      .map(item => new Date(item.date))
-      .filter(date =>
-        date >= dateFrom && date <= dateTo
-      );
-
-    if (!dates.length) {
-      return null;
-    }
-    return new Date(Math.max(...dates.map(date => date.getTime())));
-  }
-
-  public static toCommonEvent(event: NasaEonetEventInterface, dateFrom: Date, dateTo: Date): CommonEventInterface {
+  public static toCommonEvent(event: NasaNatureEventInterface): CommonEventInterface {
     return {
-      id: event.id,
+      id: crypto.getRandomValues(new Uint32Array(1))[0],
       title: event.title,
-      description: event.description?.length>0 ? event.description : event.categories[0].title,
-      lat: event.geometry[0].coordinates[1],
-      lon:event.geometry[0].coordinates[0],
-      type: event.categories[0].title,
-      time: NasaEonetService.getHighestDate(event.geometry, dateFrom, dateTo),
+      description: event.description?.length>0 ? event.description : '',
+      lat: event.coordinates[1],
+      lon: event.coordinates[0],
+      type: event.type,
+      time: event.date,
       origin: 'NASA EONET',
       originIconId: 'natureEvents',
-      link: event.link
+      link: event.url
     } as CommonEventInterface;
   }
   

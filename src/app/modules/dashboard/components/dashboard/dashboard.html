@@ -985,24 +985,47 @@
                                             </span>
                                         </th>
                                         <th class="icon-column"></th>
-                                        <th>Type</th>
-                                        <th>Title</th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(natureEventsSortConfig, 'type')">
+                                                Type
+                                                @if(natureEventsSortConfig.field==='type') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':natureEventsSortConfig.dir==='DESC','fa-caret-up':natureEventsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(natureEventsSortConfig, 'title')">
+                                                Title
+                                                @if(natureEventsSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':natureEventsSortConfig.dir==='DESC','fa-caret-up':natureEventsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(natureEventsSortConfig, 'description')">
+                                                Description
+                                                @if(natureEventsSortConfig.field==='description') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':natureEventsSortConfig.dir==='DESC','fa-caret-up':natureEventsSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @for (naturalEvent of filteredNatureEvents; track $index) {
-                                        <tr [ngClass]="{'today-event': isToday(getHighestDate(naturalEvent.geometry, dateFrom, dateTo))}">
+                                        <tr [ngClass]="{'today-event': isToday(naturalEvent.date)}">
                                             <td class="nowrap ps-2">
-                                                @if (naturalEvent.geometry && naturalEvent.geometry.length>0) {
-                                                    <span>{{getEventDate(naturalEvent, 'DD.MM.yyyy')}}</span>
+                                                @if (naturalEvent.date) {
+                                                    <span>{{naturalEvent.date| date: 'dd.MM.yyyy - HH:mm'}}</span>
                                                 }
                                             </td>
                                             <td class="text-end">
-                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: naturalEvent.geometry[0].coordinates[1], lng: naturalEvent.geometry[0].coordinates[0]}"></ng-container>
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: naturalEvent.coordinates[1], lng: naturalEvent.coordinates[0]}"></ng-container>
                                             </td>
                                             <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('natureEvents', naturalEvent.description).iconTag)"></span></td>
-                                            <td><span>{{(naturalEvent.categories && naturalEvent.categories.length>0)?naturalEvent.categories[0].title:''}}</span></td>
-                                            <td><a [href]="sanitizeUrl(naturalEvent.link)" target="_blank">{{naturalEvent.title}}</a></td>
+                                            <td><span>{{naturalEvent.type}}</span></td>
+                                            <td><a [href]="sanitizeUrl(naturalEvent.url)" target="_blank">{{naturalEvent.title}}</a></td>
+                                            <td>{{naturalEvent.description}}</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -1010,7 +1033,7 @@
                             }@else if(deviceInfo.isMobile && maximizedWidgetId==='naturalEvents') {
                                 <div class="d-flex flex-column gap-2 p-2">
                                     @for (event of filteredNatureEvents; track $index) {
-                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: NasaEonetService.toCommonEvent(event, dateFrom, dateTo)}"></ng-container>
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: NasaEonetService.toCommonEvent(event)}"></ng-container>
                                     }
                                 </div>
                             }
@@ -1249,7 +1272,7 @@
                                     id="showNatureEvents"
                                     [(ngModel)]="displayConfig.map.natureEvents">
                                 <label class="form-check-label cursor-pointer" for="showNatureEvents">
-                                    Nature events ({{natureEvents.length}})
+                                    Nature events ({{filteredNatureEvents.length}})
                                 </label>
                             </div>
                         }
