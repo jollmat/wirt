@@ -26,9 +26,10 @@
   </div>
 
   <div class="date-presets d-flex ms-2 gap-1">
-    <button type="button" class="btn btn-wirt btn-sm" (click)="setToday()">Today</button>
-    <button type="button" class="btn btn-wirt btn-sm" (click)="setYesterday()">Yesterday</button>
-    <button type="button" class="btn btn-wirt btn-sm" (click)="setLast7Days()">Last 7 days</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setToday()" [ngClass]="{'active': isToday}">Today</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setYesterday()" [ngClass]="{'active': isYesterday}">Yesterday</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setLast7Days()" [ngClass]="{'active': isLast7Days}">Last Week</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setLastMonth()" [ngClass]="{'active': isLastMonth}">Last Month</button>
   </div>
 
 </div>

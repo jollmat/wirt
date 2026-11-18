@@ -12,5 +12,9 @@
         &:hover{
             opacity: 1 !important;
         }
+        &.active {
+            background-color: #fff;
+            color: $text-color-dark;
+        }
     }
 }
