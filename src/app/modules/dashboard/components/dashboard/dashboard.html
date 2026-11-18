@@ -1022,7 +1022,7 @@
                                             <td class="text-end">
                                                 <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: naturalEvent.coordinates[1], lng: naturalEvent.coordinates[0]}"></ng-container>
                                             </td>
-                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('natureEvents', naturalEvent.description).iconTag)"></span></td>
+                                            <td><span [innerHTML]="sanitizeHtml(getItemDisplayConfig('natureEvents', naturalEvent.description, naturalEvent.type).iconTag)"></span></td>
                                             <td><span>{{naturalEvent.type}}</span></td>
                                             <td><a [href]="sanitizeUrl(naturalEvent.url)" target="_blank">{{naturalEvent.title}}</a></td>
                                             <td>{{naturalEvent.description}}</td>

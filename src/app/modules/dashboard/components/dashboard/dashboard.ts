@@ -501,7 +501,22 @@ export class Dashboard implements OnInit, OnDestroy {
         break;
       case 'natureEvents':
         icon = 'fa-cloud-bolt';
-        color = iconColor || '#001adc';
+        color = iconColor || '#040d57';
+        if (category) {
+          switch(category) {
+            case 'Severe Storms':
+              icon = 'fa-cloud-bolt';
+              break;
+            case 'Wildfires':
+              icon = 'fa-fire';
+              color = '#9a0606';
+              break;
+            case 'Sea and Lake Ice':
+              icon = 'fa-icicles';
+              color = '#3192d2';
+              break;
+          }
+        }
         break;
       case 'alertsLive':
         icon = this.getFaIconByTypeOrCategory(type);
@@ -1321,7 +1336,7 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.displayConfig.map.natureEvents) {
       this.natureEvents.forEach((_natureEvent, idx) => {
         const highestDate = _natureEvent.date;
-        const itemDisplayConfig = this.getItemDisplayConfig('natureEvents', _natureEvent.description);
+        const itemDisplayConfig = this.getItemDisplayConfig('natureEvents', _natureEvent.description, _natureEvent.type);
         const color = itemDisplayConfig.color;
         const iconTag = `${itemDisplayConfig.iconTag}<br /><br />`;
         const icon = `${itemDisplayConfig.icon} ${(highestDate && this.isWithinTime(highestDate, this.withinTimeHours))?'blink-smooth':''}`;
@@ -1332,7 +1347,7 @@ export class Dashboard implements OnInit, OnDestroy {
           name: `${iconTag}${(highestDate)?this.getFormattedDate(highestDate, 'DD/MM/yyyy - HH:mm'):''}<br />${_natureEvent.title}`,
           latitude: _natureEvent.coordinates[1],
           longitude: _natureEvent.coordinates[0],
-          description: `${_natureEvent.description || '-'}<br /><br /><a href="${_natureEvent.url}" target="_blank">+ info</a><br /><br />Source: <a href="https://eonet.gsfc.nasa.gov/" target="_blank">NASA EONET</a>`,
+          description: `${_natureEvent.type || '-'}<br />${_natureEvent.description || '-'}<br /><br /><a href="${_natureEvent.url}" target="_blank">+ info</a><br /><br />Source: <a href="https://eonet.gsfc.nasa.gov/" target="_blank">NASA EONET</a>`,
           icon,
           color
         });
