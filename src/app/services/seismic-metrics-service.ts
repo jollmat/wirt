@@ -43,6 +43,7 @@ export class SeismicMetricsService {
       magnitude < 0 ||
       depthKm < 0
     ) {
+      console.log({magnitude, magnitudeType, depthKm});
       throw new Error('Invalid earthquake magnitude or depth.');
     }
 

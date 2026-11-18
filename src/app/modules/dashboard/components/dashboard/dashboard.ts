@@ -27,6 +27,7 @@ import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
 import { LeafletMapService } from '../../../../services/leaflet-map-service';
 import { VolcanoActivityReportInterface, VolcanoesService } from '../../../../services/volcanoes-service';
+import { ApiStatusInterface, ApiStatusService } from '../../../../services/api-status-service';
 
 export const WidgetWidthClasses = [
   'w-50',
@@ -34,7 +35,14 @@ export const WidgetWidthClasses = [
 ] as const;
 
 export type WidgetWidthClassType = typeof WidgetWidthClasses[number];
-export interface WidgetDisplayConfig { display: boolean; widthClass: string; collapsed: boolean; soundAlert?: {enabled: boolean, speaking?: boolean}};
+export interface WidgetDisplayConfig { 
+  display: boolean; 
+  widthClass: string; 
+  collapsed: boolean; 
+  soundAlert?: {enabled: boolean, speaking?: boolean},
+  realTime?: boolean,
+  realTimeOnly?: boolean
+};
 export interface DeviceInfo {
   isTablet: boolean,
   isMobile: boolean,
@@ -71,6 +79,7 @@ export class Dashboard implements OnInit, OnDestroy {
   WhoDiseaseNewsService = WhoDiseaseNewsService;
   GNewsService = GNewsService;
   VolcanoesService = VolcanoesService;
+  ApiStatusService = ApiStatusService;
 
   private leafletMapsService = inject(LeafletMapService);
   private earthquakeUsgsService = inject(EarthquakeUsgsService);
@@ -81,6 +90,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private seismicService = inject(SeismicPortalService);
   private gNewsService = inject(GNewsService);
   private volcanoesService = inject(VolcanoesService);
+  private apiStatusService = inject(ApiStatusService);
   
   userCoordsSubscription?: Subscription;
   earthQuakeUsgsSubscription?: Subscription;
@@ -93,6 +103,7 @@ export class Dashboard implements OnInit, OnDestroy {
   seismicPortalStoredEventsSubscription?: Subscription;
   gNewsServiceSubscription?: Subscription;
   volcanoesServiceSubscription?: Subscription;
+  apiStatusServiceSubscription?: Subscription;
   
   earthQuakes: EarthquakeFeatureUsgsInterface[] = [];
   natureEvents: NasaNatureEventInterface[] = [];
@@ -105,6 +116,7 @@ export class Dashboard implements OnInit, OnDestroy {
   seismicPortalEearthquakes: SeismicPortalEvent[] = [];
   gNews: GNewsArticle[] = [];
   volcanoesReports: VolcanoActivityReportInterface[] = [];
+  apiStatus: ApiStatusInterface[] = []
 
   earthQuakesError?: string;
   natureEventsError?: string;
@@ -113,6 +125,7 @@ export class Dashboard implements OnInit, OnDestroy {
   whoDiseaseNewsError?: string;
   gNewsError?: string;
   volcanoesError?: string;
+  apiStatusError?: string;
 
   nearEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   recentEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
@@ -124,6 +137,7 @@ export class Dashboard implements OnInit, OnDestroy {
   seismicPortalEearthquakesSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   gNewsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   volcanoesSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
+  apiStatusSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'name', dir:'ASC'};
 
   /* Map & Widgets display config */
   displayConfig: {
@@ -138,6 +152,7 @@ export class Dashboard implements OnInit, OnDestroy {
       whoDiseaseNews: WidgetDisplayConfig,
       gNews: WidgetDisplayConfig,
       volcanoes: WidgetDisplayConfig,
+      apiStatus: WidgetDisplayConfig,
 
       alertsLiveType: string,
       cityAlertLiveCategory: string,
@@ -156,33 +171,39 @@ export class Dashboard implements OnInit, OnDestroy {
       nearEvents: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: true
       },
       recentEvents: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: true
       },
       earthQuakes: {
         display: false,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: false
       },
       natureEvents: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: true
       },
       alertsLive: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: false
       },
       alertsLiveType: 'all',
       cityAlertLiveIncidents: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: true
       },
       cityAlertLiveCategory: 'all',
       cityAlertLiveType: 'all',
@@ -190,22 +211,33 @@ export class Dashboard implements OnInit, OnDestroy {
         display: true,
         widthClass: 'w-50',
         collapsed: false,
-        soundAlert: {enabled: true, speaking: false}
+        soundAlert: {enabled: true, speaking: false},
+        realTime: true
       },
       whoDiseaseNews: {
         display: false,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: false
       },
       gNews: {
         display: false,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: false
       },
       volcanoes: {
         display: true,
         widthClass: 'w-50',
-        collapsed: false
+        collapsed: false,
+        realTime: false
+      },
+      apiStatus: {
+        display: true,
+        widthClass: 'w-50',
+        collapsed: false,
+        realTime: true,
+        realTimeOnly: true
       }
     },
     map: {
@@ -227,6 +259,7 @@ export class Dashboard implements OnInit, OnDestroy {
     {type: 'shooting', icon: 'fa-gun'},
     {type: 'assault', icon: 'fa-person-rifle'},
     {type: 'closure', icon: 'fa-road-barrier'},
+    {type: 'api-status', icon: 'fa-signal'},
 
     {type: 'crime', icon: 'fa-skull'},
     {type: 'violent crime', icon: 'fa-gun'},
@@ -337,6 +370,8 @@ export class Dashboard implements OnInit, OnDestroy {
   voices: SpeechSynthesisVoice[] = [];
   voicesAvailable: SpeechSynthesisVoice[] = [];
   currentVoice?: SpeechSynthesisVoice;
+
+  realTimeMode = signal(false);
 
   constructor(
     private sanitizer: DomSanitizer
@@ -527,6 +562,10 @@ export class Dashboard implements OnInit, OnDestroy {
         icon = this.getFaIconByTypeOrCategory('seism-portal');
         color = iconColor || '#dc0b00';
         break;
+      case 'api-status':
+        icon = this.getFaIconByTypeOrCategory('api-status');
+        color = iconColor || '#dc0b00';
+        break;
     }
     return {
       icon,
@@ -559,14 +598,28 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onDateRangeChange(event: DateRangeConverted): void {
-    event.from.setHours(0);
-    event.from.setMinutes(0);
-    event.from.setSeconds(0);
-    event.to.setHours(23);
-    event.to.setMinutes(59);
-    event.to.setSeconds(59);
-    this.dateFrom = event.from;
-    this.dateTo = event.to;
+    this.realTimeMode.set(!event.from && !event.to);
+
+    if (this.realTimeMode()) {
+      event = {from: new Date(), to: new Date()};
+      event.from?.setHours(0);
+      event.from?.setMinutes(0);
+      event.from?.setSeconds(0);
+      event.to?.setHours(23);
+      event.to?.setMinutes(59);
+      event.to?.setSeconds(59);
+    }
+
+    if (event.from && event.to) {
+      event.from.setHours(0);
+      event.from.setMinutes(0);
+      event.from.setSeconds(0);
+      event.to.setHours(23);
+      event.to.setMinutes(59);
+      event.to.setSeconds(59);
+      this.dateFrom = event.from;
+      this.dateTo = event.to;
+    }
     this.requestData();   
   }
 
@@ -584,10 +637,12 @@ export class Dashboard implements OnInit, OnDestroy {
     this.alertsLiveError = undefined;
     this.cityAlertLiveError = undefined;
     this.volcanoesError = undefined;
+    this.apiStatusError = undefined;
     
-    if (this.displayConfig.widget.earthQuakes.display) {
+    if (this.displayConfig.widget.earthQuakes.display && ((!this.realTimeMode() && !this.displayConfig.widget.earthQuakes.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.earthQuakes.realTime))) {
       this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
         next: (_earthquakesLast24h) => {
+          this.displayConfig.widget.earthQuakes.display = true;
           this.earthQuakes = _earthquakesLast24h.sort((a,b) => a.properties.time>b.properties.time? -1 : 1);
         },
         error: (_error) => {
@@ -597,9 +652,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.natureEvents.display) {
+    if (this.displayConfig.widget.natureEvents.display && ((!this.realTimeMode() && !this.displayConfig.widget.natureEvents.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.natureEvents.realTime))) {
       this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
         next: (_naturalEvents) => {
+          this.displayConfig.widget.natureEvents.display = true;
           this.natureEvents = [];
           _naturalEvents.forEach((_naturalEvent) => {
             _naturalEvent.geometry.forEach((_naturalEventItem) => {
@@ -623,9 +679,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.alertsLive.display) {
+    if (this.displayConfig.widget.alertsLive.display && ((!this.realTimeMode() && !this.displayConfig.widget.alertsLive.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.alertsLive.realTime))) {
       this.alertsLiveSubscription = this.alertsLiveService.getAlertsLiveEvents(this.dateFrom, this.dateTo).subscribe({
         next: (_alertsLiveEvents) => {
+          this.displayConfig.widget.alertsLive.display = true;
           // Categories filter
           function getUniqueTypes(
             events: AlertsLiveEventInterface[]
@@ -644,9 +701,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.cityAlertLiveIncidents.display){
+    if (this.displayConfig.widget.cityAlertLiveIncidents.display && ((!this.realTimeMode() && !this.displayConfig.widget.cityAlertLiveIncidents.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.cityAlertLiveIncidents.realTime))){
       this.cityAlertLiveSubscription = this.cityAlertLiveService.getCityAlertIncidents(this.dateFrom, this.dateTo).subscribe({
         next: (_cityAlertLiveIncidents) => {
+          this.displayConfig.widget.cityAlertLiveIncidents.display = true;
           function getUniqueCategories(
             incidents: CityAlertIncidentInterface[]
           ): string[] {
@@ -670,9 +728,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.whoDiseaseNews.display){
+    if (this.displayConfig.widget.whoDiseaseNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.whoDiseaseNews.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.whoDiseaseNews.realTime))){
       this.whoDiseaseNewsSubscription = this.whoDiseaseNewsService.getWhoDiseaseNews(this.dateFrom, this.dateTo).subscribe({
         next: (_whoDiseaseNews) => {
+          this.displayConfig.widget.whoDiseaseNews.display = true;
           this.whoDiseaseNews = _whoDiseaseNews;
         }, 
         error: (_error) => {
@@ -682,9 +741,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.gNews.display){
+    if (this.displayConfig.widget.gNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.gNews.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.gNews.realTime))){
       this.gNewsServiceSubscription = this.gNewsService.obtenerNoticias().subscribe({
         next: (_gNews) => {
+          this.displayConfig.widget.gNews.display = true;
           this.gNews = _gNews.articles;
         }, 
         error: (_error) => {
@@ -694,9 +754,10 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.volcanoes.display){
+    if (this.displayConfig.widget.volcanoes.display && ((!this.realTimeMode() && !this.displayConfig.widget.volcanoes.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.volcanoes.realTime))){
       this.volcanoesServiceSubscription = this.volcanoesService.getVolcanoes().subscribe({
         next: (_volcanosInfo) => {
+          this.displayConfig.widget.volcanoes.display = true;
           this.volcanoesReports = [];
           _volcanosInfo.forEach((_volcanoInfo) => {
             _volcanoInfo.reports.forEach((_volcanoReport) => {
@@ -707,6 +768,19 @@ export class Dashboard implements OnInit, OnDestroy {
         error: (_error) => {
           this.volcanoesError = _error.error.error;
           this.displayConfig.widget.volcanoes.display = false;
+        }
+      });
+    }
+
+    if (this.displayConfig.widget.apiStatus.display && ((!this.realTimeMode() && !this.displayConfig.widget.apiStatus.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.apiStatus.realTime))){
+      this.apiStatusServiceSubscription = this.apiStatusService.getApis().subscribe({
+        next: (_apiStatus) => {
+          this.displayConfig.widget.apiStatus.display = true;
+          this.apiStatus = _apiStatus;
+        },
+        error: (_error) => {
+          this.apiStatusError = _error.error.error;
+          this.displayConfig.widget.apiStatus.display = false;
         }
       });
     }
@@ -1169,6 +1243,42 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+  get filteredApiStatus(): ApiStatusInterface[] {
+    const sortConfig = this.apiStatusSortConfig;
+    return this.apiStatus.sort((a,b) => {
+      let append = 1;
+      if (sortConfig.field==='name') {
+        if (sortConfig.dir==='DESC') {
+          append = a.name > b.name ? -1 : 1;
+        } else {
+          append = a.name > b.name ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='slug') {
+        if (sortConfig.dir==='DESC') {
+          append = a.slug > b.slug ? -1 : 1;
+        } else {
+          append = a.slug > b.slug ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='category') {
+        if (sortConfig.dir==='DESC') {
+          append = a.category > b.category ? -1 : 1;
+        } else {
+          append = a.category > b.category ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='current_status') {
+        if (sortConfig.dir==='DESC') {
+          append = a.current_status > b.current_status ? -1 : 1;
+        } else {
+          append = a.current_status > b.current_status ? 1 : -1;
+        }
+      }
+      return append;
+    });
+  }
+
   get filteredWhoDiseaseNews(): WhoDiseaseNewsInterface[] {
     const sortConfig = this.whoDiseaseNewsSortConfig;
     let res : WhoDiseaseNewsInterface[] = this.whoDiseaseNews;
@@ -1508,14 +1618,7 @@ export class Dashboard implements OnInit, OnDestroy {
     });
 
     // Seismic data (socketjs)
-    this.seismicPortalSocketConnectSubscription = this.seismicService.connect().subscribe(() => {
-      //console.log('Seismic service socket connected!');
-      /*
-      if (this.displayConfig.widget.seismicPortalEvents.soundAlert?.enabled) {
-        this.speakText('Seismic service socket connected!', this.displayConfig.widget.seismicPortalEvents.soundAlert);
-      }
-      */
-    });
+    this.seismicPortalSocketConnectSubscription = this.seismicService.connect().subscribe(() => {});
 
     this.seismicPortalStoredEventsSubscription = this.seismicService.getStoredEvents().subscribe({
       next: (_seismicPortalEvents) => {
@@ -1600,6 +1703,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.seismicPortalStoredEventsSubscription?.unsubscribe();
     this.gNewsServiceSubscription?.unsubscribe();
     this.volcanoesServiceSubscription?.unsubscribe();
+    this.apiStatusServiceSubscription?.unsubscribe();
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.removeEventListener('voiceschanged',this.handleVoicesChanged);

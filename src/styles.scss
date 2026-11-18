@@ -28,6 +28,22 @@ a, .text-link {
     }
 }
 
+.fw-100 {
+    font-weight: 100 !important;
+}
+.fw-200 {
+    font-weight: 200 !important;
+}
+.fw-300 {
+    font-weight: 300 !important;
+}
+.fw-400 {
+    font-weight: 400 !important;
+}
+.fw-500 {
+    font-weight: 500 !important;
+}
+
 .sticky-header {
     position: sticky;
     top: 0px;
@@ -190,4 +206,13 @@ span {
   &.bs-tooltip-end .tooltip-arrow::before {
     border-right-color: #312d2d !important;
   }
+}
+
+@for $i from 0 through 500 {
+    .wrap-#{$i * 5}px {
+        max-width: #{$i * 5}px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 }

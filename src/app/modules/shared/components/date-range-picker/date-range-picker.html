@@ -8,7 +8,7 @@
       type="date"
       [value]="dateFrom()"
       [max]="dateTo()"
-      (change)="dateFrom.set($any($event.target).value); onDateChange()"
+      (change)="dateFrom.set($any($event.target).value);realTime.set(false);onDateChange()"
     />
   </div>
 
@@ -21,12 +21,13 @@
       [value]="dateTo()"
       [min]="dateFrom()"
       [max]="momentToday"
-      (change)="dateTo.set($any($event.target).value); onDateChange()"
+      (change)="dateTo.set($any($event.target).value);realTime.set(false);onDateChange()"
     />
   </div>
 
   <div class="date-presets d-flex ms-2 gap-1">
-    <button type="button" class="btn btn-wirt btn-sm" (click)="setToday()" [ngClass]="{'active': isToday}">Today</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setRealTime()" [ngClass]="{'active': realTime()}">Real Time</button>
+    <button type="button" class="btn btn-wirt btn-sm" (click)="setToday()" [ngClass]="{'active': isToday && !realTime()}">Today</button>
     <button type="button" class="btn btn-wirt btn-sm" (click)="setYesterday()" [ngClass]="{'active': isYesterday}">Yesterday</button>
     <button type="button" class="btn btn-wirt btn-sm" (click)="setLast7Days()" [ngClass]="{'active': isLast7Days}">Last Week</button>
     <button type="button" class="btn btn-wirt btn-sm" (click)="setLastMonth()" [ngClass]="{'active': isLastMonth}">Last Month</button>

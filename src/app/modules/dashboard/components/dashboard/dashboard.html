@@ -38,7 +38,7 @@
                 }
 
                 <!-- Recent Events -->
-                @if(displayConfig.widget.recentEvents.display){
+                @if(displayConfig.widget.recentEvents.display && ((!realTimeMode() && !displayConfig.widget.recentEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.recentEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'collapsed': displayConfig.widget.recentEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <div class="d-flex align-items-center">
@@ -150,7 +150,9 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon, cssClass: isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)?'blink-smooth':''}"></ng-container>
+                                            @if(recentEvent.lat>0 && recentEvent.lon>0){
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon, cssClass: isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)?'blink-smooth':''}"></ng-container>
+                                            }
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(recentEvent.originIconId, recentEvent.type).iconTag)"></span>
@@ -187,7 +189,7 @@
                 }
 
                 <!-- Near Events -->
-                @if(displayConfig.widget.nearEvents.display){
+                @if(displayConfig.widget.nearEvents.display && ((!realTimeMode() && !displayConfig.widget.nearEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.nearEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.nearEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='nearEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='nearEvents', 'collapsed': displayConfig.widget.nearEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -298,7 +300,9 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
+                                            @if(nearEvent.lat>0 && nearEvent.lon>0) {
                                             <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearEvent.lat, lng: nearEvent.lon, cssClass: isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)?'blink-smooth':''}"></ng-container>
+                                            }
                                         </td>
                                         <td>
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(nearEvent.originIconId, nearEvent.type).iconTag)"></span>
@@ -334,7 +338,7 @@
                 }
 
                 <!-- USGS Earthquakes -->
-                @if(displayConfig.widget.earthQuakes.display){
+                @if(displayConfig.widget.earthQuakes.display && ((!realTimeMode() && !displayConfig.widget.earthQuakes.realTimeOnly)  || (realTimeMode() && displayConfig.widget.earthQuakes.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.earthQuakes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='usgsEarthquakes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='usgsEarthquakes', 'collapsed': displayConfig.widget.earthQuakes.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -457,7 +461,7 @@
                 }
 
                 <!-- Seismic Portal Events -->
-                @if(displayConfig.widget.seismicPortalEvents.display){
+                @if(displayConfig.widget.seismicPortalEvents.display && ((!realTimeMode() && !displayConfig.widget.seismicPortalEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.seismicPortalEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.seismicPortalEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='seismicPortal', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='seismicPortal', 'collapsed': displayConfig.widget.seismicPortalEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -593,7 +597,7 @@
                 }
 
                 <!-- Volcanoes -->
-                @if(displayConfig.widget.volcanoes.display){
+                @if(displayConfig.widget.volcanoes.display && ((!realTimeMode() && !displayConfig.widget.volcanoes.realTimeOnly)  || (realTimeMode() && displayConfig.widget.volcanoes.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.volcanoes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='volcanoes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='volcanoes', 'collapsed': displayConfig.widget.volcanoes.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -710,7 +714,7 @@
                 }
 
                 <!-- Alerts Live -->
-                @if(displayConfig.widget.alertsLive.display){
+                @if(displayConfig.widget.alertsLive.display && ((!realTimeMode() && !displayConfig.widget.alertsLive.realTimeOnly)  || (realTimeMode() && displayConfig.widget.alertsLive.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive', 'collapsed': displayConfig.widget.alertsLive.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -814,7 +818,7 @@
                 }
 
                 <!-- City Alert Live -->
-                @if(displayConfig.widget.cityAlertLiveIncidents.display){
+                @if(displayConfig.widget.cityAlertLiveIncidents.display && ((!realTimeMode() && !displayConfig.widget.cityAlertLiveIncidents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.cityAlertLiveIncidents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.cityAlertLiveIncidents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='cityAlert', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='cityAlert', 'collapsed': displayConfig.widget.cityAlertLiveIncidents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -945,7 +949,7 @@
                 }
 
                 <!-- Natural events -->
-                @if(displayConfig.widget.natureEvents.display){
+                @if(displayConfig.widget.natureEvents.display && ((!realTimeMode() && !displayConfig.widget.natureEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.natureEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents', 'collapsed': displayConfig.widget.natureEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -1046,7 +1050,7 @@
                 }
 
                 <!-- Who Disease News -->
-                @if(displayConfig.widget.whoDiseaseNews.display){
+                @if(displayConfig.widget.whoDiseaseNews.display && ((!realTimeMode() && !displayConfig.widget.whoDiseaseNews.realTimeOnly)  || (realTimeMode() && displayConfig.widget.whoDiseaseNews.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.whoDiseaseNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='whoDisease', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='whoDisease', 'collapsed': displayConfig.widget.whoDiseaseNews.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -1131,7 +1135,7 @@
                 }
 
                 <!-- GNews -->
-                @if(displayConfig.widget.gNews.display){
+                @if(displayConfig.widget.gNews.display && ((!realTimeMode() && !displayConfig.widget.gNews.realTimeOnly)  || (realTimeMode() && displayConfig.widget.gNews.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.gNews.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='gNews', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='gNews', 'collapsed': displayConfig.widget.gNews.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -1192,7 +1196,7 @@
                                     @for (gNewsItem of filteredGNews; track $index) {
                                         <tr [ngClass]="isToday(gNewsItem.publishedAt) ? 'today-event' : ''">
                                             <td class="nowrap ps-2">
-                                                <span [ngClass]="{'blink-slow': isWithinTime(gNewsItem.publishedAt, withinTimeHours)}">{{gNewsItem.publishedAt| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                                <span [ngClass]="{'blink-slow': isWithinTime(gNewsItem.publishedAt, withinTimeHours)}">{{gNewsItem.publishedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td class="w-25">
                                                 <a href="gNewsItem.source.url" ngbTooltip="{{gNewsItem.title}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top" target="_blank">{{gNewsItem.title}}</a>
@@ -1211,6 +1215,124 @@
                                 <div class="d-flex flex-column gap-2 p-2">
                                     @for (event of filteredGNews; track $index) {
                                         <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: GNewsService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
+                        } @else {
+                            <span class="text-danger p-3">{{gNewsError}}</span>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- API Status -->
+                @if(displayConfig.widget.apiStatus.display && ((!realTimeMode() && !displayConfig.widget.apiStatus.realTimeOnly)  || (realTimeMode() && displayConfig.widget.apiStatus.realTime))){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.apiStatus.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='apiStatus', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='apiStatus', 'collapsed': displayConfig.widget.apiStatus.collapsed}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            APIs Status
+                            @if(filteredApiStatus) {
+                            <span class="badge ms-2">{{filteredApiStatus.length}} / {{apiStatus.length}}</span>
+                            }
+                        </span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            @if(filteredApiStatus) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'apiStatus', widgetConfig: displayConfig.widget.apiStatus}" ></ng-container>
+                            }
+                        </div>
+                    </h5>
+                    @if(!displayConfig.widget.apiStatus.collapsed){
+                    <div class="w-100 table-container">
+                        @if (!apiStatusError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Request time
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
+                                                Name
+                                                @if(apiStatusSortConfig.field==='name') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'slug')">
+                                                Slug
+                                                @if(apiStatusSortConfig.field==='slug') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
+                                                Category
+                                                @if(apiStatusSortConfig.field==='category') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'current_status')">
+                                                Current Status
+                                                @if(apiStatusSortConfig.field==='current_status') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        @if(maximizedWidgetId==='apiStatus') {
+                                            <th></th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (apiStatus of filteredApiStatus; track $index) {
+                                        <tr [ngClass]="isToday(apiStatus.requestedAt) ? 'today-event' : ''">
+                                            <td>
+                                                <span [ngClass]="{'blink-slow': isWithinTime(apiStatus.requestedAt, withinTimeHours)}">{{apiStatus.requestedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td>
+                                                {{apiStatus.name}}
+                                            </td>
+                                            <td>
+                                                {{apiStatus.slug}}
+                                            </td>
+                                            <td>
+                                                {{apiStatus.category}}
+                                            </td>
+                                            <td>
+                                                <ng-container [ngTemplateOutlet]="apiStatusTemplate" [ngTemplateOutletContext]="{status: apiStatus.current_status}"></ng-container>
+                                                <ng-template let-status="status" #apiStatusTemplate>
+                                                    <span class="fw-200" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" ngbTooltip="{{ApiStatusService.getApiStatusTypeDescription(status)}}" [ngClass]="{
+                                                        'text-success': ['operational'].includes(status),
+                                                        'text-warning': ['partial_outage', 'degraded'].includes(status),
+                                                        'text-danger': ['major_outage'].includes(status)
+                                                        }">
+                                                        <i class="me-2 fas" [ngClass]="{
+                                                            'fa-check': ['operational'].includes(status),
+                                                            'fa-triangle-exclamation': ['partial_outage', 'degraded'].includes(status),
+                                                            'fa-circle-xmark': ['major_outage'].includes(status),
+                                                            'fa-question': ['unknown'].includes(status)
+                                                            }"></i>
+                                                    {{status}}
+                                                    </span>
+                                                </ng-template>
+                                            </td>
+                                            @if(maximizedWidgetId==='apiStatus') {
+                                                <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='apiStatus') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredApiStatus; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: ApiStatusService.toCommonEvent(event)}"></ng-container>
                                     }
                                 </div>
                             }
@@ -1425,7 +1547,7 @@
     <div class="d-flex flex-column w-100 mobile-common-event p-2">
         <div class="d-flex justify-content-between w-100">
             <span>{{event.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
-            @if (event.lat!==0 && event.lon!==0) {
+            @if (event.lat>0 && event.lon>0) {
                 <span><ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: event.lat, lng: event.lon, showUnits: true}"></ng-container></span>
             }
         </div>

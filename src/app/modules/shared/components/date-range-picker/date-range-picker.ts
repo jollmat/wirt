@@ -8,8 +8,8 @@ export interface DateRange {
 }
 
 export interface DateRangeConverted {
-  from: Date;
-  to: Date;
+  from?: Date;
+  to?: Date;
 }
 
 @Component({
@@ -23,6 +23,8 @@ export class DateRangePicker implements OnInit{
   
   @Input() from!: Date;
   @Input() to!: Date;
+
+  realTime = signal(false);
 
   dateRangeChange = output<DateRangeConverted>();
 
@@ -48,6 +50,7 @@ export class DateRangePicker implements OnInit{
   }
 
   setToday(): void {
+    this.realTime.set(false);
     const today = moment().format('YYYY-MM-DD');
     this.dateFrom.set(today);
     this.dateTo.set(today);
@@ -68,6 +71,7 @@ export class DateRangePicker implements OnInit{
   }
 
   setYesterday(): void {
+    this.realTime.set(false);
     const yesterday = moment().subtract(1, 'day').format('YYYY-MM-DD');
     this.dateFrom.set(yesterday);
     this.dateTo.set(yesterday);
@@ -88,6 +92,7 @@ export class DateRangePicker implements OnInit{
   }
 
   setLast7Days(): void {
+    this.realTime.set(false);
     this.dateFrom.set(moment().subtract(6, 'days').format('YYYY-MM-DD'));
     this.dateTo.set(moment().format('YYYY-MM-DD'));
     this.onDateChange();
@@ -107,8 +112,17 @@ export class DateRangePicker implements OnInit{
   }
 
   setLastMonth(): void {
+    this.realTime.set(false);
     this.dateFrom.set(moment().subtract(1, 'month').format('YYYY-MM-DD'));
     this.dateTo.set(moment().format('YYYY-MM-DD'));
+    this.onDateChange();
+  }
+
+  setRealTime(): void {
+    this.realTime.set(true);
+    const today = moment().format('YYYY-MM-DD');
+    this.dateFrom.set(today);
+    this.dateTo.set(today);
     this.onDateChange();
   }
 
@@ -127,10 +141,17 @@ export class DateRangePicker implements OnInit{
     if (this.dateFrom() > this.dateTo()) {
       return;
     }
-    this.dateRangeChange.emit(this.convertDateRange({
-      dateFrom: this.dateFrom(),
-      dateTo: this.dateTo()
-    }));
+    if (this.realTime()) {
+      this.dateRangeChange.emit({
+        from: undefined,
+        to: undefined
+      });
+    } else {
+      this.dateRangeChange.emit(this.convertDateRange({
+        dateFrom: this.dateFrom(),
+        dateTo: this.dateTo()
+      }));
+    }
   }
 
   ngOnInit(): void {
