@@ -106,9 +106,6 @@ export class Dashboard implements OnInit, OnDestroy {
   gNews: GNewsArticle[] = [];
   volcanoesReports: VolcanoActivityReportInterface[] = [];
 
-  nearAlerts: CommonEventInterface[] = [];
-  recentAlerts: CommonEventInterface[] = [];
-
   earthQuakesError?: string;
   natureEventsError?: string;
   alertsLiveError?: string;
@@ -581,12 +578,6 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   requestData() {
-    this.nearAlerts = [];
-    this.volcanoesReports = [];
-    this.earthQuakes = [];
-    this.natureEvents = [];
-    this.alertsLiveEvents = [];
-    this.cityAlertLiveIncidents = [];
 
     this.earthQuakesError = undefined;
     this.natureEventsError = undefined;
@@ -609,6 +600,7 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.displayConfig.widget.natureEvents.display) {
       this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
         next: (_naturalEvents) => {
+          this.natureEvents = [];
           _naturalEvents.forEach((_naturalEvent) => {
             _naturalEvent.geometry.forEach((_naturalEventItem) => {
               _naturalEventItem.title = _naturalEvent.title;
@@ -706,6 +698,7 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.displayConfig.widget.volcanoes.display){
       this.volcanoesServiceSubscription = this.volcanoesService.getVolcanoes().subscribe({
         next: (_volcanosInfo) => {
+          this.volcanoesReports = [];
           _volcanosInfo.forEach((_volcanoInfo) => {
             _volcanoInfo.reports.forEach((_volcanoReport) => {
               this.volcanoesReports.push(_volcanoReport);
