@@ -58,7 +58,7 @@ export class SeismicPortalService implements OnDestroy {
     ) as unknown as WebSocket;
 
     this.socket.onopen = () => {
-      console.log('Seismic service connected');
+      console.log('Seismic service socket connected');
     };
 
     this.socket.onmessage = (event: MessageEvent) => {

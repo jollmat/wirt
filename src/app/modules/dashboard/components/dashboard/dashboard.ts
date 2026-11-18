@@ -6,7 +6,7 @@ import { DatePipe, DecimalPipe, NgClass, NgTemplateOutlet } from '@angular/commo
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { interval, Observable, of, startWith, Subscription } from 'rxjs';
-import { NasaEonetEventInterface, NasaNatureEventInterface } from '../../../../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
+import { NasaNatureEventInterface } from '../../../../model/nasa-eonet/interfaces/nasa-eonet-event.interface';
 import { NasaEonetService } from '../../../../services/nasa-eonet-service';
 import { LeafletMap, MapLocation } from '../../../shared/components/leaflet-map/leaflet-map';
 import { DateRangeConverted } from '../../../shared/components/date-range-picker/date-range-picker';
@@ -190,7 +190,7 @@ export class Dashboard implements OnInit, OnDestroy {
         display: true,
         widthClass: 'w-50',
         collapsed: false,
-        soundAlert: {enabled: false, speaking: false}
+        soundAlert: {enabled: true, speaking: false}
       },
       whoDiseaseNews: {
         display: false,
@@ -615,7 +615,6 @@ export class Dashboard implements OnInit, OnDestroy {
             const bDate = new Date(b.date)
             return (aDate && bDate && aDate.getTime()>bDate.getTime()) ? -1 : 1;
           });
-          console.log({natureEvents: this.natureEvents});
         },
         error: (_error) => {
           this.natureEventsError = _error.error.error;
@@ -1500,9 +1499,9 @@ export class Dashboard implements OnInit, OnDestroy {
 
     // Init dates
     this.dateTo = new Date();
-    this.dateFrom = moment().subtract(1, 'day').toDate();
-    //this.onDateRangeChange({from: this.dateFrom, to: this.dateTo});
-
+    this.dateFrom = new Date();
+    this.dateFrom.setHours(0, 0, 0);
+    
     // No socket data
     this.refreshSubscription = interval(5 * 60 * 1000).subscribe(() => {
       this.requestData();
@@ -1510,9 +1509,12 @@ export class Dashboard implements OnInit, OnDestroy {
 
     // Seismic data (socketjs)
     this.seismicPortalSocketConnectSubscription = this.seismicService.connect().subscribe(() => {
+      //console.log('Seismic service socket connected!');
+      /*
       if (this.displayConfig.widget.seismicPortalEvents.soundAlert?.enabled) {
         this.speakText('Seismic service socket connected!', this.displayConfig.widget.seismicPortalEvents.soundAlert);
       }
+      */
     });
 
     this.seismicPortalStoredEventsSubscription = this.seismicService.getStoredEvents().subscribe({
@@ -1528,8 +1530,6 @@ export class Dashboard implements OnInit, OnDestroy {
         if (['weak', 'light','moderate','strong', 'very-strong'].includes(perceptionLevel)) {
           const textToAlert = `Attention: ${SeismicPortalService.toCommonEvent(_seismicEvent).description}`;
           this.speakText(textToAlert, this.displayConfig.widget.seismicPortalEvents.soundAlert);
-          console.log(textToAlert);
-
           if (this.viewType()==='MAP') {
             //this.goToMapCoords(_seismicEvent.data.properties.lat, _seismicEvent.data.properties.lon);
           }
@@ -1542,6 +1542,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   speakText(textToSpeak: string, soundConfig?: {enabled: boolean, speaking?: boolean}) {
+    //console.log('speakText()', textToSpeak);
 
     const speech = new SpeechSynthesisUtterance(textToSpeak);
     speech.lang = this.voiceLanguage;
@@ -1579,7 +1580,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.voices = window.speechSynthesis.getVoices();
     this.voicesAvailable = this.voices.filter((_voice) => _voice.lang===this.voiceLanguage);
     this.currentVoice = (this.voices.length>0 && this.voicesAvailable.length>0) ? this.voicesAvailable.find((_voice, idx) => idx===0) : undefined;
-    console.log('Voice config:', {voices: this.voices, voicesAvailable: this.voicesAvailable, currentVoice: this.currentVoice});
+    // console.log('Voice config:', {voices: this.voices, voicesAvailable: this.voicesAvailable, currentVoice: this.currentVoice});
   }
 
   stopSpeaking() {
