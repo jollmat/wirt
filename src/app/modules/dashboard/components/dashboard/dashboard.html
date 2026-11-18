@@ -1016,7 +1016,7 @@
                                         <tr [ngClass]="{'today-event': isToday(naturalEvent.date)}">
                                             <td class="nowrap ps-2">
                                                 @if (naturalEvent.date) {
-                                                    <span>{{naturalEvent.date| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                                    <span [ngClass]="{'blink-slow': isWithinTime(naturalEvent.date, withinTimeHours)}">{{naturalEvent.date | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                                 }
                                             </td>
                                             <td class="text-end">
