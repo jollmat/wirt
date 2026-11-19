@@ -59,6 +59,10 @@ a, .text-link {
     }
 }
 
+.form-check-label {
+    font-size: 13px;
+}
+
 @for $i from 0 through 100 {
   .opacity_#{$i} {
     opacity: math.div($i, 100);

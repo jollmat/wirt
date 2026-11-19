@@ -55,7 +55,7 @@ export class ApiStatusService {
   public static toCommonEvent(event: ApiStatusInterface): CommonEventInterface {
     return {
       id: crypto.getRandomValues(new Uint32Array(1))[0],
-      title: event.name,
+      title: `<img src="https://apistatus.watch/api/badge/${event.slug}.svg" />`,
       description: `Current status: ${event.current_status}`,
       lat: -1,
       lon: -1,

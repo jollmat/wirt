@@ -22,27 +22,12 @@
 
             @if (viewType()==='GRID') {
 
-                <!-- Near and Recent Events -->
-                @if(false && filteredNearRecentEvents.length>0){
-                    <div class="d-flex flex-column w-99 gap-1 near-recent-events py-1 pe-2 mt-2 blink-slow">
-                    @for (nearRecentEvent of filteredNearRecentEvents; track $index) {
-                        <div class="d-flex alert alert-danger w-100 m-0 p-2">
-                            <span class="pe-2">{{nearRecentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span> - 
-                            <div class="px-2 distance text-end">
-                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearRecentEvent.lat, lng: nearRecentEvent.lon}"></ng-container> Km
-                            </div> - 
-                            <a class="ps-2" href="{{nearRecentEvent.link}}" target="_blank">{{nearRecentEvent.title}}</a>
-                        </div>
-                    }
-                    </div>
-                }
-
                 <!-- Recent Events -->
                 @if(displayConfig.widget.recentEvents.display && ((!realTimeMode() && !displayConfig.widget.recentEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.recentEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.recentEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='recentEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='recentEvents', 'collapsed': displayConfig.widget.recentEvents.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <div class="d-flex align-items-center">
-                            @if(filteredRecentEvents.length>0) {
+                            @if(filteredRecentEvents && filteredRecentEvents.length>0) {
                                 <i class="fas fa-exclamation-circle text-warning me-1 blink-smooth"></i>
                             }
                             Recent events
@@ -97,8 +82,7 @@
                                         }
                                         </span>
                                     </th>
-                                    <th class="icon-column"></th>
-                                    <th class="type-column">
+                                    <th class="type-column" colspan="2">
                                         <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'type')">
                                         Type
                                         @if(recentEventsSortConfig.field==='type') {
@@ -122,6 +106,7 @@
                                             }
                                         </span>
                                     </th>
+                                    @if(maximizedWidgetId==='recentEvents') {
                                     <th *appDevice="'desktop'; deviceInfo: deviceInfo">
                                         <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'description')">
                                             Description / Place
@@ -130,6 +115,7 @@
                                             }
                                         </span>
                                     </th>
+                                    }
                                     <th class="source-column">
                                         <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'origin')">
                                         Source
@@ -154,17 +140,19 @@
                                                 <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon, cssClass: isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)?'blink-smooth':''}"></ng-container>
                                             }
                                         </td>
-                                        <td>
+                                        <td class="icon-column">
                                             <span [innerHTML]="sanitizeHtml(getItemDisplayConfig(recentEvent.originIconId, recentEvent.type).iconTag)"></span>
                                         </td>
                                         <td class="wrap-100px"><span ngbTooltip="{{recentEvent.type}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.type}}</span></td>
                                         <td class="wrap-100px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{recentEvent.category}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.category}}</span></td>
-                                        <td class="wrap-150px">
+                                        <td class="wrap-200px">
                                             <a [href]="sanitizeUrl(recentEvent.link)" target="_blank">
-                                            <span ngbTooltip="{{recentEvent.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.title}}</span>
+                                            <span ngbTooltip="{{recentEvent.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" [innerHTML]="sanitizeHtml(recentEvent.title)"></span>
                                             </a>
                                         </td>
+                                        @if(maximizedWidgetId==='recentEvents') {
                                         <td *appDevice="'desktop'; deviceInfo: deviceInfo" class="wrap-150px"><span ngbTooltip="{{recentEvent.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{recentEvent.description}}</span></td>
+                                        }
                                         <td class="wrap-150px">{{recentEvent.origin}}</td>
                                     </tr>
                                 }
@@ -247,8 +235,7 @@
                                         }
                                         </span>
                                     </th>
-                                    <th class="icon-column"></th>
-                                    <th class="type-column">
+                                    <th class="type-column" colspan="2">
                                         <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'type')">
                                         Type
                                         @if(nearEventsSortConfig.field==='type') {
@@ -272,6 +259,7 @@
                                             }
                                         </span>
                                     </th>
+                                    @if(maximizedWidgetId==='nearEvents') {
                                     <th *appDevice="'desktop'; deviceInfo: deviceInfo">
                                         <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'description')">
                                             Description / Place
@@ -280,6 +268,7 @@
                                             }
                                         </span>
                                     </th>
+                                    }
                                     <th class="source-column">
                                         <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'origin')">
                                         Source
@@ -309,12 +298,14 @@
                                         </td>
                                         <td class="wrap-100px"><span ngbTooltip="{{nearEvent.type}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.type}}</span></td>
                                         <td class="wrap-100px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{nearEvent.category}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.category}}</span></td>
-                                        <td class="wrap-150px">
+                                        <td class="wrap-200px">
                                             <a [href]="sanitizeUrl(nearEvent.link)" target="_blank">
                                             <span ngbTooltip="{{nearEvent.title}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.title}}</span>
                                             </a>
                                         </td>
+                                        @if(maximizedWidgetId==='nearEvents') {
                                         <td class="wrap-150px" *appDevice="'desktop'; deviceInfo: deviceInfo"><span ngbTooltip="{{nearEvent.description}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{nearEvent.description}}</span></td>
+                                        }
                                         <td class="wrap-150px">{{nearEvent.origin}}</td>
                                     </tr>
                                 }
@@ -1227,7 +1218,7 @@
                 }
 
                 <!-- API Status -->
-                @if(displayConfig.widget.apiStatus.display && ((!realTimeMode() && !displayConfig.widget.apiStatus.realTimeOnly)  || (realTimeMode() && displayConfig.widget.apiStatus.realTime))){
+                @if(displayConfig.widget.apiStatus.display && ((!realTimeMode() && !displayConfig.widget.apiStatus.realTimeOnly)  || ((isToday(dateFrom) && isToday(dateTo)) || (realTimeMode() && displayConfig.widget.apiStatus.realTime)))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.apiStatus.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='apiStatus', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='apiStatus', 'collapsed': displayConfig.widget.apiStatus.collapsed}">
                     <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
                         <span>
@@ -1237,7 +1228,18 @@
                             }
                         </span>
                         <div class="d-flex table-hover align-items-center gap-2">
-                            @if(filteredApiStatus) {
+                            @if(filteredApiStatus && displayConfig.widget.apiStatus.options) {
+                                <div class="d-flex align-items-center form-check me-2 gap-2">
+                                    <input
+                                        style="top: -3px;position: relative;"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="showNotOperationalOnly"
+                                        [(ngModel)]="displayConfig.widget.apiStatus.options.apiStatus.notOperationalOnly">
+                                    <label class="form-check-label cursor-pointer" for="showNotOperationalOnly">
+                                        Not operational only
+                                    </label>
+                                </div>
                                 <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'apiStatus', widgetConfig: displayConfig.widget.apiStatus}" ></ng-container>
                             }
                         </div>
@@ -1252,22 +1254,6 @@
                                         <th>
                                             Request time
                                         </th>
-                                        <th class="title-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
-                                                Name
-                                                @if(apiStatusSortConfig.field==='name') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'slug')">
-                                                Slug
-                                                @if(apiStatusSortConfig.field==='slug') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
                                         <th>
                                             <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
                                                 Category
@@ -1276,10 +1262,10 @@
                                                 }
                                             </span>
                                         </th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'current_status')">
-                                                Current Status
-                                                @if(apiStatusSortConfig.field==='current_status') {
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
+                                                Name / Status
+                                                @if(apiStatusSortConfig.field==='name') {
                                                     <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
                                                 }
                                             </span>
@@ -1287,6 +1273,7 @@
                                         @if(maximizedWidgetId==='apiStatus') {
                                             <th></th>
                                         }
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1296,35 +1283,15 @@
                                                 <span [ngClass]="{'blink-slow': isWithinTime(apiStatus.requestedAt, withinTimeHours)}">{{apiStatus.requestedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td>
-                                                {{apiStatus.name}}
-                                            </td>
-                                            <td>
-                                                {{apiStatus.slug}}
-                                            </td>
-                                            <td>
                                                 {{apiStatus.category}}
                                             </td>
                                             <td>
-                                                <ng-container [ngTemplateOutlet]="apiStatusTemplate" [ngTemplateOutletContext]="{status: apiStatus.current_status}"></ng-container>
-                                                <ng-template let-status="status" #apiStatusTemplate>
-                                                    <span class="fw-200" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top" ngbTooltip="{{ApiStatusService.getApiStatusTypeDescription(status)}}" [ngClass]="{
-                                                        'text-success': ['operational'].includes(status),
-                                                        'text-warning': ['partial_outage', 'degraded'].includes(status),
-                                                        'text-danger': ['major_outage'].includes(status)
-                                                        }">
-                                                        <i class="me-2 fas" [ngClass]="{
-                                                            'fa-check': ['operational'].includes(status),
-                                                            'fa-triangle-exclamation': ['partial_outage', 'degraded'].includes(status),
-                                                            'fa-circle-xmark': ['major_outage'].includes(status),
-                                                            'fa-question': ['unknown'].includes(status)
-                                                            }"></i>
-                                                    {{status}}
-                                                    </span>
-                                                </ng-template>
+                                                <img src="https://apistatus.watch/api/badge/{{apiStatus.slug}}.svg?label=" />
                                             </td>
                                             @if(maximizedWidgetId==='apiStatus') {
                                                 <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
                                             }
+                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug)">+ info</span></td>
                                         </tr>
                                     }
                                 </tbody>

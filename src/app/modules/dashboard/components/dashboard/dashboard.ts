@@ -41,7 +41,12 @@ export interface WidgetDisplayConfig {
   collapsed: boolean; 
   soundAlert?: {enabled: boolean, speaking?: boolean},
   realTime?: boolean,
-  realTimeOnly?: boolean
+  realTimeOnly?: boolean,
+  options?: {
+    apiStatus: {
+      notOperationalOnly?: boolean
+    } 
+  }
 };
 export interface DeviceInfo {
   isTablet: boolean,
@@ -237,7 +242,12 @@ export class Dashboard implements OnInit, OnDestroy {
         widthClass: 'w-50',
         collapsed: false,
         realTime: true,
-        realTimeOnly: true
+        realTimeOnly: true,
+        options: {
+          apiStatus: {
+            notOperationalOnly: true
+          }
+        }
       }
     },
     map: {
@@ -639,7 +649,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.volcanoesError = undefined;
     this.apiStatusError = undefined;
     
-    if (this.displayConfig.widget.earthQuakes.display && ((!this.realTimeMode() && !this.displayConfig.widget.earthQuakes.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.earthQuakes.realTime))) {
+    if (this.displayConfig.widget.earthQuakes.display && ((!this.realTimeMode() && !this.displayConfig.widget.earthQuakes.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.earthQuakes.realTime))) {
       this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
         next: (_earthquakesLast24h) => {
           this.displayConfig.widget.earthQuakes.display = true;
@@ -652,7 +662,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.natureEvents.display && ((!this.realTimeMode() && !this.displayConfig.widget.natureEvents.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.natureEvents.realTime))) {
+    if (this.displayConfig.widget.natureEvents.display && ((!this.realTimeMode() && !this.displayConfig.widget.natureEvents.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.natureEvents.realTime))) {
       this.nasaEonetSubscription = this.nasaEonetService.getNaturalEvents(this.dateFrom, this.dateTo).subscribe({
         next: (_naturalEvents) => {
           this.displayConfig.widget.natureEvents.display = true;
@@ -679,7 +689,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.alertsLive.display && ((!this.realTimeMode() && !this.displayConfig.widget.alertsLive.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.alertsLive.realTime))) {
+    if (this.displayConfig.widget.alertsLive.display && ((!this.realTimeMode() && !this.displayConfig.widget.alertsLive.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.alertsLive.realTime))) {
       this.alertsLiveSubscription = this.alertsLiveService.getAlertsLiveEvents(this.dateFrom, this.dateTo).subscribe({
         next: (_alertsLiveEvents) => {
           this.displayConfig.widget.alertsLive.display = true;
@@ -701,7 +711,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.cityAlertLiveIncidents.display && ((!this.realTimeMode() && !this.displayConfig.widget.cityAlertLiveIncidents.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.cityAlertLiveIncidents.realTime))){
+    if (this.displayConfig.widget.cityAlertLiveIncidents.display && ((!this.realTimeMode() && !this.displayConfig.widget.cityAlertLiveIncidents.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.cityAlertLiveIncidents.realTime))){
       this.cityAlertLiveSubscription = this.cityAlertLiveService.getCityAlertIncidents(this.dateFrom, this.dateTo).subscribe({
         next: (_cityAlertLiveIncidents) => {
           this.displayConfig.widget.cityAlertLiveIncidents.display = true;
@@ -728,7 +738,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.whoDiseaseNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.whoDiseaseNews.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.whoDiseaseNews.realTime))){
+    if (this.displayConfig.widget.whoDiseaseNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.whoDiseaseNews.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.whoDiseaseNews.realTime))){
       this.whoDiseaseNewsSubscription = this.whoDiseaseNewsService.getWhoDiseaseNews(this.dateFrom, this.dateTo).subscribe({
         next: (_whoDiseaseNews) => {
           this.displayConfig.widget.whoDiseaseNews.display = true;
@@ -741,7 +751,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.gNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.gNews.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.gNews.realTime))){
+    if (this.displayConfig.widget.gNews.display && ((!this.realTimeMode() && !this.displayConfig.widget.gNews.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.gNews.realTime))){
       this.gNewsServiceSubscription = this.gNewsService.obtenerNoticias().subscribe({
         next: (_gNews) => {
           this.displayConfig.widget.gNews.display = true;
@@ -754,7 +764,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.volcanoes.display && ((!this.realTimeMode() && !this.displayConfig.widget.volcanoes.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.volcanoes.realTime))){
+    if (this.displayConfig.widget.volcanoes.display && ((!this.realTimeMode() && !this.displayConfig.widget.volcanoes.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.volcanoes.realTime))){
       this.volcanoesServiceSubscription = this.volcanoesService.getVolcanoes().subscribe({
         next: (_volcanosInfo) => {
           this.displayConfig.widget.volcanoes.display = true;
@@ -772,7 +782,7 @@ export class Dashboard implements OnInit, OnDestroy {
       });
     }
 
-    if (this.displayConfig.widget.apiStatus.display && ((!this.realTimeMode() && !this.displayConfig.widget.apiStatus.realTimeOnly)  || (this.realTimeMode() && this.displayConfig.widget.apiStatus.realTime))){
+    if (this.displayConfig.widget.apiStatus.display && ((!this.realTimeMode() && !this.displayConfig.widget.apiStatus.realTimeOnly) || ((this.isToday(this.dateFrom) && this.isToday(this.dateTo)) || (this.realTimeMode() && this.displayConfig.widget.apiStatus.realTime)))){
       this.apiStatusServiceSubscription = this.apiStatusService.getApis().subscribe({
         next: (_apiStatus) => {
           this.displayConfig.widget.apiStatus.display = true;
@@ -933,6 +943,12 @@ export class Dashboard implements OnInit, OnDestroy {
     });
     this.filteredSeismicPortalEearthquakes.forEach((_event) => {
       const commonEvent = SeismicPortalService.toCommonEvent(_event);
+      if (this.isWithinTime(commonEvent.time, this.withinTimeHours)) {
+        res.push(commonEvent);
+      }
+    });
+    this.filteredApiStatus.forEach((_event) => {
+      const commonEvent = ApiStatusService.toCommonEvent(_event);
       if (this.isWithinTime(commonEvent.time, this.withinTimeHours)) {
         res.push(commonEvent);
       }
@@ -1245,7 +1261,11 @@ export class Dashboard implements OnInit, OnDestroy {
 
   get filteredApiStatus(): ApiStatusInterface[] {
     const sortConfig = this.apiStatusSortConfig;
-    return this.apiStatus.sort((a,b) => {
+    return this.apiStatus.filter((_apiStatus) => {
+      return (this.displayConfig.widget.apiStatus.options?.apiStatus.notOperationalOnly && _apiStatus.current_status!=='operational') || 
+        !this.displayConfig.widget.apiStatus.options?.apiStatus.notOperationalOnly;
+
+    }).sort((a,b) => {
       let append = 1;
       if (sortConfig.field==='name') {
         if (sortConfig.dir==='DESC') {
@@ -1579,6 +1599,10 @@ export class Dashboard implements OnInit, OnDestroy {
     }
     const distanceKm = this.getDistanceKm(latitude, longitude);
     return distanceKm <= this.userNearKm;
+  }
+
+  viewMoreInfo(widgetId: string, itemId: unknown) {
+    console.log('viewMoreInfo()', itemId);
   }
 
   toggleMaximizedWidget(widgetId: string) {
