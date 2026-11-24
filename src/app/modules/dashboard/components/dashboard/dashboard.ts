@@ -1,5 +1,6 @@
 import { Component, DestroyRef, effect, HostListener, inject, OnDestroy, OnInit, SecurityContext, signal } from '@angular/core';
 import { Header } from '../../../shared/components/header/header';
+import { Footer } from '../../../shared/components/footer/footer';
 import { EarthquakeUsgsService } from '../../../../services/earthquake-usgs-service';
 import { EarthquakeFeatureUsgsInterface } from '../../../../model/earthquake-usgs/interfaces/earthquake-feature-usgs.interface';
 import { DatePipe, DecimalPipe, NgClass, NgTemplateOutlet } from '@angular/common';
@@ -59,7 +60,7 @@ export interface DeviceInfo {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Header, DatePipe, DecimalPipe, NgClass, LeafletMap, FormsModule, NgSelectModule, NgbTooltip, NgTemplateOutlet, DeviceDirective],
+  imports: [Header, DatePipe, DecimalPipe, NgClass, LeafletMap, FormsModule, NgSelectModule, NgbTooltip, NgTemplateOutlet, DeviceDirective, Footer],
   providers: [DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
@@ -1609,10 +1610,10 @@ export class Dashboard implements OnInit, OnDestroy {
     this.maximizedWidgetId = (this.maximizedWidgetId) ? undefined : widgetId;
   }
 
-  goToMapCoords(lat: number, lng: number) {
+  goToMapCoords(coords: {lat: number, lng: number}) {
     this.viewType.set('MAP');
     setTimeout(() => {
-      this.leafletMapsService.setPosition({lat,lng, zoom: 12});
+      this.leafletMapsService.setPosition({lat: coords.lat, lng: coords.lng, zoom: 12});
     }, 200);
   }
 

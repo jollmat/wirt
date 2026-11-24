@@ -550,7 +550,7 @@
                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: seismicPortalEvent.data.properties.lat, lng: seismicPortalEvent.data.properties.lon, cssClass: isWithinTime(seismicPortalEvent.data.properties.lastupdate, withinTimeHours) && isWithinRadius(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)?'blink-smooth':''}"></ng-container>
                                             </td>
                                             <td>
-                                                <span class="text-link me-2" (click)="goToMapCoords(seismicPortalEvent.data.properties.lat, seismicPortalEvent.data.properties.lon)">{{seismicPortalEvent.data.properties.flynn_region}}</span> <span class="opacity_45" [ngClass]="{'text-warning': seismicPortalEvent.action==='create'}">({{seismicPortalEvent.action.replace('create','new')}})</span>
+                                                <span class="text-link me-2" (click)="goToMapCoords({lat: seismicPortalEvent.data.properties.lat, lng: seismicPortalEvent.data.properties.lon})">{{seismicPortalEvent.data.properties.flynn_region}}</span> <span class="opacity_45" [ngClass]="{'text-warning': seismicPortalEvent.action==='create'}">({{seismicPortalEvent.action.replace('create','new')}})</span>
                                             </td>
                                             <td class="text-end">
                                                 <span class="mag" [ngClass]="{
@@ -1254,18 +1254,18 @@
                                         <th>
                                             Request time
                                         </th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
-                                                Category
-                                                @if(apiStatusSortConfig.field==='category') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
                                         <th class="title-column">
                                             <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
                                                 Name / Status
                                                 @if(apiStatusSortConfig.field==='name') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
+                                                Category
+                                                @if(apiStatusSortConfig.field==='category') {
                                                     <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
                                                 }
                                             </span>
@@ -1283,10 +1283,10 @@
                                                 <span [ngClass]="{'blink-slow': isWithinTime(apiStatus.requestedAt, withinTimeHours)}">{{apiStatus.requestedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                             </td>
                                             <td>
-                                                {{apiStatus.category}}
+                                                <img src="https://apistatus.watch/api/badge/{{apiStatus.slug}}.svg?label=" />
                                             </td>
                                             <td>
-                                                <img src="https://apistatus.watch/api/badge/{{apiStatus.slug}}.svg?label=" />
+                                                {{apiStatus.category}}
                                             </td>
                                             @if(maximizedWidgetId==='apiStatus') {
                                                 <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
@@ -1453,10 +1453,14 @@
 
     </div>
     }
+
+    <div class="sticky-footer w-100">
+        <app-footer (onGoToCoords)="goToMapCoords($event)"></app-footer>
+    </div>
 </div>
 
 <ng-template let-lat="lat" let-lng="lng" let-showUnits="showUnits" let-cssClass="cssClass" #distanceTemplate>
-    <span class="cursor-pointer {{cssClass}}" (click)="goToMapCoords(lat, lng)" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
+    <span class="cursor-pointer {{cssClass}}" (click)="goToMapCoords({lat, lng})" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
     {{getDistanceKm(lat, lng) | number:'1.1-1'}}
     @if(showUnits){
         <span>Km</span>

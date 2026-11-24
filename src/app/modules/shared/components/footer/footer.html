@@ -1,0 +1,9 @@
+<div class="d-flex justify-content-between w-100 py-3 px-4">
+    <span></span>
+    @if(userLocation && locationForecast && userCoords()) {
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-link" (click)="goToUserCoords()">{{userLocation.address.town}}, {{locationForecast.current.temperature_2m}}ºC</span>
+            <span class="cursor-default" ngbTooltip="{{getWeatherDescription(locationForecast.current.weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(locationForecast.current.weather_code,locationForecast.current.is_day) }}</span>
+        </div>
+    }
+</div>

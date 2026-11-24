@@ -95,7 +95,7 @@ $bg-color-widget-title: #1e1c1c;
 }
 
 .layout-container {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 135px);
     overflow: auto;
 }
 
@@ -155,7 +155,7 @@ tr {
     overflow-x: hidden;
 }
 
-.sticky-header {
+.sticky-header, .sticky-footer {
     flex: 0 0 auto;
 }
 
