@@ -36,6 +36,39 @@ export interface NominatimAddress {
   country_code: string;
 }
 
+
+export interface OSMLocation {
+  place_id: number;
+  licence: string;
+  osm_type: string;
+  osm_id: number;
+  lat: string;
+  lon: string;
+  category: string;
+  type: string;
+  place_rank: number;
+  importance: number;
+  addresstype: string;
+  name: string;
+  display_name: string;
+  address: OSMAddress;
+  boundingbox: [string, string, string, string];
+}
+
+export interface OSMAddress {
+  town?: string;
+  city?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  province?: string;
+  state?: string;
+  country: string;
+  country_code: string;
+  [key: string]: string | undefined;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -53,6 +86,20 @@ export class OpenStreetmapService {
         lon: lon.toString()
       }
     });
+  }
+
+  searchLocation(name: string): Observable<OSMLocation[]> {
+    return this.http.get<OSMLocation[]>(
+      'https://nominatim.openstreetmap.org/search',
+      {
+        params: {
+          q: name,
+          format: 'jsonv2',
+          limit: 10,
+          addressdetails: 1
+        }
+      }
+    );
   }
   
 }

@@ -1,0 +1,28 @@
+<ng-select
+  class="me-2 custom-ng-select p-0"
+  [items]="locations"
+  [typeahead]="searchInput$"
+  [loading]="loading"
+  [trackByFn]="trackByFn"
+  bindLabel="display_name"
+  appendTo="body"
+  [minTermLength]="3"
+  [clearable]="true"
+  [searchable]="true"
+  [closeOnSelect]="true"
+  [virtualScroll]="false"
+  placeholder="Search a location..."
+  notFoundText="No locations found"
+  typeToSearchText="Type at least 3 characters"
+  loadingText="Searching locations..."
+  (change)="onLocationSelected($event)"
+>
+  <ng-template ng-option-tmp let-item="item">
+    <div>
+      <strong>{{ item.name }}</strong>
+      <div class="text-muted small">
+        {{ item.display_name }}
+      </div>
+    </div>
+  </ng-template>
+</ng-select>

@@ -29,6 +29,10 @@ import { DeviceDirective } from '../../../shared/directives/device-directive';
 import { LeafletMapService } from '../../../../services/leaflet-map-service';
 import { VolcanoActivityReportInterface, VolcanoesService } from '../../../../services/volcanoes-service';
 import { ApiStatusInterface, ApiStatusService } from '../../../../services/api-status-service';
+import { OpenMeteoLocation, OpenMeteoService, WeatherResponse } from '../../../../services/open-meteo-service';
+import { WEATHER_ICONS } from '../../../../model/common/interfaces/weather-icon.interface';
+import { OpenStreetmapService, OSMLocation } from '../../../../services/open-streetmap-service';
+import { LocationSelect } from '../../../shared/components/location-select/location-select';
 
 export const WidgetWidthClasses = [
   'w-50',
@@ -60,7 +64,7 @@ export interface DeviceInfo {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Header, DatePipe, DecimalPipe, NgClass, LeafletMap, FormsModule, NgSelectModule, NgbTooltip, NgTemplateOutlet, DeviceDirective, Footer],
+  imports: [Header, DatePipe, DecimalPipe, NgClass, LeafletMap, FormsModule, NgSelectModule, NgbTooltip, NgTemplateOutlet, DeviceDirective, Footer, LocationSelect],
   providers: [DatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
@@ -77,6 +81,8 @@ export class Dashboard implements OnInit, OnDestroy {
 
   currentTime = signal(Date.now());
 
+  refreshIntervalMinutes = signal(1);
+
   EarthquakeUsgsService = EarthquakeUsgsService;
   SeismicPortalService = SeismicPortalService;
   AlertsLiveService = AlertsLiveService;
@@ -86,6 +92,7 @@ export class Dashboard implements OnInit, OnDestroy {
   GNewsService = GNewsService;
   VolcanoesService = VolcanoesService;
   ApiStatusService = ApiStatusService;
+  OpenMeteoService = OpenMeteoService;
 
   private leafletMapsService = inject(LeafletMapService);
   private earthquakeUsgsService = inject(EarthquakeUsgsService);
@@ -97,6 +104,8 @@ export class Dashboard implements OnInit, OnDestroy {
   private gNewsService = inject(GNewsService);
   private volcanoesService = inject(VolcanoesService);
   private apiStatusService = inject(ApiStatusService);
+  private openMeteoService = inject(OpenMeteoService);
+  private openStreetmapService = inject(OpenStreetmapService);
   
   userCoordsSubscription?: Subscription;
   earthQuakeUsgsSubscription?: Subscription;
@@ -110,6 +119,9 @@ export class Dashboard implements OnInit, OnDestroy {
   gNewsServiceSubscription?: Subscription;
   volcanoesServiceSubscription?: Subscription;
   apiStatusServiceSubscription?: Subscription;
+  openMeteoServiceSubscription?: Subscription;
+  openMeteoUserLocationSubscription?: Subscription;
+  openMeteoLocationsSubscription?: Subscription;
   
   earthQuakes: EarthquakeFeatureUsgsInterface[] = [];
   natureEvents: NasaNatureEventInterface[] = [];
@@ -123,6 +135,7 @@ export class Dashboard implements OnInit, OnDestroy {
   gNews: GNewsArticle[] = [];
   volcanoesReports: VolcanoActivityReportInterface[] = [];
   apiStatus: ApiStatusInterface[] = []
+  openMeteoLocations: {location: OpenMeteoLocation, forecast: WeatherResponse}[] = [];
 
   earthQuakesError?: string;
   natureEventsError?: string;
@@ -132,6 +145,7 @@ export class Dashboard implements OnInit, OnDestroy {
   gNewsError?: string;
   volcanoesError?: string;
   apiStatusError?: string;
+  openMeteoLocationsError?: string;
 
   nearEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   recentEventsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
@@ -144,6 +158,7 @@ export class Dashboard implements OnInit, OnDestroy {
   gNewsSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   volcanoesSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'time', dir:'DESC'};
   apiStatusSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'name', dir:'ASC'};
+  openMeteoSortConfig: {field: string, dir: 'ASC' | 'DESC'} = {field:'name', dir:'ASC'};
 
   /* Map & Widgets display config */
   displayConfig: {
@@ -159,6 +174,7 @@ export class Dashboard implements OnInit, OnDestroy {
       gNews: WidgetDisplayConfig,
       volcanoes: WidgetDisplayConfig,
       apiStatus: WidgetDisplayConfig,
+      openMeteoLocations: WidgetDisplayConfig,
 
       alertsLiveType: string,
       cityAlertLiveCategory: string,
@@ -170,7 +186,8 @@ export class Dashboard implements OnInit, OnDestroy {
       alertsLive: boolean,
       cityAlertLiveIncidents: boolean,
       seismicPortalEvents: boolean,
-      volcanoes: boolean
+      volcanoes: boolean,
+      openMeteoLocations: boolean
     }
   } = {
     widget: {
@@ -217,7 +234,7 @@ export class Dashboard implements OnInit, OnDestroy {
         display: true,
         widthClass: 'w-50',
         collapsed: false,
-        soundAlert: {enabled: true, speaking: false},
+        soundAlert: {enabled: false, speaking: false},
         realTime: true
       },
       whoDiseaseNews: {
@@ -249,6 +266,12 @@ export class Dashboard implements OnInit, OnDestroy {
             notOperationalOnly: true
           }
         }
+      },
+      openMeteoLocations: {
+        display: true,
+        widthClass: 'w-50',
+        collapsed: false,
+        realTime: true
       }
     },
     map: {
@@ -257,7 +280,8 @@ export class Dashboard implements OnInit, OnDestroy {
       alertsLive: false,
       cityAlertLiveIncidents: false,
       seismicPortalEvents: true,
-      volcanoes: false
+      volcanoes: false,
+      openMeteoLocations: false
     }
   };
   locations: MapLocation[] = [];
@@ -641,14 +665,19 @@ export class Dashboard implements OnInit, OnDestroy {
     sortConfig.field = field;
   }
 
-  requestData() {
-
+  resetErrors() {
     this.earthQuakesError = undefined;
     this.natureEventsError = undefined;
     this.alertsLiveError = undefined;
     this.cityAlertLiveError = undefined;
     this.volcanoesError = undefined;
     this.apiStatusError = undefined;
+    this.openMeteoLocationsError = undefined;
+  }
+
+  requestData() {
+
+    this.resetErrors();
     
     if (this.displayConfig.widget.earthQuakes.display && ((!this.realTimeMode() && !this.displayConfig.widget.earthQuakes.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.earthQuakes.realTime))) {
       this.earthQuakeUsgsSubscription = this.earthquakeUsgsService.getEarthQuakes(this.dateFrom, this.dateTo).subscribe({
@@ -795,7 +824,73 @@ export class Dashboard implements OnInit, OnDestroy {
         }
       });
     }
+
+    if (this.displayConfig.widget.openMeteoLocations.display && ((!this.realTimeMode() && !this.displayConfig.widget.openMeteoLocations.realTimeOnly) || (this.realTimeMode() && this.displayConfig.widget.openMeteoLocations.realTime))){
+      this.requestOpenMeteo();
+    }
     
+  }
+
+  requestOpenMeteo() {
+    const locations: OpenMeteoLocation[] = this.openMeteoService.getStoredLocations();
+    const userLocation = this.openMeteoService.userLocation$.getValue();
+
+    if (userLocation) {
+      locations.push(userLocation);
+    }
+
+    this.openMeteoServiceSubscription = this.openMeteoService.getForecasts(locations).subscribe({
+      next: (_res) => {
+        this.displayConfig.widget.openMeteoLocations.display = true;
+        this.openMeteoLocations = _res;
+      },
+      error: (_error) => {
+        this.openMeteoLocationsError = _error.error.error;
+        this.displayConfig.widget.openMeteoLocations.display = false;
+      }
+    });
+  }
+
+  getWeatherDescription(code: number): string {
+    return WEATHER_ICONS[code]?.description ?? 'Unknown';
+  }
+
+  getWeatherIcon(code: number, isDay: number): string {
+    const weather = WEATHER_ICONS[code];
+    if (!weather) {
+      return '❓';
+    }
+    return isDay ? weather.day : weather.night;
+  }
+
+  getStringToDate(dateStr: string): Date {
+    return new Date(dateStr);
+  }
+
+  addingStreetmapLocation = signal(false);
+  appendOpenStreetmapLocation(openStreetmapLocation: OSMLocation) {
+    this.addingStreetmapLocation.set(true);
+    this.openMeteoService.storeLocation({
+      lat: Number(openStreetmapLocation.lat),
+      lon: Number(openStreetmapLocation.lon),
+      name: openStreetmapLocation.address.city || openStreetmapLocation.address.village  || openStreetmapLocation.address.town || openStreetmapLocation.address.county || '?'
+    }).subscribe({
+      next: () => {
+        this.addingStreetmapLocation.set(false);
+      }
+    });
+  }
+
+  removeOpenMeteoLocation(location: {location: OpenMeteoLocation, forecast: WeatherResponse}) {
+    this.openMeteoService.removeOpenMeteoLocation({
+      lat: Number(location.location.lat),
+      lon: Number(location.location.lon),
+      name: location.location.name
+    }).subscribe(() => {
+      next: () => {
+        //this.requestOpenMeteo();
+      }
+    });
   }
 
   get filteredNearRecentEvents() {
@@ -1415,6 +1510,66 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
+  get filteredOpenMeteoLocations(): {location: OpenMeteoLocation, forecast: WeatherResponse}[] {
+    const sortConfig = this.openMeteoSortConfig;
+    return this.openMeteoLocations.sort((a, b) => {
+      let append = 1;
+      if (sortConfig.field==='time') {
+        const aTime = new Date(a.forecast.current.time);
+        const bTime = new Date(b.forecast.current.time);
+        if (sortConfig.dir==='DESC') {
+          append = aTime.getTime() > bTime.getTime() ? -1 : 1;
+        } else {
+          append = aTime.getTime() > bTime.getTime() ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='location') {
+        const aValue = a.location.name;
+        const bValue = b.location.name;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='dist') {
+        if (sortConfig.dir==='DESC') {
+          append = this.getDistanceKm(a.location.lat, a.location.lon) > this.getDistanceKm(b.location.lat, b.location.lon) ? -1 : 1;
+        } else {
+          append = this.getDistanceKm(a.location.lat, a.location.lon) > this.getDistanceKm(b.location.lat, b.location.lon) ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='temperature') {
+        const aValue = a.forecast.current.temperature_2m;
+        const bValue = b.forecast.current.temperature_2m;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='wind-speed') {
+        const aValue = a.forecast.current.wind_speed_10m;
+        const bValue = b.forecast.current.wind_speed_10m;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='precipitation') {
+        const aValue = a.forecast.current.precipitation;
+        const bValue = b.forecast.current.precipitation;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
+      return append;
+    });
+  }
+
   get filteredLocations(): MapLocation[] {
     this.locations = [];
     if (this.displayConfig.map.earhQuakes) {
@@ -1638,7 +1793,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.dateFrom.setHours(0, 0, 0);
     
     // No socket data
-    this.refreshSubscription = interval(5 * 60 * 1000).subscribe(() => {
+    this.refreshSubscription = interval(this.refreshIntervalMinutes() * 60 * 1000).subscribe(() => {
       this.requestData();
     });
 
@@ -1663,7 +1818,20 @@ export class Dashboard implements OnInit, OnDestroy {
           }
         }
       } else {
-        console.log('Added new seismic event', _seismicEvent);
+        //console.log('Added new seismic event', _seismicEvent);
+      }
+    });
+
+    this.openMeteoUserLocationSubscription = this.openMeteoService.userLocation$.subscribe({
+      next: (_userLocation) => {
+        this.requestOpenMeteo();
+      }
+    });
+
+    this.openMeteoLocationsSubscription = this.openMeteoService.locations$.subscribe({
+      next: (_locations) => {
+        console.log('openMeteoService.locations$ changed!', _locations);
+        this.requestOpenMeteo();
       }
     });
 
@@ -1729,6 +1897,9 @@ export class Dashboard implements OnInit, OnDestroy {
     this.gNewsServiceSubscription?.unsubscribe();
     this.volcanoesServiceSubscription?.unsubscribe();
     this.apiStatusServiceSubscription?.unsubscribe();
+    this.openMeteoServiceSubscription?.unsubscribe();
+    this.openMeteoUserLocationSubscription?.unsubscribe();
+    this.openMeteoLocationsSubscription?.unsubscribe();
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.removeEventListener('voiceschanged',this.handleVoicesChanged);

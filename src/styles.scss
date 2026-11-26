@@ -119,6 +119,18 @@ span {
 .custom-ng-select {
     min-width: 125px;
 
+    .ng-input>input {
+        box-sizing: content-box;
+        background: none transparent;
+        border: 0 none;
+        box-shadow: none;
+        outline: none;
+        padding: 5px 2px !important;
+        cursor: default;
+        width: 100%;
+        color: $text-color;
+    }
+
     // Main container
     .ng-select-container {
         height: 36px;

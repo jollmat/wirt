@@ -159,6 +159,13 @@ tr {
     flex: 0 0 auto;
 }
 
+.sticky-footer {
+    border-top: 1px solid #4e4c4c;
+    background-color: #1e1c1c;
+    z-index: 1000;
+    position: relative;
+}
+
 .icon-wrapper {
     box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 }

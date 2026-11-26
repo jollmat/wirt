@@ -31,7 +31,6 @@ export class Footer implements OnInit, OnDestroy {
   ) {}
 
   getUserCoords(): Observable<{latitude: number, longitude: number} | undefined> {
-    console.log('getUserCoords()');
     return new Observable<{latitude: number, longitude: number} | undefined>((observer) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -71,7 +70,6 @@ export class Footer implements OnInit, OnDestroy {
     this.locationForecastSubscription = this.openMeteoService.getForecast(lat, lng).subscribe({
       next: (_res) => {
         this.locationForecast = _res;
-        console.log({locationForecast: _res});
       }, 
       error: (_err) => {
         console.log('Error retrieving forecast', _err);
@@ -99,7 +97,6 @@ export class Footer implements OnInit, OnDestroy {
           this.userLocationSubscription = this.openStreetmapService.getAddress(_coords.latitude, _coords.longitude).subscribe({
             next: (_res) => {
               this.userLocation = _res;
-              console.log({userLocation: _res});
             }, 
             error: (_err) => {
               console.log('Error retrieving location', _err);

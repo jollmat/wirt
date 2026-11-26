@@ -18,7 +18,7 @@
             </span>
         </div>
 
-        <div class="content d-flex justify-content-start align-items-start flex-wrap gap-3 p-2">
+        <div class="content d-flex justify-content-start align-items-start flex-wrap gap-3 px-2 py-3">
 
             @if (viewType()==='GRID') {
 
@@ -933,6 +933,130 @@
                             }
                         } @else {
                             <span class="text-danger p-3">{{cityAlertLiveError}}</span>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- OpenMeteo locations -->
+                @if(displayConfig.widget.openMeteoLocations.display && ((!realTimeMode() && !displayConfig.widget.openMeteoLocations.realTimeOnly)  || (realTimeMode() && displayConfig.widget.openMeteoLocations.realTime))){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.openMeteoLocations.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='openWeatherLocations', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='openWeatherLocations', 'collapsed': displayConfig.widget.openMeteoLocations.collapsed}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            OpenMeteo
+                            @if(filteredOpenMeteoLocations) {
+                            <span class="badge ms-2">{{filteredOpenMeteoLocations.length}} / {{openMeteoLocations.length}}</span>
+                            }
+                        </span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            @if (!addingStreetmapLocation()) {
+                                <app-location-select (locationSelected)="appendOpenStreetmapLocation($event)"></app-location-select>
+                            }
+                            @if(filteredOpenMeteoLocations) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredOpenMeteoLocations, widgetId: 'openWeatherLocations', widgetConfig: displayConfig.widget.openMeteoLocations}"></ng-container>
+                            }
+                        </div>
+                    </h5>
+                    @if(!displayConfig.widget.openMeteoLocations.collapsed){
+                    <div class="w-100 table-container">
+                        @if (!apiStatusError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'time')">
+                                            Time
+                                            @if(openMeteoSortConfig.field==='time') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'dist')">
+                                            Dist (Km)
+                                            @if(openMeteoSortConfig.field==='dist') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'location')">
+                                            Location
+                                            @if(openMeteoSortConfig.field==='location') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th></th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'temperature')">
+                                            Temp.
+                                            @if(openMeteoSortConfig.field==='temperature') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'wind-speed')">
+                                            Wind speed
+                                            @if(openMeteoSortConfig.field==='wind-speed') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th class="text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'precipitation')">
+                                            Precipitation
+                                            @if(openMeteoSortConfig.field==='precipitation') {
+                                                <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                            }
+                                            </span>
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (openMeteoLocation of filteredOpenMeteoLocations; track $index) {
+                                        <tr [ngClass]="isToday(null) ? 'today-event' : ''">
+                                            <td>
+                                                <span [ngClass]="{'blink-slow': isWithinTime(getStringToDate(openMeteoLocation.forecast.current.time), withinTimeHours)}">{{getStringToDate(openMeteoLocation.forecast.current.time) | date: 'dd.MM.yyyy HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: openMeteoLocation.location.lat, lng: openMeteoLocation.location.lon, cssClass: isWithinTime(openMeteoLocation.forecast.current.time, withinTimeHours) && isWithinRadius(openMeteoLocation.location.lat, openMeteoLocation.location.lon)?'blink-smooth':''}"></ng-container>
+                                            </td>
+                                            <td>
+                                                {{openMeteoLocation.location.name}}
+                                            </td>
+                                            <td class="text-center"><span class="cursor-default" ngbTooltip="{{getWeatherDescription(openMeteoLocation.forecast.current.weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(openMeteoLocation.forecast.current.weather_code,openMeteoLocation.forecast.current.is_day) }}</span></td>
+                                            <td class="text-end">
+                                                {{openMeteoLocation.forecast.current.temperature_2m}}{{openMeteoLocation.forecast.current_units.temperature_2m}}
+                                            </td>
+                                            <td class="text-end">
+                                                {{openMeteoLocation.forecast.current.wind_speed_10m}} {{openMeteoLocation.forecast.current_units.wind_speed_10m}}
+                                            </td>
+                                            <td class="text-end">
+                                                {{openMeteoLocation.forecast.current.precipitation}} {{openMeteoLocation.forecast.current_units.precipitation}}
+                                            </td>
+                                            <td>
+                                                @if (getDistanceKm(openMeteoLocation.location.lat, openMeteoLocation.location.lon)>0) {
+                                                    <a (click)="removeOpenMeteoLocation(openMeteoLocation)"><i class="fas fa-trash"></i></a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='openWeatherLocations') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredOpenMeteoLocations; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: OpenMeteoService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
+                        } @else {
+                            <span class="text-danger p-3">{{gNewsError}}</span>
                         }
                     </div>
                     }
