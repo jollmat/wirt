@@ -587,123 +587,6 @@
                 </div>
                 }
 
-                <!-- Volcanoes -->
-                @if(displayConfig.widget.volcanoes.display && ((!realTimeMode() && !displayConfig.widget.volcanoes.realTimeOnly)  || (realTimeMode() && displayConfig.widget.volcanoes.realTime))){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.volcanoes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='volcanoes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='volcanoes', 'collapsed': displayConfig.widget.volcanoes.collapsed}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
-                        <span>
-                            Volcanoes
-                            @if(filteredVolcanoes) {
-                            <span class="badge ms-2">{{filteredVolcanoes.length}} / {{volcanoesReports.length}}</span>
-                            }
-                        </span>
-                        <div class="d-flex table-hover align-items-center gap-2">
-                            @if(filteredVolcanoes) {
-                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredVolcanoes, widgetId: 'volcanoes', widgetConfig: displayConfig.widget.volcanoes}" ></ng-container>
-                            }
-                        </div>
-                    </h5>
-                    @if(!displayConfig.widget.volcanoes.collapsed){
-                    <div class="w-100 table-container">
-                        @if (!volcanoesError) {
-                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
-                            <table class="table table-hover table-sm w-100">
-                                <thead>
-                                    <tr>
-                                        <th class="time-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'time')">
-                                                Date
-                                                @if(volcanoesSortConfig.field==='time') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th class="dist-column text-end">
-                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'dist')">
-                                                Dist (Km)
-                                                @if(volcanoesSortConfig.field==='dist') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th class="title-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'title')">
-                                                Title
-                                                @if(volcanoesSortConfig.field==='title') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th class="title-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'description')">
-                                                Description
-                                                @if(volcanoesSortConfig.field==='description') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        @if(maximizedWidgetId==='volcanoes'){
-                                            <th class="title-column">
-                                                <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'reported_by')">
-                                                    Reported by
-                                                    @if(volcanoesSortConfig.field==='reported_by') {
-                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                    }
-                                                </span>
-                                            </th>
-                                            <th class="source-column">
-                                                <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'source')">
-                                                    Source
-                                                    @if(volcanoesSortConfig.field==='source') {
-                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
-                                                    }
-                                                </span>
-                                            </th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (volcano of filteredVolcanoes; track $index) {
-                                        <tr [ngClass]="isToday(volcano.date) ? 'today-event' : ''">
-                                            <td class="nowrap ps-2">
-                                                <span [ngClass]="{'blink-slow': isWithinTime(volcano.date)}">{{volcano.date| date: 'dd.MM.yyyy - HH:mm'}}</span>
-                                            </td>
-                                            <td class="text-end">
-                                               <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: volcano.lat, lng: volcano.lon}"></ng-container>
-                                            </td>
-                                            <td class="wrap-150px">
-                                                <a href="{{volcano.link}}" ngbTooltip="{{volcano.title}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top" target="_blank">{{volcano.title}}</a>
-                                            </td>
-                                            <td class="wrap-100px">
-                                                <span ngbTooltip="{{volcano.kind}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{volcano.kind}}</span>
-                                            </td>
-                                            @if(maximizedWidgetId==='volcanoes'){
-                                                <td class="wrap-150px">
-                                                    {{volcano.reported_by}}
-                                                </td>
-                                                <td>
-                                                    {{volcano.source}}
-                                                </td>
-                                            }
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='volcanoes') {
-                                <div class="d-flex flex-column gap-2 p-2">
-                                    @for (event of filteredVolcanoes; track $index) {
-                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: VolcanoesService.toCommonEvent(event)}"></ng-container>
-                                    }
-                                </div>
-                            }
-                        } @else {
-                            <span class="text-danger p-3">{{gNewsError}}</span>
-                        }
-                    </div>
-                    }
-                </div>
-                }
-
                 <!-- Alerts Live -->
                 @if(displayConfig.widget.alertsLive.display && ((!realTimeMode() && !displayConfig.widget.alertsLive.realTimeOnly)  || (realTimeMode() && displayConfig.widget.alertsLive.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.alertsLive.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='alertsLive', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='alertsLive', 'collapsed': displayConfig.widget.alertsLive.collapsed}">
@@ -1063,6 +946,100 @@
                 </div>
                 }
 
+                <!-- API Status -->
+                @if(displayConfig.widget.apiStatus.display && ((!realTimeMode() && !displayConfig.widget.apiStatus.realTimeOnly)  || ((isToday(dateFrom) && isToday(dateTo)) || (realTimeMode() && displayConfig.widget.apiStatus.realTime)))){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.apiStatus.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='apiStatus', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='apiStatus', 'collapsed': displayConfig.widget.apiStatus.collapsed}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            APIs Status
+                            @if(filteredApiStatus) {
+                            <span class="badge ms-2">{{filteredApiStatus.length}} / {{apiStatus.length}}</span>
+                            }
+                        </span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            @if(filteredApiStatus && displayConfig.widget.apiStatus.options) {
+                                <div class="d-flex align-items-center form-check me-2 gap-2">
+                                    <input
+                                        style="top: -3px;position: relative;"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="showNotOperationalOnly"
+                                        [(ngModel)]="displayConfig.widget.apiStatus.options.apiStatus.notOperationalOnly">
+                                    <label class="form-check-label cursor-pointer" for="showNotOperationalOnly">
+                                        Not operational only
+                                    </label>
+                                </div>
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'apiStatus', widgetConfig: displayConfig.widget.apiStatus}" ></ng-container>
+                            }
+                        </div>
+                    </h5>
+                    @if(!displayConfig.widget.apiStatus.collapsed){
+                    <div class="w-100 table-container">
+                        @if (!apiStatusError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Request time
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
+                                                Name / Status
+                                                @if(apiStatusSortConfig.field==='name') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th>
+                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
+                                                Category
+                                                @if(apiStatusSortConfig.field==='category') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        @if(maximizedWidgetId==='apiStatus') {
+                                            <th></th>
+                                        }
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (apiStatus of filteredApiStatus; track $index) {
+                                        <tr [ngClass]="isToday(apiStatus.requestedAt) ? 'today-event' : ''">
+                                            <td>
+                                                <span [ngClass]="{'blink-slow': isWithinTime(apiStatus.requestedAt, withinTimeHours)}">{{apiStatus.requestedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td>
+                                                <img src="https://apistatus.watch/api/badge/{{apiStatus.slug}}.svg?label=" />
+                                            </td>
+                                            <td>
+                                                {{apiStatus.category}}
+                                            </td>
+                                            @if(maximizedWidgetId==='apiStatus') {
+                                                <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
+                                            }
+                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug, apiStatusDetailPopupTemplate)">+ info</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='apiStatus') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredApiStatus; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: ApiStatusService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
+                        } @else {
+                            <span class="text-danger p-3">{{gNewsError}}</span>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
                 <!-- Natural events -->
                 @if(displayConfig.widget.natureEvents.display && ((!realTimeMode() && !displayConfig.widget.natureEvents.realTimeOnly)  || (realTimeMode() && displayConfig.widget.natureEvents.realTime))){
                 <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.natureEvents.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='naturalEvents', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='naturalEvents', 'collapsed': displayConfig.widget.natureEvents.collapsed}">
@@ -1158,6 +1135,123 @@
                             }
                         } @else {
                             <span class="text-danger p-3">{{natureEventsError}}</span>
+                        }
+                    </div>
+                    }
+                </div>
+                }
+
+                <!-- Volcanoes -->
+                @if(displayConfig.widget.volcanoes.display && ((!realTimeMode() && !displayConfig.widget.volcanoes.realTimeOnly)  || (realTimeMode() && displayConfig.widget.volcanoes.realTime))){
+                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.volcanoes.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='volcanoes', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='volcanoes', 'collapsed': displayConfig.widget.volcanoes.collapsed}">
+                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
+                        <span>
+                            Volcanoes
+                            @if(filteredVolcanoes) {
+                            <span class="badge ms-2">{{filteredVolcanoes.length}} / {{volcanoesReports.length}}</span>
+                            }
+                        </span>
+                        <div class="d-flex table-hover align-items-center gap-2">
+                            @if(filteredVolcanoes) {
+                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredVolcanoes, widgetId: 'volcanoes', widgetConfig: displayConfig.widget.volcanoes}" ></ng-container>
+                            }
+                        </div>
+                    </h5>
+                    @if(!displayConfig.widget.volcanoes.collapsed){
+                    <div class="w-100 table-container">
+                        @if (!volcanoesError) {
+                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
+                            <table class="table table-hover table-sm w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="time-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'time')">
+                                                Date
+                                                @if(volcanoesSortConfig.field==='time') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="dist-column text-end">
+                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'dist')">
+                                                Dist (Km)
+                                                @if(volcanoesSortConfig.field==='dist') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'title')">
+                                                Title
+                                                @if(volcanoesSortConfig.field==='title') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        <th class="title-column">
+                                            <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'description')">
+                                                Description
+                                                @if(volcanoesSortConfig.field==='description') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                }
+                                            </span>
+                                        </th>
+                                        @if(maximizedWidgetId==='volcanoes'){
+                                            <th class="title-column">
+                                                <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'reported_by')">
+                                                    Reported by
+                                                    @if(volcanoesSortConfig.field==='reported_by') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
+                                            <th class="source-column">
+                                                <span class="cursor-pointer" (click)="toggleSort(volcanoesSortConfig, 'source')">
+                                                    Source
+                                                    @if(volcanoesSortConfig.field==='source') {
+                                                        <i class="ms-1 fas" [ngClass]="{'fa-caret-down':volcanoesSortConfig.dir==='DESC','fa-caret-up':volcanoesSortConfig.dir==='ASC'}"></i>
+                                                    }
+                                                </span>
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (volcano of filteredVolcanoes; track $index) {
+                                        <tr [ngClass]="isToday(volcano.date) ? 'today-event' : ''">
+                                            <td class="nowrap ps-2">
+                                                <span [ngClass]="{'blink-slow': isWithinTime(volcano.date)}">{{volcano.date| date: 'dd.MM.yyyy - HH:mm'}}</span>
+                                            </td>
+                                            <td class="text-end">
+                                               <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: volcano.lat, lng: volcano.lon}"></ng-container>
+                                            </td>
+                                            <td class="wrap-150px">
+                                                <a href="{{volcano.link}}" ngbTooltip="{{volcano.title}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top" target="_blank">{{volcano.title}}</a>
+                                            </td>
+                                            <td class="wrap-100px">
+                                                <span ngbTooltip="{{volcano.kind}}" [openDelay]="200" [closeDelay]="0" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{volcano.kind}}</span>
+                                            </td>
+                                            @if(maximizedWidgetId==='volcanoes'){
+                                                <td class="wrap-150px">
+                                                    {{volcano.reported_by}}
+                                                </td>
+                                                <td>
+                                                    {{volcano.source}}
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='volcanoes') {
+                                <div class="d-flex flex-column gap-2 p-2">
+                                    @for (event of filteredVolcanoes; track $index) {
+                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: VolcanoesService.toCommonEvent(event)}"></ng-container>
+                                    }
+                                </div>
+                            }
+                        } @else {
+                            <span class="text-danger p-3">{{gNewsError}}</span>
                         }
                     </div>
                     }
@@ -1330,100 +1424,6 @@
                                 <div class="d-flex flex-column gap-2 p-2">
                                     @for (event of filteredGNews; track $index) {
                                         <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: GNewsService.toCommonEvent(event)}"></ng-container>
-                                    }
-                                </div>
-                            }
-                        } @else {
-                            <span class="text-danger p-3">{{gNewsError}}</span>
-                        }
-                    </div>
-                    }
-                </div>
-                }
-
-                <!-- API Status -->
-                @if(displayConfig.widget.apiStatus.display && ((!realTimeMode() && !displayConfig.widget.apiStatus.realTimeOnly)  || ((isToday(dateFrom) && isToday(dateTo)) || (realTimeMode() && displayConfig.widget.apiStatus.realTime)))){
-                <div class="widget d-flex flex-column {{(!deviceInfo.portrait)?displayConfig.widget.apiStatus.widthClass:'w-100'}}" [ngClass]="{'widget_maximized': maximizedWidgetId==='apiStatus', 'widget_hidden': maximizedWidgetId && maximizedWidgetId!=='apiStatus', 'collapsed': displayConfig.widget.apiStatus.collapsed}">
-                    <h5 class="title sticky-header d-flex justify-content-between align-items-center ps-2">
-                        <span>
-                            APIs Status
-                            @if(filteredApiStatus) {
-                            <span class="badge ms-2">{{filteredApiStatus.length}} / {{apiStatus.length}}</span>
-                            }
-                        </span>
-                        <div class="d-flex table-hover align-items-center gap-2">
-                            @if(filteredApiStatus && displayConfig.widget.apiStatus.options) {
-                                <div class="d-flex align-items-center form-check me-2 gap-2">
-                                    <input
-                                        style="top: -3px;position: relative;"
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        id="showNotOperationalOnly"
-                                        [(ngModel)]="displayConfig.widget.apiStatus.options.apiStatus.notOperationalOnly">
-                                    <label class="form-check-label cursor-pointer" for="showNotOperationalOnly">
-                                        Not operational only
-                                    </label>
-                                </div>
-                                <ng-container [ngTemplateOutlet]="widgetOptionsTemplate" [ngTemplateOutletContext]="{listItems: filteredGNews, widgetId: 'apiStatus', widgetConfig: displayConfig.widget.apiStatus}" ></ng-container>
-                            }
-                        </div>
-                    </h5>
-                    @if(!displayConfig.widget.apiStatus.collapsed){
-                    <div class="w-100 table-container">
-                        @if (!apiStatusError) {
-                            @if(!deviceInfo.isMobile || !maximizedWidgetId) {
-                            <table class="table table-hover table-sm w-100">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            Request time
-                                        </th>
-                                        <th class="title-column">
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'name')">
-                                                Name / Status
-                                                @if(apiStatusSortConfig.field==='name') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        <th>
-                                            <span class="cursor-pointer" (click)="toggleSort(apiStatusSortConfig, 'category')">
-                                                Category
-                                                @if(apiStatusSortConfig.field==='category') {
-                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':apiStatusSortConfig.dir==='DESC','fa-caret-up':apiStatusSortConfig.dir==='ASC'}"></i>
-                                                }
-                                            </span>
-                                        </th>
-                                        @if(maximizedWidgetId==='apiStatus') {
-                                            <th></th>
-                                        }
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (apiStatus of filteredApiStatus; track $index) {
-                                        <tr [ngClass]="isToday(apiStatus.requestedAt) ? 'today-event' : ''">
-                                            <td>
-                                                <span [ngClass]="{'blink-slow': isWithinTime(apiStatus.requestedAt, withinTimeHours)}">{{apiStatus.requestedAt | date: 'dd.MM.yyyy - HH:mm'}}</span>
-                                            </td>
-                                            <td>
-                                                <img src="https://apistatus.watch/api/badge/{{apiStatus.slug}}.svg?label=" />
-                                            </td>
-                                            <td>
-                                                {{apiStatus.category}}
-                                            </td>
-                                            @if(maximizedWidgetId==='apiStatus') {
-                                                <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
-                                            }
-                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug, apiStatusDetailPopupTemplate)">+ info</span></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                            }@else if(deviceInfo.isMobile && maximizedWidgetId==='apiStatus') {
-                                <div class="d-flex flex-column gap-2 p-2">
-                                    @for (event of filteredApiStatus; track $index) {
-                                        <ng-container [ngTemplateOutlet]="mobileCommonEvent" [ngTemplateOutletContext]="{event: ApiStatusService.toCommonEvent(event)}"></ng-container>
                                     }
                                 </div>
                             }
