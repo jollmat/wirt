@@ -115,10 +115,6 @@ $bg-color-widget-title: #1e1c1c;
     opacity: .5;
     transition: opacity 0.4s ease-in-out;
 
-    &.no-opacity {
-        /*opacity: 1;*/
-    }
-
     &:hover {
         opacity: 1;
     }
@@ -265,11 +261,4 @@ div {
     overflow: hidden;
     border: 1px solid $border-color;
     background-color: transparent;
-
-    .common-event-time {
-        
-    }
-    .common-event-title {
-        
-    }
 }
