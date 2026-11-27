@@ -153,6 +153,11 @@ tr {
     min-height: 0;
     position: relative;
     overflow-x: hidden;
+
+    &.recent-incidents {
+        max-height: 200px;
+        overflow: auto;
+    }
 }
 
 .sticky-header, .sticky-footer {

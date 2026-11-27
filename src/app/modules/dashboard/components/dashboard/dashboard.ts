@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, HostListener, inject, OnDestroy, OnInit, SecurityContext, signal } from '@angular/core';
+import { Component, DestroyRef, effect, HostListener, inject, OnDestroy, OnInit, SecurityContext, signal, TemplateRef } from '@angular/core';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import { EarthquakeUsgsService } from '../../../../services/earthquake-usgs-service';
@@ -28,11 +28,12 @@ import { GNewsArticle, GNewsService } from '../../../../services/gnews-service';
 import { DeviceDirective } from '../../../shared/directives/device-directive';
 import { LeafletMapService } from '../../../../services/leaflet-map-service';
 import { VolcanoActivityReportInterface, VolcanoesService } from '../../../../services/volcanoes-service';
-import { ApiStatusInterface, ApiStatusService } from '../../../../services/api-status-service';
+import { ApiServiceStatus, ApiStatusInterface, ApiStatusService } from '../../../../services/api-status-service';
 import { OpenMeteoLocation, OpenMeteoService, WeatherResponse } from '../../../../services/open-meteo-service';
 import { WEATHER_ICONS } from '../../../../model/common/interfaces/weather-icon.interface';
 import { OpenStreetmapService, OSMLocation } from '../../../../services/open-streetmap-service';
 import { LocationSelect } from '../../../shared/components/location-select/location-select';
+import { Dialog } from '@angular/cdk/dialog';
 
 export const WidgetWidthClasses = [
   'w-50',
@@ -105,7 +106,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private volcanoesService = inject(VolcanoesService);
   private apiStatusService = inject(ApiStatusService);
   private openMeteoService = inject(OpenMeteoService);
-  private openStreetmapService = inject(OpenStreetmapService);
+  private dialogService = inject(Dialog);
   
   userCoordsSubscription?: Subscription;
   earthQuakeUsgsSubscription?: Subscription;
@@ -188,6 +189,9 @@ export class Dashboard implements OnInit, OnDestroy {
       seismicPortalEvents: boolean,
       volcanoes: boolean,
       openMeteoLocations: boolean
+    }, 
+    detail: {
+      apiStatus?: ApiServiceStatus
     }
   } = {
     widget: {
@@ -282,6 +286,9 @@ export class Dashboard implements OnInit, OnDestroy {
       seismicPortalEvents: true,
       volcanoes: false,
       openMeteoLocations: false
+    },
+    detail: {
+      apiStatus: undefined
     }
   };
   locations: MapLocation[] = [];
@@ -890,32 +897,6 @@ export class Dashboard implements OnInit, OnDestroy {
       next: () => {
         //this.requestOpenMeteo();
       }
-    });
-  }
-
-  get filteredNearRecentEvents() {
-    const nearRecentEvents: CommonEventInterface[] = [];
-    this.filteredNearEvents.forEach((_event) => {
-      if (this.isWithinTime(new Date(_event.time), this.withinTimeHours)) {
-        nearRecentEvents.push(_event);
-      }
-    });
-    this.filteredRecentEvents.forEach((_event) => {
-      if (this.isWithinRadius(_event.lat, _event.lon)) {
-        nearRecentEvents.push(_event);
-      }
-    });
-
-    const uniqueEvents = [
-      ...new Map(
-        nearRecentEvents.map(event => [event.id, event])
-      ).values()
-    ];
-
-    return uniqueEvents.sort((a,b) => {
-      const aTime = a.time ? new Date(a.time).getTime() : 0;
-      const bTime = b.time ? new Date(b.time).getTime() : 0;
-      return aTime > bTime ? -1 : 1;;
     });
   }
 
@@ -1757,8 +1738,27 @@ export class Dashboard implements OnInit, OnDestroy {
     return distanceKm <= this.userNearKm;
   }
 
-  viewMoreInfo(widgetId: string, itemId: unknown) {
+  viewMoreInfo(widgetId: string, itemId: unknown, templateElement?: TemplateRef<unknown>) {
     console.log('viewMoreInfo()', itemId);
+    switch(widgetId) {
+      case 'apiStatus':
+        this.apiStatusService.getApiCurrentStatus(itemId as string).subscribe({
+          next: (_currentStatus) => {
+            this.displayConfig.detail.apiStatus = _currentStatus;
+            console.log(_currentStatus);
+            if (templateElement) {
+              this.dialogService.open(templateElement, {
+                width: '400px'
+              });
+            }
+          }
+        });
+        break;
+    }
+  }
+
+  closeMoreInfoPopup() {
+    this.dialogService.closeAll();
   }
 
   toggleMaximizedWidget(widgetId: string) {
@@ -1830,7 +1830,6 @@ export class Dashboard implements OnInit, OnDestroy {
 
     this.openMeteoLocationsSubscription = this.openMeteoService.locations$.subscribe({
       next: (_locations) => {
-        console.log('openMeteoService.locations$ changed!', _locations);
         this.requestOpenMeteo();
       }
     });
@@ -1903,5 +1902,7 @@ export class Dashboard implements OnInit, OnDestroy {
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.removeEventListener('voiceschanged',this.handleVoicesChanged);
+
+    this.dialogService.closeAll();
   }
 }

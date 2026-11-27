@@ -82,7 +82,7 @@
                                         }
                                         </span>
                                     </th>
-                                    <th class="type-column" colspan="2">
+                                    <th class="type-column text-center" colspan="2">
                                         <span class="cursor-pointer" (click)="toggleSort(recentEventsSortConfig, 'type')">
                                         Type
                                         @if(recentEventsSortConfig.field==='type') {
@@ -136,7 +136,7 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)}">{{recentEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            @if(recentEvent.lat>0 && recentEvent.lon>0){
+                                            @if(recentEvent.lat!==0 && recentEvent.lon!==0){
                                                 <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:recentEvent.lat, lng: recentEvent.lon, cssClass: isWithinTime(recentEvent.time, withinTimeHours) && isWithinRadius(recentEvent.lat, recentEvent.lon)?'blink-smooth':''}"></ng-container>
                                             }
                                         </td>
@@ -235,7 +235,7 @@
                                         }
                                         </span>
                                     </th>
-                                    <th class="type-column" colspan="2">
+                                    <th class="type-column text-center" colspan="2">
                                         <span class="cursor-pointer" (click)="toggleSort(nearEventsSortConfig, 'type')">
                                         Type
                                         @if(nearEventsSortConfig.field==='type') {
@@ -289,7 +289,7 @@
                                             <span [ngClass]="{'blink-smooth': isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)}">{{nearEvent.time | date: 'dd.MM.yyyy - HH:mm'}}</span>
                                         </td>
                                         <td class="text-end">
-                                            @if(nearEvent.lat>0 && nearEvent.lon>0) {
+                                            @if(nearEvent.lat!==0 && nearEvent.lon!==0) {
                                             <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat:nearEvent.lat, lng: nearEvent.lon, cssClass: isWithinTime(nearEvent.time, withinTimeHours) && isWithinRadius(nearEvent.lat, nearEvent.lon)?'blink-smooth':''}"></ng-container>
                                             }
                                         </td>
@@ -1024,7 +1024,7 @@
                                                 <span [ngClass]="{'blink-slow': isWithinTime(getStringToDate(openMeteoLocation.forecast.current.time), withinTimeHours)}">{{getStringToDate(openMeteoLocation.forecast.current.time) | date: 'dd.MM.yyyy HH:mm'}}</span>
                                             </td>
                                             <td class="text-end">
-                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: openMeteoLocation.location.lat, lng: openMeteoLocation.location.lon, cssClass: isWithinTime(openMeteoLocation.forecast.current.time, withinTimeHours) && isWithinRadius(openMeteoLocation.location.lat, openMeteoLocation.location.lon)?'blink-smooth':''}"></ng-container>
+                                                <ng-container [ngTemplateOutlet]="distanceTemplate" [ngTemplateOutletContext]="{lat: openMeteoLocation.location.lat, lng: openMeteoLocation.location.lon}"></ng-container>
                                             </td>
                                             <td>
                                                 {{openMeteoLocation.location.name}}
@@ -1415,7 +1415,7 @@
                                             @if(maximizedWidgetId==='apiStatus') {
                                                 <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
                                             }
-                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug)">+ info</span></td>
+                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug, apiStatusDetailPopupTemplate)">+ info</span></td>
                                         </tr>
                                     }
                                 </tbody>
@@ -1653,4 +1653,79 @@
             {{event.description}}
         </div>
     </div>
+</ng-template>
+
+<ng-template #apiStatusDetailPopupTemplate>
+    @if(displayConfig.detail.apiStatus) {
+        <div class="popup d-flex flex-column px-3 py-2">
+            <div class="w-100 popup-header">
+                <h2>{{displayConfig.detail.apiStatus.name}}</h2>
+                <p>{{displayConfig.detail.apiStatus.description}}</p>
+            </div>
+            <div class="w-100 popup-content my-2">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <td>Current status</td>
+                                <td class="text-start">
+                                    <ng-container [ngTemplateOutlet]="apiStatusTextTemplate" [ngTemplateOutletContext]="{status: displayConfig.detail.apiStatus.current_status}"></ng-container>
+                                    <ng-template let-status="status" #apiStatusTextTemplate>
+                                        <span [ngClass]="{
+                                            'text-warning': status==='degraded',
+                                            'text-orange': status==='partial_outage',
+                                            'text-success': status==='operational'
+                                            }">
+                                            {{displayConfig.detail.apiStatus.current_status}}
+                                        </span>
+                                    </ng-template>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Last checked</td>
+                                <td class="text-start">{{displayConfig.detail.apiStatus.last_checked | date: 'dd.MM.yyyy'}}</td>
+                            </tr>
+                            <tr>
+                                <td>Monitoring since</td>
+                                <td class="text-start">{{displayConfig.detail.apiStatus.monitoring_since | date: 'dd.MM.yyyy'}}</td>
+                            </tr>
+                            <tr>
+                                <td>Status URL</td>
+                                <td class="text-start">
+                                    <a href="{{displayConfig.detail.apiStatus.status_url}}" target="_blank">
+                                        <i class="fas fa-link"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container recent-incidents my-3">
+                    <h6>Recent incidents</h6>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status from</th>
+                                <th>Status to</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (recentIncident of displayConfig.detail.apiStatus.recent_incidents; track $index) {
+                            <tr>
+                                <td>{{recentIncident.timestamp | date: 'dd:MM:yyyy - HH:mm'}}</td>
+                                <td><ng-container [ngTemplateOutlet]="apiStatusTextTemplate" [ngTemplateOutletContext]="{status: recentIncident.from_status}"></ng-container></td>
+                                <td><ng-container [ngTemplateOutlet]="apiStatusTextTemplate" [ngTemplateOutletContext]="{status: recentIncident.to_status}"></ng-container></td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="w-100 d-flex align-items-center justify-content-end popup-footer px-2 mt-3 mb-1">
+                <button class="btn btn-sm btn-wirt" (click)="closeMoreInfoPopup()">Close</button>
+            </div>
+        </div>
+    }
 </ng-template>

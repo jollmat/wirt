@@ -13,6 +13,62 @@ export interface ApiStatusInterface {
   current_status: ApiStatusType
 }
 
+
+export interface ApiServiceStatus {
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  status_url: string;
+  current_status: string;
+  last_checked: string;
+  response_times: number[];
+  uptime_days: UptimeDay[];
+  recent_incidents: RecentIncident[];
+  related: RelatedService[];
+  monitoring_since: string;
+  vendor_incidents: VendorIncident[];
+  vendor_stats: VendorStats;
+}
+
+export interface UptimeDay {
+  date: string;
+  status: string;
+  uptime_pct: number;
+  source?: string;
+}
+
+export interface RecentIncident {
+  id: number;
+  from_status: string;
+  to_status: string;
+  timestamp: string;
+}
+
+export interface RelatedService {
+  name: string;
+  slug: string;
+}
+
+export interface VendorIncident {
+  id: number;
+  path: string;
+  name: string;
+  impact: string;
+  started_at: string;
+  resolved_at: string | null;
+  duration_seconds: number | null;
+  url: string;
+}
+
+export interface VendorStats {
+  window_start: string;
+  incident_count: number;
+  last_incident_at: string;
+  median_duration_seconds: number;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +84,10 @@ export class ApiStatusService {
         });
       })
     );
+  }
+
+  getApiCurrentStatus(slug: string): Observable<ApiServiceStatus> {
+    return this.http.get<ApiServiceStatus>(`https://apistatus.watch/api/status/public/${slug}`);
   }
 
   public static getApiStatusTypeDescription(currentStatus: ApiStatusType): string {
@@ -57,8 +117,8 @@ export class ApiStatusService {
       id: crypto.getRandomValues(new Uint32Array(1))[0],
       title: `<img src="https://apistatus.watch/api/badge/${event.slug}.svg" />`,
       description: `Current status: ${event.current_status}`,
-      lat: -1,
-      lon: -1,
+      lat: 0,
+      lon: 0,
       type: 'api status',
       time: event.requestedAt,
       origin: 'APIStatus.watch',

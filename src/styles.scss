@@ -11,11 +11,15 @@ html {
     overflow: hidden;
 }
 
-body {
+body, .popup {
     background-color: $bg-color;
     color: $text-color !important;
     font-family: sans-serif;
     font-size: 13px;
+}
+
+.popup {
+    border-radius: 4px;
 }
 
 a, .text-link {
@@ -27,6 +31,8 @@ a, .text-link {
         text-decoration: underline;
     }
 }
+
+.text-orange { color: orange !important; }
 
 .fw-100 {
     font-weight: 100 !important;

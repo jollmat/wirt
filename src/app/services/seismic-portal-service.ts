@@ -73,7 +73,7 @@ export class SeismicPortalService implements OnDestroy {
           this.eventsSubject.next(eventItem);
           this.storeEvent(eventItem);
 
-          console.log('Seismic event:', eventItem);
+          //console.log('Seismic event:', eventItem);
           
         } catch (error) {
           console.error('Invalid seismic JSON:', error);
@@ -153,7 +153,7 @@ export class SeismicPortalService implements OnDestroy {
 
   public static toCommonEvent(event: SeismicPortalEvent): CommonEventInterface {
     const perceptionLevel = SeismicMetricsService.getPerception(event.data.properties.mag, event.data.properties.magtype, event.data.properties.depth).level;
-    return {
+    const commonEvent: CommonEventInterface = {
       id: event.data.id,
       title: event.data.properties.flynn_region,
       description: `${perceptionLevel.replace(/-/g, ' ')} seism with magnitude ${event.data.properties.mag} in ${event.data.properties.flynn_region}`,
@@ -166,5 +166,6 @@ export class SeismicPortalService implements OnDestroy {
       originIconId: 'earthQuakes',
       link: `https://www.seismicportal.eu/`
     } as CommonEventInterface;
+    return commonEvent;
   }
 }
