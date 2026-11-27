@@ -1670,15 +1670,6 @@
                                 <td>Current status</td>
                                 <td class="text-start">
                                     <ng-container [ngTemplateOutlet]="apiStatusTextTemplate" [ngTemplateOutletContext]="{status: displayConfig.detail.apiStatus.current_status}"></ng-container>
-                                    <ng-template let-status="status" #apiStatusTextTemplate>
-                                        <span [ngClass]="{
-                                            'text-warning': status==='degraded',
-                                            'text-orange': status==='partial_outage',
-                                            'text-success': status==='operational'
-                                            }">
-                                            {{displayConfig.detail.apiStatus.current_status}}
-                                        </span>
-                                    </ng-template>
                                 </td>
                             </tr>
                             <tr>
@@ -1728,4 +1719,14 @@
             </div>
         </div>
     }
+</ng-template>
+
+<ng-template let-status="status" #apiStatusTextTemplate>
+    <span [ngClass]="{
+        'text-warning': status==='degraded',
+        'text-orange': status==='partial_outage',
+        'text-success': status==='operational'
+        }">
+        {{status}}
+    </span>
 </ng-template>
