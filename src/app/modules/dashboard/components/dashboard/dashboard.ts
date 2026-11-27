@@ -31,7 +31,7 @@ import { VolcanoActivityReportInterface, VolcanoesService } from '../../../../se
 import { ApiServiceStatus, ApiStatusInterface, ApiStatusService } from '../../../../services/api-status-service';
 import { OpenMeteoLocation, OpenMeteoService, WeatherResponse } from '../../../../services/open-meteo-service';
 import { WEATHER_ICONS } from '../../../../model/common/interfaces/weather-icon.interface';
-import { OpenStreetmapService, OSMLocation } from '../../../../services/open-streetmap-service';
+import { NominatimResponse, OpenStreetmapService, OSMLocation } from '../../../../services/open-streetmap-service';
 import { LocationSelect } from '../../../shared/components/location-select/location-select';
 import { Dialog } from '@angular/cdk/dialog';
 
@@ -106,6 +106,7 @@ export class Dashboard implements OnInit, OnDestroy {
   private volcanoesService = inject(VolcanoesService);
   private apiStatusService = inject(ApiStatusService);
   private openMeteoService = inject(OpenMeteoService);
+    private openStreetmapService = inject(OpenStreetmapService);
   private dialogService = inject(Dialog);
   
   userCoordsSubscription?: Subscription;
@@ -191,7 +192,8 @@ export class Dashboard implements OnInit, OnDestroy {
       openMeteoLocations: boolean
     }, 
     detail: {
-      apiStatus?: ApiServiceStatus
+      apiStatus?: ApiServiceStatus,
+      openMeteo?: {location: OpenMeteoLocation, forecast: WeatherResponse, openStreetmapLocation?: NominatimResponse, openStreetmapLocationPath?: string}
     }
   } = {
     widget: {
@@ -288,7 +290,8 @@ export class Dashboard implements OnInit, OnDestroy {
       openMeteoLocations: false
     },
     detail: {
-      apiStatus: undefined
+      apiStatus: undefined, 
+      openMeteo: undefined
     }
   };
   locations: MapLocation[] = [];
@@ -1024,7 +1027,7 @@ export class Dashboard implements OnInit, OnDestroy {
         res.push(commonEvent);
       }
     });
-    this.filteredApiStatus.forEach((_event) => {
+    this.filteredApiStatus.filter((_event) => _event.current_status!=='operational').forEach((_event) => {
       const commonEvent = ApiStatusService.toCommonEvent(_event);
       if (this.isWithinTime(commonEvent.time, this.withinTimeHours)) {
         res.push(commonEvent);
@@ -1529,6 +1532,24 @@ export class Dashboard implements OnInit, OnDestroy {
           append = aValue > bValue ? 1 : -1;
         }
       }
+      if (sortConfig.field==='apparent_temperature') {
+        const aValue = a.forecast.current.apparent_temperature;
+        const bValue = b.forecast.current.apparent_temperature;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
+      if (sortConfig.field==='relative_humidity') {
+        const aValue = a.forecast.current.relative_humidity_2m;
+        const bValue = b.forecast.current.relative_humidity_2m;
+        if (sortConfig.dir==='DESC') {
+          append = aValue > bValue ? -1 : 1;
+        } else {
+          append = aValue > bValue ? 1 : -1;
+        }
+      }
       if (sortConfig.field==='wind-speed') {
         const aValue = a.forecast.current.wind_speed_10m;
         const bValue = b.forecast.current.wind_speed_10m;
@@ -1738,21 +1759,35 @@ export class Dashboard implements OnInit, OnDestroy {
     return distanceKm <= this.userNearKm;
   }
 
-  viewMoreInfo(widgetId: string, itemId: unknown, templateElement?: TemplateRef<unknown>) {
-    console.log('viewMoreInfo()', itemId);
+  viewMoreInfo(widgetId: string, itemRef: unknown, templateElement?: TemplateRef<unknown>) {
     switch(widgetId) {
       case 'apiStatus':
-        this.apiStatusService.getApiCurrentStatus(itemId as string).subscribe({
+        this.apiStatusService.getApiCurrentStatus(itemRef as string).subscribe({
           next: (_currentStatus) => {
             this.displayConfig.detail.apiStatus = _currentStatus;
-            console.log(_currentStatus);
             if (templateElement) {
               this.dialogService.open(templateElement, {
-                width: '400px'
+                width: '600px'
               });
             }
           }
         });
+        break;
+      case 'openWeatherLocations':
+        this.displayConfig.detail.openMeteo = itemRef as {location: OpenMeteoLocation, forecast: WeatherResponse, openStreetmapLocation?: NominatimResponse};
+        if (templateElement) {
+          this.openStreetmapService.getAddress(this.displayConfig.detail.openMeteo.location.lat, this.displayConfig.detail.openMeteo.location.lon).subscribe({
+            next: (_osmItem) => {
+              if (this.displayConfig.detail.openMeteo) {
+                this.displayConfig.detail.openMeteo.openStreetmapLocation = _osmItem;
+                this.displayConfig.detail.openMeteo.openStreetmapLocationPath = this.openStreetmapService.getOSMAddressPath(this.displayConfig.detail.openMeteo.openStreetmapLocation.address);
+                this.dialogService.open(templateElement, {
+                  width: '800px'
+                });
+              }
+            }
+          });
+        }
         break;
     }
   }

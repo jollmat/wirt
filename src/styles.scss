@@ -20,6 +20,10 @@ body, .popup {
 
 .popup {
     border-radius: 4px;
+
+    .popup-header {
+        border-bottom: 2px solid rgb(113, 102, 102);
+    }
 }
 
 a, .text-link {

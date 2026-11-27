@@ -262,3 +262,31 @@ div {
     border: 1px solid $border-color;
     background-color: transparent;
 }
+
+.more-info-badge-link {
+    font-size: 11px;
+    background-color: transparent;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+
+    &:hover {
+        background-color: #666;
+    }
+}
+
+table {
+    &.day-by-day {
+        thead {
+            tr {
+                th {
+                    &.first-col {
+                        border-radius: 6px 0 0 0;
+                    }
+                    &.last-col {
+                        border-radius: 0 6px 0 0;
+                    }
+                }
+            }
+        }
+    }
+}

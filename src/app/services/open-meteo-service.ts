@@ -179,7 +179,7 @@ export class OpenMeteoService implements OnDestroy {
           .pipe(
             map((_userLocation): boolean => {
               this.userLocation$.next({
-                name: _userLocation.address.town,
+                name: _userLocation.address.town || _userLocation.address.county || _userLocation.address.city || '?',
                 lat: _userCoords.latitude,
                 lon: _userCoords.longitude
               });

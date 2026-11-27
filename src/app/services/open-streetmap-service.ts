@@ -76,7 +76,7 @@ export class OpenStreetmapService {
 
   constructor(private http: HttpClient) {}
 
-  getAddress(lat: number, lon: number): Observable<any> {
+  getAddress(lat: number, lon: number): Observable<NominatimResponse> {
     const url = 'https://nominatim.openstreetmap.org/reverse';
 
     return this.http.get<NominatimResponse>(url, {
@@ -100,6 +100,32 @@ export class OpenStreetmapService {
         }
       }
     );
+  }
+
+  getOSMAddressPath(address: NominatimAddress): string {
+    const pathItems: string[] = [];
+    if (address.village) {
+      pathItems.push(address.village);
+    }
+    if (address.town) {
+      pathItems.push(address.town);
+    }
+    if (address.county) {
+      pathItems.push(address.county);
+    }
+    if (address.city) {
+      pathItems.push(address.city);
+    }
+    if (address.province) {
+      pathItems.push(address.province);
+    }
+    if (address.state) {
+      pathItems.push(address.state);
+    }
+    if (address.country) {
+      pathItems.push(address.country);
+    }
+    return pathItems.join(', ');
   }
   
 }

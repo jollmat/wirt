@@ -11,6 +11,11 @@ table {
                 top: 0 !important;
                 z-index: 2 !important;
                 font-weight: 300;
+
+                &.today {
+                    color: snow !important;
+                    font-weight: 300;
+                }
             }
         }
     }
@@ -20,7 +25,6 @@ table {
                 td {
                     background-color: #ae1313 !important;
                     color: #fff !important;
-
                     .cursor-pointer {
                         color: #fff !important;
                     }
@@ -37,6 +41,11 @@ table {
                         overflow: hidden !important;
                         text-overflow: ellipsis !important;
                     }
+                }
+
+                &.today {
+                    color: snow !important;
+                    font-weight: 300;
                 }
             }
         }

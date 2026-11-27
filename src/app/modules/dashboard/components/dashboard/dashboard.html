@@ -875,12 +875,30 @@
                                         <th></th>
                                         <th class="text-end">
                                             <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'temperature')">
-                                            Temp.
+                                            Temp. (2m)
                                             @if(openMeteoSortConfig.field==='temperature') {
                                                 <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
                                             }
                                             </span>
                                         </th>
+                                        @if (maximizedWidgetId==='openWeatherLocations' || displayConfig.widget.openMeteoLocations.widthClass==='w-100') {
+                                            <th class="text-end">
+                                                <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'apparent_temperature')">
+                                                Apparent temperature
+                                                @if(openMeteoSortConfig.field==='apparent_temperature') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                                }
+                                                </span>
+                                            </th>
+                                            <th class="text-end">
+                                                <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'relative_humidity')">
+                                                Relative humidity
+                                                @if(openMeteoSortConfig.field==='relative_humidity') {
+                                                    <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
+                                                }
+                                                </span>
+                                            </th>
+                                        }
                                         <th class="text-end">
                                             <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'wind-speed')">
                                             Wind speed
@@ -891,12 +909,13 @@
                                         </th>
                                         <th class="text-end">
                                             <span class="cursor-pointer" (click)="toggleSort(openMeteoSortConfig, 'precipitation')">
-                                            Precipitation
+                                            Precip.
                                             @if(openMeteoSortConfig.field==='precipitation') {
                                                 <i class="ms-1 fas" [ngClass]="{'fa-caret-down':openMeteoSortConfig.dir==='DESC','fa-caret-up':openMeteoSortConfig.dir==='ASC'}"></i>
                                             }
                                             </span>
                                         </th>
+                                        <th></th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -912,15 +931,28 @@
                                             <td>
                                                 {{openMeteoLocation.location.name}}
                                             </td>
-                                            <td class="text-center"><span class="cursor-default" ngbTooltip="{{getWeatherDescription(openMeteoLocation.forecast.current.weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(openMeteoLocation.forecast.current.weather_code,openMeteoLocation.forecast.current.is_day) }}</span></td>
+                                            <td class="text-center">
+                                                <span class="cursor-default" ngbTooltip="{{getWeatherDescription(openMeteoLocation.forecast.current.weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(openMeteoLocation.forecast.current.weather_code,openMeteoLocation.forecast.current.is_day) }}</span>
+                                            </td>
                                             <td class="text-end">
                                                 {{openMeteoLocation.forecast.current.temperature_2m}}{{openMeteoLocation.forecast.current_units.temperature_2m}}
                                             </td>
+                                            @if (maximizedWidgetId==='openWeatherLocations' || displayConfig.widget.openMeteoLocations.widthClass==='w-100') {
                                             <td class="text-end">
-                                                {{openMeteoLocation.forecast.current.wind_speed_10m}} {{openMeteoLocation.forecast.current_units.wind_speed_10m}}
+                                                {{openMeteoLocation.forecast.current.apparent_temperature}}{{openMeteoLocation.forecast.current_units.apparent_temperature}}
+                                            </td>
+                                            <td class="text-end">
+                                                {{openMeteoLocation.forecast.current.relative_humidity_2m}}{{openMeteoLocation.forecast.current_units.relative_humidity_2m}}
+                                            </td>
+                                            }
+                                            <td class="text-end">
+                                                {{openMeteoLocation.forecast.current.wind_speed_10m | number:'1.1-1'}} {{openMeteoLocation.forecast.current_units.wind_speed_10m}}
                                             </td>
                                             <td class="text-end">
                                                 {{openMeteoLocation.forecast.current.precipitation}} {{openMeteoLocation.forecast.current_units.precipitation}}
+                                            </td>
+                                            <td class="text-center">
+                                                <ng-container [ngTemplateOutlet]="moreInfoLinkTemplate" [ngTemplateOutletContext]="{widgetId: 'openWeatherLocations', itemId: openMeteoLocation, templateElement: apiOpenMeteoDetailPopupTemplate}"></ng-container>
                                             </td>
                                             <td>
                                                 @if (getDistanceKm(openMeteoLocation.location.lat, openMeteoLocation.location.lon)>0) {
@@ -1020,7 +1052,9 @@
                                             @if(maximizedWidgetId==='apiStatus') {
                                                 <td>{{ApiStatusService.getApiStatusTypeDescription(apiStatus.current_status)}}</td>
                                             }
-                                            <td><span class="text-link" (click)="viewMoreInfo('apiStatus', apiStatus.slug, apiStatusDetailPopupTemplate)">+ info</span></td>
+                                            <td>
+                                                <ng-container [ngTemplateOutlet]="moreInfoLinkTemplate" [ngTemplateOutletContext]="{widgetId: 'apiStatus', itemId: apiStatus.slug, templateElement: apiStatusDetailPopupTemplate}"></ng-container>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -1584,12 +1618,13 @@
 </div>
 
 <ng-template let-lat="lat" let-lng="lng" let-showUnits="showUnits" let-cssClass="cssClass" #distanceTemplate>
-    <span class="cursor-pointer {{cssClass}}" (click)="goToMapCoords({lat, lng})" [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
+    <span [ngClass]="{'text-danger': isWithinRadius(lat, lng)}">
     {{getDistanceKm(lat, lng) | number:'1.1-1'}}
     @if(showUnits){
         <span>Km</span>
     }
     </span>
+    <i class="cursor-pointer fas fa-location-dot ms-1" (click)="goToMapCoords({lat, lng})"></i>
 </ng-template>
 
 <ng-template #dateRangesContainer>
@@ -1655,14 +1690,33 @@
     </div>
 </ng-template>
 
+<ng-template let-status="status" #apiStatusTextTemplate>
+    <span [ngClass]="{
+        'text-warning': status==='degraded',
+        'text-orange': status==='partial_outage',
+        'text-success': status==='operational'
+        }">
+        {{status}}
+    </span>
+</ng-template>
+
+<ng-template let-widgetId="widgetId" let-itemId="itemId" let-templateElement="templateElement" #moreInfoLinkTemplate>
+    <span class="more-info-badge-link px-2 py-1 cursor-pointer" (click)="viewMoreInfo(widgetId, itemId, templateElement)">+ info</span>
+</ng-template>
+
+<!-- Popup templates -->
+
 <ng-template #apiStatusDetailPopupTemplate>
     @if(displayConfig.detail.apiStatus) {
         <div class="popup d-flex flex-column px-3 py-2">
             <div class="w-100 popup-header">
-                <h2>{{displayConfig.detail.apiStatus.name}}</h2>
+                <div class="d-flex align-items-top justify-content-between w-100">
+                    <h2>{{displayConfig.detail.apiStatus.name}}</h2>
+                    <i class="fas fa-close cursor-pointer fs-5" (click)="closeMoreInfoPopup()"></i>
+                </div>
                 <p>{{displayConfig.detail.apiStatus.description}}</p>
             </div>
-            <div class="w-100 popup-content my-2">
+            <div class="w-100 popup-content d-flex flex-column gap-2 my-2">
                 <div class="table-container">
                     <table class="table table-hover">
                         <tbody>
@@ -1721,12 +1775,84 @@
     }
 </ng-template>
 
-<ng-template let-status="status" #apiStatusTextTemplate>
-    <span [ngClass]="{
-        'text-warning': status==='degraded',
-        'text-orange': status==='partial_outage',
-        'text-success': status==='operational'
-        }">
-        {{status}}
-    </span>
+<ng-template #apiOpenMeteoDetailPopupTemplate>
+    @if(displayConfig.detail.openMeteo) {
+        <div class="popup d-flex flex-column px-3 py-2">
+            <div class="w-100 popup-header pb-2">
+                <div class="d-flex align-items-top justify-content-between w-100">
+                    <h2>
+                        <span class="cursor-default me-2" ngbTooltip="{{getWeatherDescription(displayConfig.detail.openMeteo.forecast.current.weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(displayConfig.detail.openMeteo.forecast.current.weather_code,displayConfig.detail.openMeteo.forecast.current.is_day) }}</span>
+                        {{displayConfig.detail.openMeteo.location.name}}
+                    </h2>
+                    <i class="fas fa-close cursor-pointer fs-5" (click)="closeMoreInfoPopup()"></i>
+                </div>
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <span class="ps-1">{{displayConfig.detail.openMeteo.openStreetmapLocationPath || '-'}}</span>
+                    <span>Local time: {{displayConfig.detail.openMeteo.forecast.current.time | date: 'HH:mm'}} h. ({{displayConfig.detail.openMeteo.forecast.timezone_abbreviation}})</span>
+                </div>
+            </div>
+            <div class="w-100 popup-content py-2 mt-1 d-flex flex-column gap-2">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <td>Apparent temperature</td>
+                                <td class="text-end">{{displayConfig.detail.openMeteo.forecast.current.apparent_temperature}} {{displayConfig.detail.openMeteo.forecast.current_units.apparent_temperature}}</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature (2m)</td>
+                                <td class="text-end">{{displayConfig.detail.openMeteo.forecast.current.temperature_2m}} {{displayConfig.detail.openMeteo.forecast.current_units.temperature_2m}}</td>
+                            </tr>
+                            <tr>
+                                <td>Relative humidity</td>
+                                <td class="text-end">{{displayConfig.detail.openMeteo.forecast.current.relative_humidity_2m}} {{displayConfig.detail.openMeteo.forecast.current_units.relative_humidity_2m}}</td>
+                            </tr>
+                            <tr>
+                                <td>Wind speed (10m)</td>
+                                <td class="text-end">{{displayConfig.detail.openMeteo.forecast.current.wind_speed_10m | number:'1.1-1'}} {{displayConfig.detail.openMeteo.forecast.current_units.wind_speed_10m}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-container my-3">
+                    <h6 class="px-1">By day</h6>
+                    <table class="table table-hover day-by-day">
+                        <thead>
+                            <tr>
+                                <th style="background-color: transparent !important;"></th>
+                                @for (date of displayConfig.detail.openMeteo.forecast.daily.time; track $index) {
+                                    <th class="daily-col text-end" [ngClass]="{'today': isToday(date), 'first-col': $index===0, 'last-col': $index===displayConfig.detail.openMeteo.forecast.daily.time.length-1}">{{date}}</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                @for (weather_code of displayConfig.detail.openMeteo.forecast.daily.weather_code; track $index) {
+                                    <td class="text-end pe-3" [ngClass]="{'today': isToday(displayConfig.detail.openMeteo.forecast.daily.time[$index])}">
+                                        <span class="cursor-default" ngbTooltip="{{getWeatherDescription(weather_code)}}" [openDelay]="200" container="body" tooltipClass="dark-custom-tooltip" placement="top">{{ getWeatherIcon(weather_code,1) }}</span>
+                                    </td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="text-end">Temp. max</td>
+                                @for (temp_max of displayConfig.detail.openMeteo.forecast.daily.temperature_2m_max; track $index) {
+                                    <td class="text-end" [ngClass]="{'today': isToday(displayConfig.detail.openMeteo.forecast.daily.time[$index])}">{{temp_max}} {{displayConfig.detail.openMeteo.forecast.current_units.temperature_2m}}</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="text-end">Temp. min</td>
+                                @for (temp_min of displayConfig.detail.openMeteo.forecast.daily.temperature_2m_min; track $index) {
+                                    <td class="text-end" [ngClass]="{'today': isToday(displayConfig.detail.openMeteo.forecast.daily.time[$index])}">{{temp_min}} {{displayConfig.detail.openMeteo.forecast.current_units.temperature_2m}}</td>
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="w-100 d-flex align-items-center justify-content-end popup-footer px-2 mt-3 mb-1">
+                <button class="btn btn-sm btn-wirt" (click)="closeMoreInfoPopup()">Close</button>
+            </div>
+        </div>
+    }
 </ng-template>
